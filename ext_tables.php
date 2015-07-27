@@ -62,7 +62,8 @@ $TCA['pages']['columns'] += array(
 );
 
 $TCA['pages']['ctrl']['requestUpdate'] .= ',tx_realurl_exclude';
-
+$TCA['pages']['ctrl']['shadowColumnsForNewPlaceholders'] .=
+    ',tx_realurl_pathsegment,tx_realurl_exclude,tx_realurl_pathoverride,tx_realurl_nocache';
 $TCA['pages']['palettes']['137'] = array(
 	'showitem' => 'tx_realurl_pathoverride'
 );
