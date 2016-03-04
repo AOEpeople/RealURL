@@ -89,9 +89,6 @@ class tx_realurl_crawler {
 			&& in_array('tx_realurl_rebuild', $params['pObj']->applicationData['tx_crawler']['parameters']['procInstructions'])
 		) {
 			$params['pObj']->applicationData['tx_crawler']['log'][] = 'Force page generation (realurl - rebuild)';
-
-				// force fresh page generation without using cache data 
-			$tsfe->all = '';
 		}
 	}
 }
