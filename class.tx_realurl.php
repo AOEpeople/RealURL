@@ -1202,10 +1202,14 @@ class tx_realurl {
 				}
 			}
 		}
-		$this->filePart = array_pop($pathParts);
 
 		// Checking default HTML name:
-		if (strlen($this->filePart) && ($this->extConf['fileName']['defaultToHTMLsuffixOnPrev'] || $this->extConf['fileName']['acceptHTMLsuffix']) && !isset($this->extConf['fileName']['index'][$this->filePart])) {
+		if (
+			strlen($this->filePart)
+			&& ($this->extConf['fileName']['defaultToHTMLsuffixOnPrev'] || $this->extConf['fileName']['acceptHTMLsuffix'])
+			&& !isset($this->extConf['fileName']['index'][$this->filePart])
+		) {
+			$this->filePart = array_pop($pathParts);
 			$suffix = preg_quote($this->isString($this->extConf['fileName']['defaultToHTMLsuffixOnPrev'], 'defaultToHTMLsuffixOnPrev') ? $this->extConf['fileName']['defaultToHTMLsuffixOnPrev'] : '.html', '/');
 			if ($this->isString($this->extConf['fileName']['acceptHTMLsuffix'], 'acceptHTMLsuffix')) {
 				$suffix = '(' . $suffix . '|' . preg_quote($this->extConf['fileName']['acceptHTMLsuffix'], '/') . ')';
@@ -2091,7 +2095,7 @@ class tx_realurl {
 		if (isset($cache[$paramhash])) {
 			return $cache[$paramhash];
 		}
-		
+
 		$rootpageId = isset($cfg['useUniqueCache_conf']['rootpage_id']) ? intval($cfg['useUniqueCache_conf']['rootpage_id']) : 0;
 
 		// Look up the ID based on input alias value:
