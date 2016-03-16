@@ -45,11 +45,11 @@ class tx_realurl_crawler {
 		// Look for "crawler" extension activity:
 		// Requirements are that the crawler is loaded, a crawler session is running and tx_cachemgm_recache requested as processing instruction:
 		if (
-			t3lib_extMgm::isLoaded ( 'crawler' ) 
-			&& $pObj->applicationData ['tx_crawler'] ['running'] 
+			t3lib_extMgm::isLoaded ( 'crawler' )
+			&& $pObj->applicationData ['tx_crawler'] ['running']
 			&& (
 				in_array ( 'tx_cachemgm_recache', $pObj->applicationData ['tx_crawler'] ['parameters'] ['procInstructions'] )
-				|| 
+				||
 				in_array ( 'tx_realurl_rebuild', $pObj->applicationData ['tx_crawler'] ['parameters'] ['procInstructions'] )
 			)
 		) {
@@ -67,7 +67,7 @@ class tx_realurl_crawler {
 			$pObj->applicationData ['realurl'] ['crawlermode'] = FALSE;
 		}
 	}
-	
+
 	/**
 	 * Hook wich disable the page cache if the current request is made by tx_crawler.
 	 *
@@ -81,7 +81,7 @@ class tx_realurl_crawler {
 	 *
 	 * @author Michael Klapper <michael.klapper@aoe.com>
 	 */
-	public function headerNoCache($params, $tsfe) {
+	public function headerNoCache(&$params, $tsfe) {
 
 		 if (
 			t3lib_extMgm::isLoaded('crawler')
@@ -89,8 +89,9 @@ class tx_realurl_crawler {
 			&& in_array('tx_realurl_rebuild', $params['pObj']->applicationData['tx_crawler']['parameters']['procInstructions'])
 		) {
 			$params['pObj']->applicationData['tx_crawler']['log'][] = 'Force page generation (realurl - rebuild)';
+
+			// Disables a look-up for cached page data - thus resulting in re-generation of the page even if cached.
+			$params['disableAcquireCacheData'] = TRUE;
 		}
 	}
 }
-
-?>
