@@ -1,0 +1,8 @@
+<phpunit>
+	<!-- Add testclasses -->
+	<testsuites>
+		<testsuite name="realurl">
+			<directory suffix="_testcase.php">../Unit/</directory>
+		</testsuite>
+	</testsuites>
+</phpunit>

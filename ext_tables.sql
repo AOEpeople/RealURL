@@ -180,4 +180,3 @@ CREATE TABLE tx_realurl_cachehistory (
 	KEY `path_branch_k` (rootpid,path(100)),
 	KEY `ws_lang_k` (workspace,languageid)
 ) ENGINE=InnoDB;
-
