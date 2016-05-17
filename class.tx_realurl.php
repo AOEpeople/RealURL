@@ -1975,30 +1975,32 @@ class tx_realurl {
 			if ($cfg['useUniqueCache'] && $returnId = $this->lookUp_uniqAliasToId($cfg, $value)) {
 				return $returnId;
 			}
-			else { // If no cached entry, look it up directly in the table:
+			else {
+				// If no cached entry, look it up directly in the table:
 				$fieldList[] = $cfg['id_field'];
+				$fieldList[] = $cfg['alias_field'];
 				/** @noinspection PhpUndefinedMethodInspection */
-				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(implode(',', $fieldList), $cfg['table'],
-									$cfg['alias_field'] . '=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($value, $cfg['table']) .
-									' ' . $cfg['addWhereClause']);
-				/** @noinspection PhpUndefinedMethodInspection */
-				$row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
-				/** @noinspection PhpUndefinedMethodInspection */
-				$GLOBALS['TYPO3_DB']->sql_free_result($res);
-				if ($row) {
-					$returnId = $row[$cfg['id_field']];
+				$rowsOfLookUpTable = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
+					implode(',', $fieldList),
+					$cfg['table'],
+					$cfg['alias_field'] . '!=""' . ' ' . $cfg['addWhereClause']
+				);
 
-					// If localization is enabled, check if this record is a localized version and if so, find uid of the original version.
-					if ($langEnabled && $row[$cfg['languageField']] > 0) {
-						$returnId = $row[$cfg['transOrigPointerField']];
+				if (is_array($rowsOfLookUpTable)) {
+					foreach ($rowsOfLookUpTable as $rowOfLookUpTable) {
+						if ($this->lookUp_cleanAlias($cfg, $rowOfLookUpTable[$cfg['alias_field']]) === $value) {
+							$returnId = $rowOfLookUpTable[$cfg['id_field']];
+
+							// If localization is enabled, check if this record is a localized version and if so, find uid of the original version.
+							if ($langEnabled && $rowOfLookUpTable[$cfg['languageField']] > 0) {
+								$returnId = $rowOfLookUpTable[$cfg['transOrigPointerField']];
+							}
+							return $returnId;
+						}
 					}
-
-					// Return the id
-					return $returnId;
 				}
 			}
 		} else { // Translate an ID to alias string
-
 
 			// Define the language for the alias
 			$lang = intval($this->orig_paramKeyValues[$cfg['languageGetVar']]);
