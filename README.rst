@@ -1,31 +1,28 @@
 
-EXT:realurl 
-==============================================
+realurl
+=======
 
-Reasons why this version performs better:
+TYPO3 Extension: Generates SEO-friendly, speaking URL paths
 
-- Testcovered pagepath generation
-- Languagevisibility compatible
-- Optimized usage with multidomain setups
-- Improved path-history handling
+Benefits of the AOE Fork
+------------------------
 
-Upgrading from aoe_realurlpath
-----------------------------------------------
+- Compatible with EXT:languagevisibility
+- Enhancements for multidomain setups
+- Improved path history handling
+- Reverse lookup of URL paths for pages and post-var sets
+- Test covered pagepath generation
 
-- Change the pagepath renderer script to:
+Compatibility
+-------------
 
-::
+- PHP 5.3.x – 5.6.x
+- TYPO3 4.5.x – 6.2.x
 
-	'userFunc' => 'EXT:realurl/class.tx_realurl_pagepath.php:&tx_realurl_pagepath->main'
+Build Status
+------------
 
-- Remove the tx_aoerealurlpath_overridesegment from the 'segTitleFieldList' setting
+|Build Status|
 
-- Migrate the existing pagepath configuration:
-
-::
-
-  UPDATE pages SET tx_realurl_pathoverride = 0, tx_realurl_pathsegment = tx_aoerealurlpath_overridesegment,	tx_realurl_exclude = tx_aoerealurlpath_excludefrommiddle WHERE tx_aoerealurlpath_overridepath = '';
-  UPDATE pages SET tx_realurl_pathoverride = 1, tx_realurl_pathsegment = tx_aoerealurlpath_overridepath, tx_realurl_exclude = tx_aoerealurlpath_excludefrommiddle WHERE  tx_aoerealurlpath_overridepath != '';
-  UPDATE pages_language_overlay SET tx_realurl_pathoverride = 0, tx_realurl_pathsegment = tx_aoerealurlpath_overridesegment, tx_realurl_exclude = tx_aoerealurlpath_excludefrommiddle WHERE tx_aoerealurlpath_overridepath = '';
-  UPDATE pages_language_overlay SET tx_realurl_pathoverride = 1, tx_realurl_pathsegment = tx_aoerealurlpath_overridepath, tx_realurl_exclude = tx_aoerealurlpath_excludefrommiddle WHERE tx_aoerealurlpath_overridepath != '';
-
+.. |Build Status| image:: https://travis-ci.org/AOEpeople/realurl.svg
+   :target: https://travis-ci.org/AOEpeople/realurl
