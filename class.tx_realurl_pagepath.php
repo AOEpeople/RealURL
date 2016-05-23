@@ -170,7 +170,7 @@ class tx_realurl_pagepath {
 		}
 
 		// Fallback 3 - Reverse lookup (default language only)
-		if (false === $pageId) {
+		if (false === $pageId && true === (bool)$this->generator->extconfArr['enablePagesReverseLookup']) {
 			$keepPath = array();
 			$lastPathSegment = end($pagePath);
 			$possiblePageIds = $this->findPossiblePageIds($lastPathSegment);
