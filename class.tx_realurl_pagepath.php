@@ -189,7 +189,7 @@ class tx_realurl_pagepath {
 	 */
 	private function findPossiblePageIds($pathSegment) {
 		$possiblePageRecords = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
-			'*',
+			'uid',
 			'pages',
 			$this->createWildcardWhereClause($pathSegment)
 		);
