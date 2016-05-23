@@ -169,8 +169,96 @@ class tx_realurl_pagepath {
 			$pageId = $this->cachemgmt->checkHistoryCacheWithDecreasingPath ( $pagePathOrigin, $keepPath );
 		}
 
+		// Fallback 3 - Reverse lookup (default language only)
+		if (false === $pageId) {
+			$keepPath = array();
+			$lastPathSegment = end($pagePath);
+			$possiblePageIds = $this->findPossiblePageIds($lastPathSegment);
+			$pageId = $this->findFirstMatchingPageId($possiblePageIds, $pagePath);
+		}
+
 		$pagePath = $keepPath;
 		return $pageId;
+	}
+
+	/**
+	 * Returns an array of page ids probably matching a given path segment
+	 *
+	 * @param string $pathSegment
+	 * @return array
+	 */
+	private function findPossiblePageIds($pathSegment) {
+		$possiblePageRecords = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
+			'uid',
+			'pages',
+			$this->createWildcardWhereClause($pathSegment)
+		);
+
+		$possiblePageIds = array();
+		foreach ($possiblePageRecords as $possiblePageRecord) {
+			$possiblePageIds[] = $possiblePageRecord['uid'];
+		}
+		$possiblePageIds = $this->filterByConfiguredRootPageId($possiblePageIds);
+
+		return $possiblePageIds;
+	}
+
+	/**
+	 * Creates a wildcard WHERE clause, replacing the configured space character with MySQL wildcards
+	 *
+	 * @param string $pathSegment
+	 * @return string
+	 */
+	private function createWildcardWhereClause($pathSegment) {
+		$spaceCharacter = isset($this->conf['spaceCharacter']) ? $this->conf['spaceCharacter'] : '-';
+		$titleFieldList = t3lib_div::trimExplode(',', $this->conf['segTitleFieldList']);
+
+		$whereClause = array();
+		foreach ($titleFieldList as $titleField) {
+			$whereClause[] = $titleField . ' LIKE ' . $GLOBALS['TYPO3_DB']->fullQuotestr('%' . str_replace($spaceCharacter, '%', $pathSegment) . '%', 'pages)');
+		}
+
+		return implode('OR ', $whereClause);
+	}
+
+	/**
+	 * Filters an array of page ids by the configured root page id
+	 *
+	 * @param array $pageIds
+	 * @return array
+	 */
+	private function filterByConfiguredRootPageId(array $pageIds) {
+		$filteredPageIds = array();
+		foreach ($pageIds as $pageId) {
+			$rootLine = t3lib_BEfunc::BEgetRootLine($pageId);
+			foreach ($rootLine as $pageInRootLine) {
+				if ((int)$pageInRootLine['uid'] === (int)$this->conf['rootpage_id']) {
+					$filteredPageIds[] = $pageId;
+					break;
+				}
+			}
+		}
+
+		return $filteredPageIds;
+	}
+
+	/**
+	 * Returns the page id matching a given page path by generating the RealURL path
+	 * for each potential match and comparing it against the actual path
+	 *
+	 * @param array $possiblePageIds
+	 * @param string $pagePath
+	 * @return integer|boolean false if no matching page id was found
+	 */
+	private function findFirstMatchingPageId(array $possiblePageIds, $pagePath) {
+		foreach ($possiblePageIds as $possiblePageId) {
+			$possiblePagePath = $this->_id2alias(array('id' => $possiblePageId));
+			if ($possiblePagePath === $pagePath) {
+				return $possiblePageId;
+			}
+		}
+
+		return false;
 	}
 
 	/**
