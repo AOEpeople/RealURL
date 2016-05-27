@@ -157,24 +157,26 @@ class tx_realurl_pagepath {
 			 * @todo
 			 * @issue http://bugs.aoedev.com/view.php?id=19834
 			 */
-		if ($pageId == false) {
-			$this->cachemgmt->useUnstrictCacheWhere ();
-			$keepPath = array ();
-			$pageId = $this->cachemgmt->checkCacheWithDecreasingPath ( $pagePathOrigin, $keepPath );
-			$this->cachemgmt->doNotUseUnstrictCacheWhere ();
+		if (false === $pageId) {
+			$this->cachemgmt->useUnstrictCacheWhere();
+			$keepPath = array();
+			$pageId = $this->cachemgmt->checkCacheWithDecreasingPath($pagePathOrigin, $keepPath);
+			$this->cachemgmt->doNotUseUnstrictCacheWhere();
 		}
-			//fallback 2 - look in history
-		if ($pageId == false) {
-			$keepPath = array ();
-			$pageId = $this->cachemgmt->checkHistoryCacheWithDecreasingPath ( $pagePathOrigin, $keepPath );
+		//fallback 2 - look in history
+		if (false === $pageId) {
+			$keepPath = array();
+			$pageId = $this->cachemgmt->checkHistoryCacheWithDecreasingPath($pagePathOrigin, $keepPath);
 		}
 
 		// Fallback 3 - Reverse lookup (default language only)
 		if (false === $pageId && true === (bool)$this->generator->extconfArr['enablePagesReverseLookup']) {
-			$keepPath = array();
 			$lastPathSegment = end($pagePath);
 			$possiblePageIds = $this->findPossiblePageIds($lastPathSegment);
 			$pageId = $this->findFirstMatchingPageId($possiblePageIds, $pagePath);
+			if (is_numeric($pageId)) {
+				$keepPath = array();
+			}
 		}
 
 		$pagePath = $keepPath;
