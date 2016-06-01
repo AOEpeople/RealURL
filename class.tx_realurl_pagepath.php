@@ -191,13 +191,18 @@ class tx_realurl_pagepath {
 	 */
 	private function findPossiblePageIds($pathSegment) {
 		$possiblePageRecords = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
-			'uid',
+			'uid,doktype',
 			'pages',
 			$this->createWildcardWhereClause($pathSegment)
 		);
 
 		$possiblePageIds = array();
 		foreach ($possiblePageRecords as $possiblePageRecord) {
+			// Prevent assigning a path segment to a shortcut, which would cause a redirect loop
+			// if the shortcut has a lower page id and the target's page path is not available
+			if (\TYPO3\CMS\Frontend\Page\PageRepository::DOKTYPE_SHORTCUT === (integer)$possiblePageRecord['doktype']) {
+				continue;
+			}
 			$possiblePageIds[] = $possiblePageRecord['uid'];
 		}
 		$possiblePageIds = $this->filterByConfiguredRootPageId($possiblePageIds);
