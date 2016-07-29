@@ -26,468 +26,489 @@
  ***************************************************************/
 /**
  *
- * @author	Daniel Pötzinger
- * @author	Tolleiv Nietsch
+ * @author    Daniel Pötzinger
+ * @author    Tolleiv Nietsch
  */
-include_once (t3lib_extMgm::extPath ( 'realurl' ) . 'class.tx_realurl_pathgenerator.php');
-include_once (t3lib_extMgm::extPath ( 'realurl' ) . 'class.tx_realurl_cachemgmt.php');
+include_once(t3lib_extMgm::extPath('realurl') . 'class.tx_realurl_pathgenerator.php');
+include_once(t3lib_extMgm::extPath('realurl') . 'class.tx_realurl_cachemgmt.php');
+
 /**
  *
- * @author	Daniel Pötzinger
+ * @author    Daniel Pötzinger
  * @package realurl
  * @subpackage realurl
  *
- * @todo	check if internal cache array can improve speed
- * @todo	move oldlinks to redirects
- * @todo	check last updatetime of pages
+ * @todo    check if internal cache array can improve speed
+ * @todo    move oldlinks to redirects
+ * @todo    check last updatetime of pages
  */
 class tx_realurl_pagepath {
-		/**
-		 * @var array $conf
-		 */
-	protected $conf;
+    /**
+     * @var array $conf
+     */
+    protected $conf;
 
-		/**
-		 * @var tx_realurl_pathgenerator $generator
-		 */
-	protected $generator;
+    /**
+     * @var tx_realurl_pathgenerator $generator
+     */
+    protected $generator;
 
-		/**
-	 	* @var tx_realurl $pObj
-	 	*/
-	protected $pObj;
+    /**
+     * @var tx_realurl $pObj
+     */
+    protected $pObj;
 
-		/**
-	 	* @var tx_realurl_cachemgmt $cachemgmt
-	 	*/
-	protected $cachemgmt;
+    /**
+     * @var tx_realurl_cachemgmt $cachemgmt
+     */
+    protected $cachemgmt;
 
-	/** Main function -> is called from real_url
-	 * parameters and results are in $params (some by reference)
-	 *
-	 * @param	array		Parameters passed from parent object, "tx_realurl". Some values are passed by reference! (paramKeyValues, pathParts and pObj)
-	 * @param	tx_realurl		Copy of parent object.
-	 * @return	mixed		Depends on branching.
-	 */
-	public function main($params, $ref) {
-			// Setting internal variables:
-		$this->_setParent ( $ref );
-		$this->_setConf ( $params ['conf'] );
-			//TODO is this needed ??
-		srand (); //init rand for cache
+    /** Main function -> is called from real_url
+     * parameters and results are in $params (some by reference)
+     *
+     * @param    array        Parameters passed from parent object, "tx_realurl". Some values are passed by reference! (paramKeyValues, pathParts and pObj)
+     * @param    tx_realurl        Copy of parent object.
+     * @return    mixed        Depends on branching.
+     */
+    public function main($params, $ref) {
+        // Setting internal variables:
+        $this->_setParent($ref);
+        $this->_setConf($params ['conf']);
+        //TODO is this needed ??
+        srand(); //init rand for cache
 
-		$this->initGenerator ();
+        $this->initGenerator();
 
-		switch (( string ) $params ['mode']) {
-			case 'encode' :
-				$this->initCacheMgm($this->_getLanguageVarEncode());
-				$path = $this->_id2alias ( $params ['paramKeyValues'] );
-				$params ['pathParts'] = array_merge ( $params ['pathParts'], $path );
-				unset ( $params ['paramKeyValues'] ['id'] );
-				return;
-				break;
-			case 'decode' :
-				$this->initCacheMgm($this->_getLanguageVarDecode());
-				$id = $this->_alias2id ( $params ['pathParts'] );
-				return array (
-					$id,
-					array ()
-				);
-				break;
-		}
-	}
+        switch (( string )$params ['mode']) {
+            case 'encode' :
+                $this->initCacheMgm($this->_getLanguageVarEncode());
+                $path = $this->_id2alias($params ['paramKeyValues']);
+                $params ['pathParts'] = array_merge($params ['pathParts'], $path);
+                unset ($params ['paramKeyValues'] ['id']);
 
-	/**
-	 * gets the path for a pageid, must store and check the generated path in cache
-	 * (should be aware of workspace)
-	 *
-	 * @param array $paramKeyValues from real_url
-	 * @param array $pathParts from real_url ??
-	 * @return string with path
-	 */
-	protected function _id2alias($paramKeyValues) {
-		$pageId = $paramKeyValues['id'];
-		if (!is_numeric($pageId)  && is_object($GLOBALS ['TSFE']->sys_page)) {
-			$pageId = $GLOBALS['TSFE']->sys_page->getPageIdFromAlias($pageId );
-		}
-		if ($this->_isCrawlerRun() && $GLOBALS['TSFE']->id == $pageId) {
-			$GLOBALS['TSFE']->applicationData['tx_crawler']['log'][] = 'realurl: _id2alias ' . $pageId . '/' . $this->_getLanguageVarEncode() . '/' . $this->_getWorkspaceId();
-			//clear this page cache:
-			$this->cachemgmt->markAsDirtyCompletePid($pageId );
-		}
+                return;
+                break;
+            case 'decode' :
+                $this->initCacheMgm($this->_getLanguageVarDecode());
+                $id = $this->_alias2id($params ['pathParts']);
 
-		$buildedPath = $this->cachemgmt->isInCache($pageId);
+                return array(
+                    $id,
+                    array()
+                );
+                break;
+        }
+    }
 
-		if (!$buildedPath) {
-			$buildPageArray = $this->generator->build($pageId, $this->_getLanguageVarEncode(), $this->_getWorkspaceId() );
-			$buildedPath = $buildPageArray['path'];
-			$buildedPath = $this->cachemgmt->storeUniqueInCache($this->generator->getPidForCache(), $buildedPath, $buildPageArray['external'] );
-			if($this->_isCrawlerRun() && $GLOBALS['TSFE']->id == $pageId) {
-				$GLOBALS['TSFE']->applicationData['tx_crawler']['log'][] = 'created: ' . $buildedPath . ' pid:' . $pageId . '/' . $this->generator->getPidForCache();
-			}
-		}
-		if ($buildedPath) {
-			$pagePath_exploded = explode('/', $buildedPath );
-			return $pagePath_exploded;
-		} else {
-			return array();
-		}
-	}
+    /**
+     * gets the path for a pageid, must store and check the generated path in cache
+     * (should be aware of workspace)
+     *
+     * @param array $paramKeyValues from real_url
+     * @param array $pathParts from real_url ??
+     * @return string with path
+     */
+    protected function _id2alias($paramKeyValues) {
+        $pageId = $paramKeyValues['id'];
+        if (!is_numeric($pageId) && is_object($GLOBALS ['TSFE']->sys_page)) {
+            $pageId = $GLOBALS['TSFE']->sys_page->getPageIdFromAlias($pageId);
+        }
+        if ($this->_isCrawlerRun() && $GLOBALS['TSFE']->id == $pageId) {
+            $GLOBALS['TSFE']->applicationData['tx_crawler']['log'][] = 'realurl: _id2alias ' . $pageId . '/' . $this->_getLanguageVarEncode() . '/' . $this->_getWorkspaceId();
+            //clear this page cache:
+            $this->cachemgmt->markAsDirtyCompletePid($pageId);
+        }
 
-	/**
-	 * Gets the pageid from a pagepath, needs to check the cache
-	 *
-	 * @param	array		Array of segments from virtual path
-	 * @return	integer		Page ID
-	 */
-	protected function _alias2id(&$pagePath) {
-		$pagePathOrigin = $pagePath;
-			// Page path is urlencoded in cache tables, so make sure path segments are encoded the same way, otherwise cache will miss
-		if ($this->pObj->extConf['init']['enableAllUnicodeLetters']) {
-			array_walk($pagePathOrigin, create_function('&$pathSegment', '$pathSegment = mb_detect_encoding($pathSegment, "ASCII", TRUE) ? $pathSegment : rawurlencode($pathSegment);'));
-		}
+        $buildedPath = $this->cachemgmt->isInCache($pageId);
 
-		$keepPath = array ();
-			//Check for redirect
-		$this->_checkAndDoRedirect ( $pagePathOrigin );
-			//read cache with the path you get, decrease path if nothing is found
-		$pageId = $this->cachemgmt->checkCacheWithDecreasingPath ( $pagePathOrigin, $keepPath );
-			//fallback 1 - use unstrict cache where
-			/**
-			 * @todo
-			 * @issue http://bugs.aoedev.com/view.php?id=19834
-			 */
-		if (false === $pageId) {
-			$this->cachemgmt->useUnstrictCacheWhere();
-			$keepPath = array();
-			$pageId = $this->cachemgmt->checkCacheWithDecreasingPath($pagePathOrigin, $keepPath);
-			$this->cachemgmt->doNotUseUnstrictCacheWhere();
-		}
-		//fallback 2 - look in history
-		if (false === $pageId) {
-			$keepPath = array();
-			$pageId = $this->cachemgmt->checkHistoryCacheWithDecreasingPath($pagePathOrigin, $keepPath);
-		}
+        if (!$buildedPath) {
+            $buildPageArray = $this->generator->build($pageId, $this->_getLanguageVarEncode(),
+                $this->_getWorkspaceId());
+            $buildedPath = $buildPageArray['path'];
+            $buildedPath = $this->cachemgmt->storeUniqueInCache($this->generator->getPidForCache(), $buildedPath,
+                $buildPageArray['external']);
+            if ($this->_isCrawlerRun() && $GLOBALS['TSFE']->id == $pageId) {
+                $GLOBALS['TSFE']->applicationData['tx_crawler']['log'][] = 'created: ' . $buildedPath . ' pid:' . $pageId . '/' . $this->generator->getPidForCache();
+            }
+        }
+        if ($buildedPath) {
+            $pagePath_exploded = explode('/', $buildedPath);
 
-		// Fallback 3 - Reverse lookup (default language only)
-		if (false === $pageId && true === (bool)$this->generator->extconfArr['enablePagesReverseLookup']) {
-			$lastPathSegment = end($pagePath);
-			$possiblePageIds = $this->findPossiblePageIds($lastPathSegment);
-			$pageId = $this->findFirstMatchingPageId($possiblePageIds, $pagePath);
-			if (is_numeric($pageId)) {
-				$keepPath = array();
-			}
-		}
+            return $pagePath_exploded;
+        } else {
+            return array();
+        }
+    }
 
-		$pagePath = $keepPath;
-		return $pageId;
-	}
+    /**
+     * Gets the pageid from a pagepath, needs to check the cache
+     *
+     * @param    array        Array of segments from virtual path
+     * @return    integer        Page ID
+     */
+    protected function _alias2id(&$pagePath) {
+        if (0 === count($pagePath)) {
+            return false;
+        }
 
-	/**
-	 * Returns an array of page ids probably matching a given path segment
-	 *
-	 * @param string $pathSegment
-	 * @return array
-	 */
-	private function findPossiblePageIds($pathSegment) {
-		$possiblePageRecords = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
-			'uid,doktype',
-			'pages',
-			$this->createWildcardWhereClause($pathSegment)
-		);
+        $pagePathOrigin = $pagePath;
 
-		$possiblePageIds = array();
-		foreach ($possiblePageRecords as $possiblePageRecord) {
-			// Prevent assigning a path segment to a shortcut, which would cause a redirect loop
-			// if the shortcut has a lower page id and the target's page path is not available
-			if (\TYPO3\CMS\Frontend\Page\PageRepository::DOKTYPE_SHORTCUT === (integer)$possiblePageRecord['doktype']) {
-				continue;
-			}
-			$possiblePageIds[] = $possiblePageRecord['uid'];
-		}
-		$possiblePageIds = $this->filterByConfiguredRootPageId($possiblePageIds);
+        // Page path is urlencoded in cache tables, so make sure path segments are encoded the same way, otherwise cache will miss
+        if ($this->pObj->extConf['init']['enableAllUnicodeLetters']) {
+            array_walk($pagePathOrigin, create_function('&$pathSegment',
+                '$pathSegment = mb_detect_encoding($pathSegment, "ASCII", TRUE) ? $pathSegment : rawurlencode($pathSegment);'));
+        }
 
-		return $possiblePageIds;
-	}
+        $keepPath = array();
+        //Check for redirect
+        $this->_checkAndDoRedirect($pagePathOrigin);
+        //read cache with the path you get, decrease path if nothing is found
+        $pageId = $this->cachemgmt->checkCacheWithDecreasingPath($pagePathOrigin, $keepPath);
+        //fallback 1 - use unstrict cache where
+        /**
+         * @todo
+         * @issue http://bugs.aoedev.com/view.php?id=19834
+         */
+        if (false === $pageId) {
+            $this->cachemgmt->useUnstrictCacheWhere();
+            $keepPath = array();
+            $pageId = $this->cachemgmt->checkCacheWithDecreasingPath($pagePathOrigin, $keepPath);
+            $this->cachemgmt->doNotUseUnstrictCacheWhere();
+        }
+        //fallback 2 - look in history
+        if (false === $pageId) {
+            $keepPath = array();
+            $pageId = $this->cachemgmt->checkHistoryCacheWithDecreasingPath($pagePathOrigin, $keepPath);
+        }
 
-	/**
-	 * Creates a wildcard WHERE clause, replacing the configured space character with MySQL wildcards
-	 *
-	 * @param string $pathSegment
-	 * @return string
-	 */
-	private function createWildcardWhereClause($pathSegment) {
-		$spaceCharacter = isset($this->conf['spaceCharacter']) ? $this->conf['spaceCharacter'] : '-';
-		$titleFieldList = t3lib_div::trimExplode(',', $this->conf['segTitleFieldList']);
+        // Fallback 3 - Reverse lookup (default language only)
+        if (false === $pageId && true === (bool)$this->generator->extconfArr['enablePagesReverseLookup']) {
+            $lastPathSegment = end($pagePath);
+            $possiblePageIds = $this->findPossiblePageIds($lastPathSegment);
+            $pageId = $this->findFirstMatchingPageId($possiblePageIds, $pagePath);
+            if (is_numeric($pageId)) {
+                $keepPath = array();
+            }
+        }
 
-		$whereClause = array();
-		foreach ($titleFieldList as $titleField) {
-			$whereClause[] = $titleField . ' LIKE ' . $GLOBALS['TYPO3_DB']->fullQuotestr('%' . str_replace($spaceCharacter, '%', $pathSegment) . '%', 'pages)');
-		}
+        $pagePath = $keepPath;
 
-		return implode('OR ', $whereClause);
-	}
+        return $pageId;
+    }
 
-	/**
-	 * Filters an array of page ids by the configured root page id
-	 *
-	 * @param array $pageIds
-	 * @return array
-	 */
-	private function filterByConfiguredRootPageId(array $pageIds) {
-		$filteredPageIds = array();
-		foreach ($pageIds as $pageId) {
-			$rootLine = t3lib_BEfunc::BEgetRootLine($pageId);
-			foreach ($rootLine as $pageInRootLine) {
-				if ((int)$pageInRootLine['uid'] === (int)$this->conf['rootpage_id']) {
-					$filteredPageIds[] = $pageId;
-					break;
-				}
-			}
-		}
+    /**
+     * Returns an array of page ids probably matching a given path segment
+     *
+     * @param string $pathSegment
+     * @return array
+     */
+    private function findPossiblePageIds($pathSegment) {
+        $possiblePageRecords = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
+            'uid,doktype',
+            'pages',
+            $this->createWildcardWhereClause($pathSegment)
+        );
 
-		return $filteredPageIds;
-	}
+        $possiblePageIds = array();
+        foreach ($possiblePageRecords as $possiblePageRecord) {
+            // Prevent assigning a path segment to a shortcut, which would cause a redirect loop
+            // if the shortcut has a lower page id and the target's page path is not available
+            if (\TYPO3\CMS\Frontend\Page\PageRepository::DOKTYPE_SHORTCUT === (integer)$possiblePageRecord['doktype']) {
+                continue;
+            }
+            $possiblePageIds[] = $possiblePageRecord['uid'];
+        }
+        $possiblePageIds = $this->filterByConfiguredRootPageId($possiblePageIds);
 
-	/**
-	 * Returns the page id matching a given page path by generating the RealURL path
-	 * for each potential match and comparing it against the actual path
-	 *
-	 * @param array $possiblePageIds
-	 * @param string $pagePath
-	 * @return integer|boolean false if no matching page id was found
-	 */
-	private function findFirstMatchingPageId(array $possiblePageIds, $pagePath) {
-		foreach ($possiblePageIds as $possiblePageId) {
-			$possiblePagePath = $this->_id2alias(array('id' => $possiblePageId));
-			if ($possiblePagePath === $pagePath) {
-				return $possiblePageId;
-			}
-		}
+        return $possiblePageIds;
+    }
 
-		return false;
-	}
+    /**
+     * Creates a wildcard WHERE clause, replacing the configured space character with MySQL wildcards
+     *
+     * @param string $pathSegment
+     * @return string
+     */
+    private function createWildcardWhereClause($pathSegment) {
+        $spaceCharacter = isset($this->conf['spaceCharacter']) ? $this->conf['spaceCharacter'] : '-';
+        $titleFieldList = t3lib_div::trimExplode(',', $this->conf['segTitleFieldList']);
 
-	/**
-	 *
-	 * @param string $path
-	 * @return void
-	 */
-	protected function _checkAndDoRedirect($path) {
-		$_params = array();
-		if (is_array ($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['EXT:realurl/class.tx_realurl_pagepath.php']['checkAndDoRedirect']))	{
-			foreach ($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['EXT:realurl/class.tx_realurl_pagepath.php']['checkAndDoRedirect'] as $_funcRef)	{
-				t3lib_div::callUserFunction($_funcRef, $_params, $this);
-			}
-		}
-	}
+        $whereClause = array();
+        foreach ($titleFieldList as $titleField) {
+            $whereClause[] = $titleField . ' LIKE ' . $GLOBALS['TYPO3_DB']->fullQuotestr('%' . str_replace($spaceCharacter,
+                        '%', $pathSegment) . '%', 'pages)');
+        }
 
-	/**
-	 *
-	 * @return int
-	 */
-	protected function _getRootPid() {
-		// Find the PID where to begin the resolve:
-		if ($this->conf ['rootpage_id']) { // Take PID from rootpage_id if any:
-			$pid = intval ( $this->conf ['rootpage_id'] );
-		} else {
-			//if not defined in realUrlConfig get 0
-			$pid = 0;
-		}
-		return $pid;
-	}
+        return implode('OR ', $whereClause);
+    }
 
-	/**
-	 * Gets the value of current language
-	 * What needs to happen:
-	 * decode: -the languageid is used by cachemgmt in order to retrieve the correct pid for the given path
-	 * -that means it needs to return the languageid of the current context:
-	 * (means the L parameter value after realurl processing)
-	 *
-	 * encode: - the langugeid is used to build the path + to cache the path
-	 * - if in the url parameters it is forced to generate the url in a specific language it needs to use this (L parameter defined in typolink)
-	 * -
-	 * first it tries to recieve it from the get-parameters directly
-	 * - orig_paramKeyValues is set by realurl during encoding, and it has the L paremeter value that is passed to typolink
-	 *
-	 * @return	integer		Current language or 0
+    /**
+     * Filters an array of page ids by the configured root page id
+     *
+     * @param array $pageIds
+     * @return array
+     */
+    private function filterByConfiguredRootPageId(array $pageIds) {
+        $filteredPageIds = array();
+        foreach ($pageIds as $pageId) {
+            $rootLine = t3lib_BEfunc::BEgetRootLine($pageId);
+            foreach ($rootLine as $pageInRootLine) {
+                if ((int)$pageInRootLine['uid'] === (int)$this->conf['rootpage_id']) {
+                    $filteredPageIds[] = $pageId;
+                    break;
+                }
+            }
+        }
+
+        return $filteredPageIds;
+    }
+
+    /**
+     * Returns the page id matching a given page path by generating the RealURL path
+     * for each potential match and comparing it against the actual path
+     *
+     * @param array $possiblePageIds
+     * @param string $pagePath
+     * @return integer|boolean false if no matching page id was found
+     */
+    private function findFirstMatchingPageId(array $possiblePageIds, $pagePath) {
+        foreach ($possiblePageIds as $possiblePageId) {
+            $possiblePagePath = $this->_id2alias(array('id' => $possiblePageId));
+            if ($possiblePagePath === $pagePath) {
+                return $possiblePageId;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     *
+     * @param string $path
+     * @return void
+     */
+    protected function _checkAndDoRedirect($path) {
+        $_params = array();
+        if (is_array($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['EXT:realurl/class.tx_realurl_pagepath.php']['checkAndDoRedirect'])) {
+            foreach ($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['EXT:realurl/class.tx_realurl_pagepath.php']['checkAndDoRedirect'] as $_funcRef) {
+                t3lib_div::callUserFunction($_funcRef, $_params, $this);
+            }
+        }
+    }
+
+    /**
+     *
+     * @return int
+     */
+    protected function _getRootPid() {
+        // Find the PID where to begin the resolve:
+        if ($this->conf ['rootpage_id']) { // Take PID from rootpage_id if any:
+            $pid = intval($this->conf ['rootpage_id']);
+        } else {
+            //if not defined in realUrlConfig get 0
+            $pid = 0;
+        }
+
+        return $pid;
+    }
+
+    /**
+     * Gets the value of current language
+     * What needs to happen:
+     * decode: -the languageid is used by cachemgmt in order to retrieve the correct pid for the given path
+     * -that means it needs to return the languageid of the current context:
+     * (means the L parameter value after realurl processing)
+     *
+     * encode: - the langugeid is used to build the path + to cache the path
+     * - if in the url parameters it is forced to generate the url in a specific language it needs to use this (L parameter defined in typolink)
+     * -
+     * first it tries to recieve it from the get-parameters directly
+     * - orig_paramKeyValues is set by realurl during encoding, and it has the L paremeter value that is passed to typolink
+     *
+     * @return    integer        Current language or 0
      * @deprecated
      * @todo Should be replaced with the new methods - tests "tests/tx_realurl_pagepath_testcase.php"
-	 */
-	function _getLanguageVar() {
-		$lang = FALSE;
-		$getVarName = $this->conf ['languageGetVar'] ? $this->conf ['languageGetVar'] : 'L';
+     */
+    function _getLanguageVar() {
+        $lang = false;
+        $getVarName = $this->conf ['languageGetVar'] ? $this->conf ['languageGetVar'] : 'L';
 
-		// Setting the language variable based on GETvar in URL which has been configured to carry the language uid:
-		if ($getVarName && array_key_exists ( $getVarName, $this->pObj->orig_paramKeyValues )) {
-			$lang = intval ( $this->pObj->orig_paramKeyValues [$getVarName] );
-			// Might be excepted (like you should for CJK cases which does not translate to ASCII equivalents)
-			if (t3lib_div::inList ( $this->conf ['languageExceptionUids'], $lang )) {
-				$lang = 0;
-			}
-		}
-		if ($lang === FALSE) {
-			//TODO next line is not covered by a test
-			$lang = t3lib_div::_GP ( $getVarName );
-			if ($lang == 0 && method_exists ( $this->pObj, 'getRetrievedPreGetVar' )) {
-				$lang = intval ( $this->pObj->getRetrievedPreGetVar ( $getVarName ) );
-			}
-		}
+        // Setting the language variable based on GETvar in URL which has been configured to carry the language uid:
+        if ($getVarName && array_key_exists($getVarName, $this->pObj->orig_paramKeyValues)) {
+            $lang = intval($this->pObj->orig_paramKeyValues [$getVarName]);
+            // Might be excepted (like you should for CJK cases which does not translate to ASCII equivalents)
+            if (t3lib_div::inList($this->conf ['languageExceptionUids'], $lang)) {
+                $lang = 0;
+            }
+        }
+        if ($lang === false) {
+            //TODO next line is not covered by a test
+            $lang = t3lib_div::_GP($getVarName);
+            if ($lang == 0 && method_exists($this->pObj, 'getRetrievedPreGetVar')) {
+                $lang = intval($this->pObj->getRetrievedPreGetVar($getVarName));
+            }
+        }
 
-		if ($this->conf ['languageGetVarPostFunc']) {
-			$lang = t3lib_div::callUserFunction ( $this->conf ['languageGetVarPostFunc'], $lang, $this );
-		}
-		return intval ( $lang );
-	}
+        if ($this->conf ['languageGetVarPostFunc']) {
+            $lang = t3lib_div::callUserFunction($this->conf ['languageGetVarPostFunc'], $lang, $this);
+        }
 
-	/**
-	 * DECODE
-	 * Find the current language id.
-	 *
-	 * The languageid is used by cachemgmt in order to retrieve the correct pid for the given path
-	 * -that means it needs to return the languageid of the current context:
-	 * (means the L parameter value after realurl processing)
-	 *
-	 * @return integer Current language id
-	 *
-	 * @author Michael Klapper <michael.klapper@aoe.com>
-	 */
-	function _getLanguageVarDecode() {
-		$getVarName = $this->conf['languageGetVar'] ? $this->conf['languageGetVar'] : 'L';
-		$lang = $this->pObj->getRetrievedPreGetVar( $getVarName );
+        return intval($lang);
+    }
 
-		if ($this->conf['languageGetVarPostFunc']) {
-			$lang = t3lib_div::callUserFunction($this->conf['languageGetVarPostFunc'], $lang, $this );
-		}
-		return (int)$lang;
-	}
+    /**
+     * DECODE
+     * Find the current language id.
+     *
+     * The languageid is used by cachemgmt in order to retrieve the correct pid for the given path
+     * -that means it needs to return the languageid of the current context:
+     * (means the L parameter value after realurl processing)
+     *
+     * @return integer Current language id
+     *
+     * @author Michael Klapper <michael.klapper@aoe.com>
+     */
+    function _getLanguageVarDecode() {
+        $getVarName = $this->conf['languageGetVar'] ? $this->conf['languageGetVar'] : 'L';
+        $lang = $this->pObj->getRetrievedPreGetVar($getVarName);
 
-	/**
-	 * ENCODE
-	 * Find the current language id.
-	 *
-	 * The langugeid is used to build the path + to cache the path
-	 * - if in the url parameters it is forced to generate the url in a specific language it needs to use this (L parameter defined in typolink)
-	 *
-	 * - orig_paramKeyValues is set by realurl during encoding, and it has the L paremeter value that is passed to typolink
-	 *
-	 * @return integer Current language id
-	 *
-	 * @author Michael Klapper <michael.klapper@aoe.com>
-	 */
-	function _getLanguageVarEncode() {
-		$lang = FALSE;
-		$getVarName = $this->conf ['languageGetVar'] ? $this->conf ['languageGetVar'] : 'L';
-		// $orig_paramKeyValues  Contains the index of GETvars that the URL had when the encoding began.
-		// Setting the language variable based on GETvar in URL which has been configured to carry the language uid:
-		if ($getVarName && array_key_exists($getVarName, $this->pObj->orig_paramKeyValues)) {
-			$lang = intval($this->pObj->orig_paramKeyValues[$getVarName]);
-			// Might be excepted (like you should for CJK cases which does not translate to ASCII equivalents)
-			if (t3lib_div::inList($this->conf['languageExceptionUids'], $lang)) {
-				$lang = 0;
-			}
-		}
+        if ($this->conf['languageGetVarPostFunc']) {
+            $lang = t3lib_div::callUserFunction($this->conf['languageGetVarPostFunc'], $lang, $this);
+        }
 
-		if ($this->conf['languageGetVarPostFunc']) {
-			$lang = t3lib_div::callUserFunction($this->conf['languageGetVarPostFunc'], $lang, $this);
-		}
+        return (int)$lang;
+    }
 
-		return (int)$lang;
-	}
+    /**
+     * ENCODE
+     * Find the current language id.
+     *
+     * The langugeid is used to build the path + to cache the path
+     * - if in the url parameters it is forced to generate the url in a specific language it needs to use this (L parameter defined in typolink)
+     *
+     * - orig_paramKeyValues is set by realurl during encoding, and it has the L paremeter value that is passed to typolink
+     *
+     * @return integer Current language id
+     *
+     * @author Michael Klapper <michael.klapper@aoe.com>
+     */
+    function _getLanguageVarEncode() {
+        $lang = false;
+        $getVarName = $this->conf ['languageGetVar'] ? $this->conf ['languageGetVar'] : 'L';
+        // $orig_paramKeyValues  Contains the index of GETvars that the URL had when the encoding began.
+        // Setting the language variable based on GETvar in URL which has been configured to carry the language uid:
+        if ($getVarName && array_key_exists($getVarName, $this->pObj->orig_paramKeyValues)) {
+            $lang = intval($this->pObj->orig_paramKeyValues[$getVarName]);
+            // Might be excepted (like you should for CJK cases which does not translate to ASCII equivalents)
+            if (t3lib_div::inList($this->conf['languageExceptionUids'], $lang)) {
+                $lang = 0;
+            }
+        }
 
-	/**
-	 *
-	 * @return boolean
-	 */
-	function _isBELogin() {
-		if (! is_object ( $GLOBALS ['BE_USER'] ))
-			return false;
-		else
-			return true;
-	}
+        if ($this->conf['languageGetVarPostFunc']) {
+            $lang = t3lib_div::callUserFunction($this->conf['languageGetVarPostFunc'], $lang, $this);
+        }
 
-	/**
-	 * if workspace preview in FE return that workspace
-	 *
-	 * @return int
-	 */
-	function _getWorkspaceId() {
-		if (is_object ( $GLOBALS ['BE_USER'] ) && t3lib_div::_GP ( 'ADMCMD_noBeUser' ) != 1) {
-			if (is_object ( $GLOBALS ['TSFE']->sys_page )) {
-				if ($GLOBALS ['TSFE']->sys_page->versioningPreview == 1) {
-					return $GLOBALS ['TSFE']->sys_page->versioningWorkspaceId;
-				}
-			} else {
-				if ($GLOBALS ['BE_USER']->user ['workspace_preview'] == 1) {
-					return $GLOBALS ['BE_USER']->workspace;
-				}
-			}
-		}
-		return 0;
-	}
+        return (int)$lang;
+    }
 
-	/**
-	 * returns true/false if the current context is within a crawler call (procInstr. tx_cachemgm_recache)
-	 * This is used for some logging. The status is cached for performance reasons
-	 *
-	 * @return boolean
-	 */
-	function _isCrawlerRun() {
-		if (
-			t3lib_extMgm::isLoaded('crawler')
-			&& $GLOBALS['TSFE']->applicationData['tx_crawler']['running']
-			&& (
-				in_array('tx_cachemgm_recache', $GLOBALS['TSFE']->applicationData['tx_crawler']['parameters']['procInstructions'])
-				|| in_array('tx_realurl_rebuild', $GLOBALS['TSFE']->applicationData['tx_crawler']['parameters']['procInstructions'])
-			)
-		) {
-			return true;
-		} else {
-			return false;
-		}
-	}
+    /**
+     *
+     * @return boolean
+     */
+    function _isBELogin() {
+        if (!is_object($GLOBALS ['BE_USER'])) {
+            return false;
+        } else {
+            return true;
+        }
+    }
 
-	/**
-	 * assigns the configuration
-	 *
-	 * @param $conf
-	 * @return void
-	 */
-	function _setConf($conf) {
-		//TODO: validate the incoming conf
-		$this->conf = $conf;
-	}
+    /**
+     * if workspace preview in FE return that workspace
+     *
+     * @return int
+     */
+    function _getWorkspaceId() {
+        if (is_object($GLOBALS ['BE_USER']) && t3lib_div::_GP('ADMCMD_noBeUser') != 1) {
+            if (is_object($GLOBALS ['TSFE']->sys_page)) {
+                if ($GLOBALS ['TSFE']->sys_page->versioningPreview == 1) {
+                    return $GLOBALS ['TSFE']->sys_page->versioningWorkspaceId;
+                }
+            } else {
+                if ($GLOBALS ['BE_USER']->user ['workspace_preview'] == 1) {
+                    return $GLOBALS ['BE_USER']->workspace;
+                }
+            }
+        }
 
-	/**
-	 * assigns the parent object
-	 *
-	 * @param tx_realurl    $ref: the parent object
-	 * @return void
-	 */
-	function _setParent($ref) {
-		$this->pObj = &$ref;
-	}
+        return 0;
+    }
 
-	/**
-	 * Initialize the pathgenerator
-	 *
-	 */
-	function initGenerator() {
-		$this->generator = t3lib_div::makeInstance('tx_realurl_pathgenerator');
-		$this->generator->init($this->conf);
-		$this->generator->setRootPid ($this->_getRootPid());
-		$this->generator->setParentObject($this->pObj);
-	}
+    /**
+     * returns true/false if the current context is within a crawler call (procInstr. tx_cachemgm_recache)
+     * This is used for some logging. The status is cached for performance reasons
+     *
+     * @return boolean
+     */
+    function _isCrawlerRun() {
+        if (
+            t3lib_extMgm::isLoaded('crawler')
+            && $GLOBALS['TSFE']->applicationData['tx_crawler']['running']
+            && (
+                in_array('tx_cachemgm_recache',
+                    $GLOBALS['TSFE']->applicationData['tx_crawler']['parameters']['procInstructions'])
+                || in_array('tx_realurl_rebuild',
+                    $GLOBALS['TSFE']->applicationData['tx_crawler']['parameters']['procInstructions'])
+            )
+        ) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
-	/**
-	 * Initialize the Cache-Layer
-	 *
-	 * @param integer $lang Current language value
-	 * @return void
-	 */
-	function initCacheMgm($lang) {
-		$this->cachemgmt = t3lib_div::makeInstance('tx_realurl_cachemgmt', $this->_getWorkspaceId (), $lang );
-		$this->cachemgmt->setCacheTimeout ( $this->conf ['cacheTimeOut'] );
-		$this->cachemgmt->setRootPid ( $this->_getRootPid () );
-	}
+    /**
+     * assigns the configuration
+     *
+     * @param $conf
+     * @return void
+     */
+    function _setConf($conf) {
+        //TODO: validate the incoming conf
+        $this->conf = $conf;
+    }
+
+    /**
+     * assigns the parent object
+     *
+     * @param tx_realurl $ref : the parent object
+     * @return void
+     */
+    function _setParent($ref) {
+        $this->pObj = &$ref;
+    }
+
+    /**
+     * Initialize the pathgenerator
+     *
+     */
+    function initGenerator() {
+        $this->generator = t3lib_div::makeInstance('tx_realurl_pathgenerator');
+        $this->generator->init($this->conf);
+        $this->generator->setRootPid($this->_getRootPid());
+        $this->generator->setParentObject($this->pObj);
+    }
+
+    /**
+     * Initialize the Cache-Layer
+     *
+     * @param integer $lang Current language value
+     * @return void
+     */
+    function initCacheMgm($lang) {
+        $this->cachemgmt = t3lib_div::makeInstance('tx_realurl_cachemgmt', $this->_getWorkspaceId(), $lang);
+        $this->cachemgmt->setCacheTimeout($this->conf ['cacheTimeOut']);
+        $this->cachemgmt->setRootPid($this->_getRootPid());
+    }
 }
