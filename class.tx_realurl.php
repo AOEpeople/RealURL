@@ -994,7 +994,12 @@ class tx_realurl {
 					// Decode URL
 					$cachedInfo = $this->decodeSpURL_doDecode($speakingURIpath, $this->extConf['init']['enableCHashCache']);
 
-					// Storing cached information
+					if (t3lib_div::compat_version('6.2') && $GLOBALS['TYPO3_CONF_VARS']['FE']['cHashIncludePageId'] == true && !isset($cachedInfo['GET_VARS']['id'])) {
+						// See https://typo3.org/teams/security/security-bulletins/typo3-core/typo3-core-sa-2016-022/
+						$cachedInfo['GET_VARS']['id'] = $cachedInfo['id'];
+					}
+
+					// Storing cached information:
 					$this->decodeSpURL_decodeCache($speakingURIpath, $cachedInfo);
 				}
 
