@@ -847,6 +847,12 @@ class tx_realurl {
 
 				$cHashParameters = array_merge($this->cHashParameters, $paramKeyValues);
 				unset($cHashParameters['cHash']);
+				
+				if (t3lib_div::compat_version('6.2') && $GLOBALS['TYPO3_CONF_VARS']['FE']['cHashIncludePageId'] == true && !isset($cHashParameters['id'])) {
+					// See https://typo3.org/teams/security/security-bulletins/typo3-core/typo3-core-sa-2016-022/
+					$cHashParameters['id'] = $this->encodePageId;
+				}
+				
 				$cHashParameters = t3lib_div::implodeArrayForUrl('', $cHashParameters);
 				if ($cacheHashClassExists) {
 					$cHashParameters = $cacheHash->getRelevantParameters($cHashParameters);
