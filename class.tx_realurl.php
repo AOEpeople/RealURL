@@ -1257,6 +1257,11 @@ class tx_realurl {
 		if (is_array($file_GET_VARS))
 			$cachedInfo['GET_VARS'] = t3lib_div::array_merge_recursive_overrule($cachedInfo['GET_VARS'], $file_GET_VARS);
 
+		if (t3lib_div::compat_version('6.2') && $GLOBALS['TYPO3_CONF_VARS']['FE']['cHashIncludePageId'] == true && !isset($cachedInfo['GET_VARS']['id'])) {
+			// See https://typo3.org/teams/security/security-bulletins/typo3-core/typo3-core-sa-2016-022/
+			$cachedInfo['GET_VARS']['id'] = $cachedInfo['id'];
+		}
+
 		// cHash handling
 		if ($cHashCache) {
 			$queryString = t3lib_div::implodeArrayForUrl('', $cachedInfo['GET_VARS']);
