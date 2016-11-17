@@ -1,12 +1,12 @@
 <?php
 
 if (TYPO3_MODE  == 'FE') {
-               //hook to force regeneration if crawler is active:
+    //hook to force regeneration if crawler is active:
         $TYPO3_CONF_VARS['SC_OPTIONS']['tslib/class.tslib_fe.php']['insertPageIncache']['tx_realurl'] = 'EXT:realurl/class.tx_realurl_crawler.php:tx_realurl_crawler';
-        $TYPO3_CONF_VARS['SC_OPTIONS']['tslib/class.tslib_fe.php']['headerNoCache']['tx_realurl'] = 'EXT:realurl/class.tx_realurl_crawler.php:tx_realurl_crawler->headerNoCache';
+    $TYPO3_CONF_VARS['SC_OPTIONS']['tslib/class.tslib_fe.php']['headerNoCache']['tx_realurl'] = 'EXT:realurl/class.tx_realurl_crawler.php:tx_realurl_crawler->headerNoCache';
 }
 if (TYPO3_MODE  == 'BE') {
-               // Register processing instruction on tx_crawler
+    // Register processing instruction on tx_crawler
        $TYPO3_CONF_VARS['EXTCONF']['crawler']['procInstructions']['tx_realurl_rebuild'] = 'Force page link regeneration';
 }
 
@@ -22,7 +22,7 @@ $TYPO3_CONF_VARS['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['clearAllCache_a
 $TYPO3_CONF_VARS['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processDatamapClass']['tx_realurl'] = 'EXT:realurl/class.tx_realurl_tcemain.php:&tx_realurl_tcemain';
 $TYPO3_CONF_VARS['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processCmdmapClass']['tx_realurl'] = 'EXT:realurl/class.tx_realurl_tcemain.php:&tx_realurl_tcemain';
 
-	// register hook to add the excludemiddle field into the list of fields for new localization records
+    // register hook to add the excludemiddle field into the list of fields for new localization records
 $TYPO3_CONF_VARS['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processDatamap_preProcessFieldArray']['tx_realurl'] = 'EXT:realurl/class.tx_realurl_processdatamap.php:&tx_realurl_processdatamap';
 
 $TYPO3_CONF_VARS['FE']['addRootLineFields'] .= ',tx_realurl_pathsegment,tx_realurl_exclude,tx_realurl_pathoverride';
@@ -30,16 +30,16 @@ $TYPO3_CONF_VARS['FE']['addRootLineFields'] .= ',tx_realurl_pathsegment,tx_realu
 // Include configuration file
 $_realurl_conf = @unserialize($_EXTCONF);
 if (is_array($_realurl_conf)) {
-	$_realurl_conf_file = trim($_realurl_conf['configFile']);
-	if ($_realurl_conf_file && @file_exists(PATH_site . $_realurl_conf_file)) {
-		require_once(PATH_site . $_realurl_conf_file);
-	}
-	unset($_realurl_conf_file);
+    $_realurl_conf_file = trim($_realurl_conf['configFile']);
+    if ($_realurl_conf_file && @file_exists(PATH_site . $_realurl_conf_file)) {
+        require_once(PATH_site . $_realurl_conf_file);
+    }
+    unset($_realurl_conf_file);
 }
 
 define('TX_REALURL_AUTOCONF_FILE', 'typo3conf/realurl_autoconf.php');
 if (!isset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['realurl'])) {
-	@include_once(PATH_site . TX_REALURL_AUTOCONF_FILE);
+    @include_once(PATH_site . TX_REALURL_AUTOCONF_FILE);
 }
 unset($_realurl_conf);
 
@@ -50,6 +50,5 @@ define('TX_REALURL_SEGTITLEFIELDLIST_PLO', 'tx_realurl_pathsegment,nav_title,tit
 //$GLOBALS ['TYPO3_CONF_VARS']['EXTCONF']['lowlevel']['cleanerModules'][$_EXTKEY] = array('EXT:' . $_EXTKEY . '/class.tx_realurl_cleanuphandler.php:tx_realurl_cleanuphandler');
 
 if ($_realurl_conf['addpageOverlayFields'] !== 0) {
-	$TYPO3_CONF_VARS['FE']['pageOverlayFields'] .= ',tx_realurl_pathsegment,tx_realurl_exclude,tx_realurl_pathoverride';
+    $TYPO3_CONF_VARS['FE']['pageOverlayFields'] .= ',tx_realurl_pathsegment,tx_realurl_exclude,tx_realurl_pathoverride';
 }
-?>

@@ -28,59 +28,64 @@
 /**
  * Class tx_realurl_configurationService_testcase
  */
-class tx_realurl_configurationService_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCase {
+class tx_realurl_configurationService_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCase
+{
 
-	/**
-	 *
-	 * @var tx_realurl_configurationService
-	 */
-	public $configurationService;
+    /**
+     *
+     * @var tx_realurl_configurationService
+     */
+    public $configurationService;
 
-	public function setUp() {
-		$this->configurationService = t3lib_div::makeInstance('tx_realurl_configurationService');
-	}
+    public function setUp()
+    {
+        $this->configurationService = t3lib_div::makeInstance('tx_realurl_configurationService');
+    }
 
-	public function test_canGetDefaultConfiguration() {
-		$conf = $this->getMultiDomainConfigurationFixture();
-		$this->configurationService->setRealUrlConfiguration($conf);
-		$this->assertEquals($this->configurationService->getConfigurationForDomain(), $conf['_DEFAULT'], ' wrong configuration returned');
-		$this->assertEquals($this->configurationService->getConfigurationForDomain('notconfigured.com'), $conf['_DEFAULT'], ' wrong configuration returned');
-	}
+    public function test_canGetDefaultConfiguration()
+    {
+        $conf = $this->getMultiDomainConfigurationFixture();
+        $this->configurationService->setRealUrlConfiguration($conf);
+        $this->assertEquals($this->configurationService->getConfigurationForDomain(), $conf['_DEFAULT'], ' wrong configuration returned');
+        $this->assertEquals($this->configurationService->getConfigurationForDomain('notconfigured.com'), $conf['_DEFAULT'], ' wrong configuration returned');
+    }
 
-	public function test_canGetHostConfigurationForAConfiguredHost() {
-		$conf = $this->getMultiDomainConfigurationFixture();
-		$this->configurationService->setRealUrlConfiguration($conf);
-		$this->assertEquals($this->configurationService->getConfigurationForDomain('www.domain1.com'), $conf['www.domain1.com'], ' wrong configuration returned');
-	}
+    public function test_canGetHostConfigurationForAConfiguredHost()
+    {
+        $conf = $this->getMultiDomainConfigurationFixture();
+        $this->configurationService->setRealUrlConfiguration($conf);
+        $this->assertEquals($this->configurationService->getConfigurationForDomain('www.domain1.com'), $conf['www.domain1.com'], ' wrong configuration returned');
+    }
 
-	private function getMultiDomainConfigurationFixture() {
-		$conf = array(
-			'_DEFAULT' => array(
-				'init' => array(
-					'enableCHashCache' => 1,
-					'appendMissingSlash' => 'ifNotFile',
-					'enableUrlDecodeCache' => 1,
-					'enableUrlEncodeCache' => 1,
-					'respectSimulateStaticURLs' => 0,
-					'postVarSet_failureMode' => 'redirect_goodUpperDir',
-				),
-				'redirects_regex' => array(),
-				'preVars' => array(),
-				'pagePath' => array(
-					'type' => 'user',
-					'userFunc' => 'EXT:realurl/class.tx_realurl_advanced.php:&tx_realurl_advanced->main',
-					'spaceCharacter' => '-',
-					'cacheTimeOut' => '100',
-					'languageGetVar' => 'L',
-					'rootpage_id' => '1',
-					'segTitleFieldList' => 'alias,tx_realurl_pathsegment,nav_title,title,subtitle',
+    private function getMultiDomainConfigurationFixture()
+    {
+        $conf = array(
+            '_DEFAULT' => array(
+                'init' => array(
+                    'enableCHashCache' => 1,
+                    'appendMissingSlash' => 'ifNotFile',
+                    'enableUrlDecodeCache' => 1,
+                    'enableUrlEncodeCache' => 1,
+                    'respectSimulateStaticURLs' => 0,
+                    'postVarSet_failureMode' => 'redirect_goodUpperDir',
+                ),
+                'redirects_regex' => array(),
+                'preVars' => array(),
+                'pagePath' => array(
+                    'type' => 'user',
+                    'userFunc' => 'EXT:realurl/class.tx_realurl_advanced.php:&tx_realurl_advanced->main',
+                    'spaceCharacter' => '-',
+                    'cacheTimeOut' => '100',
+                    'languageGetVar' => 'L',
+                    'rootpage_id' => '1',
+                    'segTitleFieldList' => 'alias,tx_realurl_pathsegment,nav_title,title,subtitle',
 
-				),
-			)
-		);
-		$conf['www.domain1.com'] = $conf['_DEFAULT'];
-		$conf['www.domain1.com']['pagePath']['rootpage_id'] = 19;
+                ),
+            )
+        );
+        $conf['www.domain1.com'] = $conf['_DEFAULT'];
+        $conf['www.domain1.com']['pagePath']['rootpage_id'] = 19;
 
-		return $conf;
-	}
+        return $conf;
+    }
 }

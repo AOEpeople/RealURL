@@ -26,10 +26,6 @@
  ***************************************************************/
 
 
-class tx_realurl_configurationService_exception extends Exception {
-
-
+class tx_realurl_configurationService_exception extends Exception
+{
 }
-
-
-?>
