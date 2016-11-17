@@ -22,48 +22,51 @@
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-class tx_environment_testcase extends \TYPO3\CMS\Core\Tests\FunctionalTestCase {
+class tx_environment_testcase extends \TYPO3\CMS\Core\Tests\FunctionalTestCase
+{
 
-	/**
-	 * @var array
-	 */
-	protected $testExtensionsToLoad = array('typo3conf/ext/realurl');
+    /**
+     * @var array
+     */
+    protected $testExtensionsToLoad = array('typo3conf/ext/realurl');
 
-	/**
-	 * Just to have some confidence about the system settings ;)
-	 *
-	 * @test
-	 * @return void
-	 */
-	public function pageOverlayFieldExists() {
-		$list = t3lib_div::trimExplode(',', $GLOBALS['TYPO3_CONF_VARS']['FE']['pageOverlayFields']);
-		$this->assertTrue(
-			in_array('tx_realurl_pathsegment', $list),
-			'tx_realurl_pathsegment missing in $GLOBALS[\'TYPO3_CONF_VARS\'][\'FE\'][\'pageOverlayFields\']');
-		$this->assertTrue(
-			in_array('tx_realurl_pathoverride', $list),
-			'tx_realurl_pathoverride missing in $GLOBALS[\'TYPO3_CONF_VARS\'][\'FE\'][\'pageOverlayFields\']');
-		$this->assertTrue(
-			in_array('tx_realurl_exclude', $list),
-			'tx_realurl_exclude missing in $GLOBALS[\'TYPO3_CONF_VARS\'][\'FE\'][\'pageOverlayFields\']');
-	}
+    /**
+     * Just to have some confidence about the system settings ;)
+     *
+     * @test
+     * @return void
+     */
+    public function pageOverlayFieldExists()
+    {
+        $list = t3lib_div::trimExplode(',', $GLOBALS['TYPO3_CONF_VARS']['FE']['pageOverlayFields']);
+        $this->assertTrue(
+            in_array('tx_realurl_pathsegment', $list),
+            'tx_realurl_pathsegment missing in $GLOBALS[\'TYPO3_CONF_VARS\'][\'FE\'][\'pageOverlayFields\']');
+        $this->assertTrue(
+            in_array('tx_realurl_pathoverride', $list),
+            'tx_realurl_pathoverride missing in $GLOBALS[\'TYPO3_CONF_VARS\'][\'FE\'][\'pageOverlayFields\']');
+        $this->assertTrue(
+            in_array('tx_realurl_exclude', $list),
+            'tx_realurl_exclude missing in $GLOBALS[\'TYPO3_CONF_VARS\'][\'FE\'][\'pageOverlayFields\']');
+    }
 
-	/**
-	 * Just to have some confidence about the system settings ;)
-	 *
-	 * @test
-	 * @return void
-	 */
-	public function rootlineFieldExists() {
-		$list = t3lib_div::trimExplode(',', $GLOBALS['TYPO3_CONF_VARS']['FE']['addRootLineFields']);
-		$this->assertTrue(
-			in_array('tx_realurl_pathsegment', $list),
-			'tx_realurl_pathsegment missing in $GLOBALS[\'TYPO3_CONF_VARS\'][\'FE\'][\'addRootLineFields\']');
-		$this->assertTrue(
-			in_array('tx_realurl_pathoverride', $list),
-			'tx_realurl_pathoverride missing in $GLOBALS[\'TYPO3_CONF_VARS\'][\'FE\'][\'addRootLineFields\']');
-		$this->assertTrue(
-			in_array('tx_realurl_exclude', $list),
-			'tx_realurl_exclude missing in $GLOBALS[\'TYPO3_CONF_VARS\'][\'FE\'][\'addRootLineFields\']');
-	}
+    /**
+     * Just to have some confidence about the system settings ;)
+     *
+     * @test
+     * @return void
+     */
+    public function rootlineFieldExists()
+    {
+        $list = t3lib_div::trimExplode(',', $GLOBALS['TYPO3_CONF_VARS']['FE']['addRootLineFields']);
+        $this->assertTrue(
+            in_array('tx_realurl_pathsegment', $list),
+            'tx_realurl_pathsegment missing in $GLOBALS[\'TYPO3_CONF_VARS\'][\'FE\'][\'addRootLineFields\']');
+        $this->assertTrue(
+            in_array('tx_realurl_pathoverride', $list),
+            'tx_realurl_pathoverride missing in $GLOBALS[\'TYPO3_CONF_VARS\'][\'FE\'][\'addRootLineFields\']');
+        $this->assertTrue(
+            in_array('tx_realurl_exclude', $list),
+            'tx_realurl_exclude missing in $GLOBALS[\'TYPO3_CONF_VARS\'][\'FE\'][\'addRootLineFields\']');
+    }
 }

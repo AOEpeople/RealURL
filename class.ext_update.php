@@ -31,70 +31,72 @@
  * @package TYPO3
  * @subpackage realurl
  */
-class ext_update {
+class ext_update
+{
 
-	/**
-	 * Stub function for the extension manager
-	 *
-	 * @param	string	$what	What should be updated
-	 * @return	boolean	true to allow access
-	 */
-	public function access($what = 'all') {
-		$fields = $GLOBALS['TYPO3_DB']->admin_get_fields('pages');
-		return isset($fields['tx_realurl_pathoverride']) && isset($fields['tx_realurl_exclude']);
-	}
+    /**
+     * Stub function for the extension manager
+     *
+     * @param	string	$what	What should be updated
+     * @return	boolean	true to allow access
+     */
+    public function access($what = 'all')
+    {
+        $fields = $GLOBALS['TYPO3_DB']->admin_get_fields('pages');
+        return isset($fields['tx_realurl_pathoverride']) && isset($fields['tx_realurl_exclude']);
+    }
 
-	/**
-	 * Updates nested sets
-	 *
-	 * @return	string		HTML output
-	 */
-	public function main() {
-		if (t3lib_div::_POST('nssubmit') != '') {
-			$this->updateOverridePaths();
-			$content = 'Update finished successfully.';
-		}
-		else {
-			$content = $this->prompt();
-		}
-		return $content;
-	}
+    /**
+     * Updates nested sets
+     *
+     * @return	string		HTML output
+     */
+    public function main()
+    {
+        if (t3lib_div::_POST('nssubmit') != '') {
+            $this->updateOverridePaths();
+            $content = 'Update finished successfully.';
+        } else {
+            $content = $this->prompt();
+        }
+        return $content;
+    }
 
-	/**
-	 * Shows a form to created nested sets data.
-	 *
-	 * @return	string
-	 */
-	protected function prompt() {
-		return
-			'<form action="' . t3lib_div::getIndpEnv('REQUEST_URI') . '" method="POST">' .
-			'<p>This update will do the following:</p>' .
-			'<ul>' .
-			'<li>Import path overrides from realurl</li>' .
-			'<li>Import exclusion flags from realurl</li>' .
-			'</ul>' .
-			'<p><b>Warning!</b> All current empty values will be discarded and replaced with values from realurl!</p>' .
-			'<br />' .
-			'<input type="submit" name="nssubmit" value="Update" /></form>';
-	}
+    /**
+     * Shows a form to created nested sets data.
+     *
+     * @return	string
+     */
+    protected function prompt()
+    {
+        return
+            '<form action="' . t3lib_div::getIndpEnv('REQUEST_URI') . '" method="POST">' .
+            '<p>This update will do the following:</p>' .
+            '<ul>' .
+            '<li>Import path overrides from realurl</li>' .
+            '<li>Import exclusion flags from realurl</li>' .
+            '</ul>' .
+            '<p><b>Warning!</b> All current empty values will be discarded and replaced with values from realurl!</p>' .
+            '<br />' .
+            '<input type="submit" name="nssubmit" value="Update" /></form>';
+    }
 
-	/**
-	 * Creates nested sets data for pages
-	 *
-	 * @return	string	Result
-	 */
-	protected function updateOverridePaths() {
-		$GLOBALS['TYPO3_DB']->sql_query('UPDATE pages SET tx_realurl_exclude=1 ' .
-			'WHERE tx_realurl_exclude<>0');
-		$GLOBALS['TYPO3_DB']->sql_query('UPDATE pages SET tx_realurl_pathoverride=1,tx_realurl_pathsegment=tx_realurl_pathoverride ' .
-			'WHERE tx_realurl_pathoverride<>\'\' AND tx_realurl_pathsegment=\'\'');
-		$GLOBALS['TYPO3_DB']->sql_query('UPDATE pages_language_overlay SET tx_realurl_pathsegment=tx_realurl_pathoverride ' .
-			'WHERE tx_realurl_pathoverride<>\'\' AND tx_realurl_pathsegment=\'\'');
-	}
+    /**
+     * Creates nested sets data for pages
+     *
+     * @return	string	Result
+     */
+    protected function updateOverridePaths()
+    {
+        $GLOBALS['TYPO3_DB']->sql_query('UPDATE pages SET tx_realurl_exclude=1 ' .
+            'WHERE tx_realurl_exclude<>0');
+        $GLOBALS['TYPO3_DB']->sql_query('UPDATE pages SET tx_realurl_pathoverride=1,tx_realurl_pathsegment=tx_realurl_pathoverride ' .
+            'WHERE tx_realurl_pathoverride<>\'\' AND tx_realurl_pathsegment=\'\'');
+        $GLOBALS['TYPO3_DB']->sql_query('UPDATE pages_language_overlay SET tx_realurl_pathsegment=tx_realurl_pathoverride ' .
+            'WHERE tx_realurl_pathoverride<>\'\' AND tx_realurl_pathsegment=\'\'');
+    }
 }
 
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/realurl/class.ext_update.php']) {
-	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/realurl/class.ext_update.php']);
+    include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/realurl/class.ext_update.php']);
 }
-
-?>
