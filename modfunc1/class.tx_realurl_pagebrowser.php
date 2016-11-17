@@ -33,52 +33,55 @@
   * @package TYPO3
   * @subpackage tx_realurl
   */
-class tx_realurl_pagebrowser {
+class tx_realurl_pagebrowser
+{
+    const PAGES_BEFORE = 1;
+    const PAGES_BEFORE_END = 1;
+    const PAGES_AFTER = 1;
+    const PAGES_AFTER_START = 1;
+    const RESULTS_PER_PAGE_DEFAULT = 20;
 
-	const PAGES_BEFORE = 1;
-	const PAGES_BEFORE_END = 1;
-	const PAGES_AFTER = 1;
-	const PAGES_AFTER_START = 1;
-	const RESULTS_PER_PAGE_DEFAULT = 20;
+    protected $currentPage;
+    protected $totalPages;
+    protected $baseURL;
+    protected $resultsPerPage;
 
-	protected $currentPage;
-	protected $totalPages;
-	protected $baseURL;
-	protected $resultsPerPage;
+    /**
+     * Creates an isntance of this class.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $urlParameters = t3lib_div::array_merge_recursive_overrule($_GET, $_POST);
+        $this->currentPage = max(1, intval($urlParameters['page']));
+        unset($urlParameters['page']);
+        unset($urlParameters['cmd']);
+        $this->baseURL = t3lib_div::getIndpEnv('TYPO3_REQUEST_SCRIPT') .
+            '?' . t3lib_div::implodeArrayForUrl('', $urlParameters);
+        $this->resultsPerPage = self::RESULTS_PER_PAGE_DEFAULT;
+    }
 
-	/**
-	 * Creates an isntance of this class.
-	 *
-	 * @return void
-	 */
-	public function __construct() {
-		$urlParameters = t3lib_div::array_merge_recursive_overrule($_GET, $_POST);
-		$this->currentPage = max(1, intval($urlParameters['page']));
-		unset($urlParameters['page']);
-		unset($urlParameters['cmd']);
-		$this->baseURL = t3lib_div::getIndpEnv('TYPO3_REQUEST_SCRIPT') .
-			'?' . t3lib_div::implodeArrayForUrl('', $urlParameters);
-		$this->resultsPerPage = self::RESULTS_PER_PAGE_DEFAULT;
-	}
+    public function getPageBrowser($totalResults, $resultsPerPage = 0)
+    {
+        if ($resultsPerPage) {
+            $this->resultsPerPage = $resultsPerPage;
+        }
+        $this->calcTotalPages($totalResults);
 
-	public function getPageBrowser($totalResults, $resultsPerPage = 0) {
-		if ($resultsPerPage) {
-			$this->resultsPerPage = $resultsPerPage;
-		}
-		$this->calcTotalPages($totalResults);
+        $markup = '';
 
-		$markup = '';
+        if ($this->totalPages > 1) {
+            $markup = $this->generatePageBrowser();
+            $markup = '<table class="pagebrowser"><tr>' . $markup . '</tr></table>';
+        }
 
-		if ($this->totalPages > 1) {
-			$markup = $this->generatePageBrowser();
-			$markup = '<table class="pagebrowser"><tr>' . $markup . '</tr></table>';
-		}
+        return $markup;
+    }
 
-		return $markup;
-	}
-
-	static public function getInlineStyles() {
-		return '
+    public static function getInlineStyles()
+    {
+        return '
 			TABLE.pagebrowser {
 				margin-left: auto;
 			}
@@ -89,62 +92,62 @@ class tx_realurl_pagebrowser {
 				border: 1px solid #595d66;
 			}
 		';
-	}
+    }
 
-	protected function generatePageBrowser() {
-		for ($page = 1; $page <= min($this->totalPages, $this->currentPage, self::PAGES_AFTER_START + 1); $page++) {
-			$markup .= $this->createCell($page);
-		}
+    protected function generatePageBrowser()
+    {
+        for ($page = 1; $page <= min($this->totalPages, $this->currentPage, self::PAGES_AFTER_START + 1); $page++) {
+            $markup .= $this->createCell($page);
+        }
 
-		if ($page < $this->currentPage - self::PAGES_BEFORE) {
-			$markup .= $this->createEllipses();
-			$page = $this->currentPage - self::PAGES_BEFORE;
-		}
+        if ($page < $this->currentPage - self::PAGES_BEFORE) {
+            $markup .= $this->createEllipses();
+            $page = $this->currentPage - self::PAGES_BEFORE;
+        }
 
-		for ( ; $page <= min($this->totalPages, $this->currentPage + self::PAGES_AFTER); $page++) {
-			$markup .= $this->createCell($page);
-		}
+        for (; $page <= min($this->totalPages, $this->currentPage + self::PAGES_AFTER); $page++) {
+            $markup .= $this->createCell($page);
+        }
 
-		if ($page < $this->totalPages - self::PAGES_BEFORE_END) {
-			$markup .= $this->createEllipses();
-			$page = $this->totalPages - self::PAGES_BEFORE_END;
-		}
+        if ($page < $this->totalPages - self::PAGES_BEFORE_END) {
+            $markup .= $this->createEllipses();
+            $page = $this->totalPages - self::PAGES_BEFORE_END;
+        }
 
-		for ( ; $page <= $this->totalPages; $page++) {
-			$markup .= $this->createCell($page);
-		}
+        for (; $page <= $this->totalPages; $page++) {
+            $markup .= $this->createCell($page);
+        }
 
-		return $markup;
-	}
+        return $markup;
+    }
 
-	protected function createCell($pageNumber) {
-		if ($pageNumber != $this->currentPage) {
-			$link = array(
-				'<a href="' . $this->baseURL . '&amp;page=' . $pageNumber . '">',
-				'</a>'
-			);
-		}
-		else {
-			$link = array('', '');
-			$extraClass = ' bgColor-20';
-		}
+    protected function createCell($pageNumber)
+    {
+        if ($pageNumber != $this->currentPage) {
+            $link = array(
+                '<a href="' . $this->baseURL . '&amp;page=' . $pageNumber . '">',
+                '</a>'
+            );
+        } else {
+            $link = array('', '');
+            $extraClass = ' bgColor-20';
+        }
 
-		return '<td class="page' . $extraClass . '">' . $link[0] . $pageNumber . $link[1] . '</td>';
-	}
+        return '<td class="page' . $extraClass . '">' . $link[0] . $pageNumber . $link[1] . '</td>';
+    }
 
-	protected function createEllipses() {
-		return '<td>...</td>';
-	}
+    protected function createEllipses()
+    {
+        return '<td>...</td>';
+    }
 
-	protected function calcTotalPages($totalResults) {
-		$this->totalPages = intval($totalResults/$this->resultsPerPage) +
-			(($totalResults % $this->resultsPerPage) != 0 ? 1 : 0);
-	}
-
+    protected function calcTotalPages($totalResults)
+    {
+        $this->totalPages = intval($totalResults/$this->resultsPerPage) +
+            (($totalResults % $this->resultsPerPage) != 0 ? 1 : 0);
+    }
 }
 
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/realurl/modfunc1/class.tx_realurl_pagebrowser.php'])	{
-	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/realurl/modfunc1/class.tx_realurl_pagebrowser.php']);
+if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/realurl/modfunc1/class.tx_realurl_pagebrowser.php']) {
+    include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/realurl/modfunc1/class.tx_realurl_pagebrowser.php']);
 }
-
-?>
