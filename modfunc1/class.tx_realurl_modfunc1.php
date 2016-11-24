@@ -96,7 +96,6 @@ class tx_realurl_modfunc1 extends t3lib_extobjbase
 
         switch ($this->pObj->MOD_SETTINGS['type']) {
             case 'pathcache':
-                $this->edit_save();
                 $result .= $this->getDepthSelector();
                 $moduleContent = $this->renderModule($this->initializeTree());
                 //$result .= $this->renderSearchForm();
@@ -283,52 +282,6 @@ class tx_realurl_modfunc1 extends t3lib_extobjbase
     }
 
     /**
-     * Fetch path caching information for page.
-     *
-     * @param    integer        Page ID
-     * @return    array        Path Cache records
-     */
-    public function getPathCache($pageId)
-    {
-        $showLanguage = t3lib_div::_GP('showLanguage');
-        $cmd = t3lib_div::_GET('cmd');
-        $entry = t3lib_div::_GET('entry');
-
-        $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-            '*',
-            'tx_realurl_pathcache',
-            'page_id=' . intval($pageId) .
-            ((string)$showLanguage !== '' ? ' AND language_id=' . intval($showLanguage) : ''),
-            '',
-            'language_id,expire'
-        );
-
-        // Traverse result:
-        $output = array();
-        while (false != ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
-
-            // Delete entries:
-            if ($cmd === 'delete' && (!strcmp($entry, $row['cache_id']) || !strcmp($entry, 'ALL'))) {
-                $this->deletePathCacheEntry($row['cache_id']);
-                // Raise expire times:
-            } elseif ($cmd === 'raiseExpire' && !strcmp($entry, $row['cache_id'])) {
-                $this->raiseExpirePathCacheEntry($row);
-                $output[] = $row;
-            } elseif ($cmd === 'flushExpired' && $row['expire'] && $row['expire'] < time()) {
-                $this->deletePathCacheEntry($row['cache_id']);
-            } elseif ($cmd === 'copy' && (!strcmp($entry, $row['cache_id']))) {
-                $output[] = $this->copyPathCacheEntry($row);
-                $output[] = $row;
-            } else {    // ... or add:
-                $output[] = $row;
-            }
-        }
-        $GLOBALS['TYPO3_DB']->sql_free_result($res);
-
-        return $output;
-    }
-
-    /**
      * Links to the module script and sets necessary parameters (only for pathcache display)
      *
      * @param    string        Additional GET vars
@@ -447,94 +400,6 @@ class tx_realurl_modfunc1 extends t3lib_extobjbase
     }
 
     /**
-     * Deletes an entry in pathcache table
-     *
-     * @param    integer        Path Cache id (cache_id)
-     * @return    void
-     */
-    public function deletePathCacheEntry($cache_id)
-    {
-        $GLOBALS['TYPO3_DB']->exec_DELETEquery('tx_realurl_pathcache', 'cache_id=' . intval($cache_id));
-    }
-
-    /**
-     * Deletes an entry in pathcache table
-     *
-     * @param    integer        Path Cache id (cache_id)
-     * @return    void
-     */
-    public function raiseExpirePathCacheEntry(&$row)
-    {
-        $row['expire'] = time() + 30 * 24 * 3600;
-        $GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_realurl_pathcache',
-            'expire>0 AND cache_id=' . intval($row['cache_id']), array('expire' => $row['expire']));
-    }
-
-    /**
-     * Copies an entry in pathcache table
-     *
-     * @param    array        Record to copy, passed by reference, will be updated.
-     * @return    array        New record.
-     */
-    public function copyPathCacheEntry(&$oEntry)
-    {
-
-        // Select old record:
-        $cEntry = $oEntry;
-        unset($cEntry['cache_id']);
-        $GLOBALS['TYPO3_DB']->exec_INSERTquery('tx_realurl_pathcache', $cEntry);
-        $cEntry['cache_id'] = $GLOBALS['TYPO3_DB']->sql_insert_id();
-
-        // Update the old record with expire time:
-        if (!$oEntry['expire']) {
-            $oEntry['expire'] = time() + 30 * 24 * 3600;
-            $field_values = array(
-                'expire' => $oEntry['expire'],
-            );
-            $GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_realurl_pathcache', 'cache_id=' . intval($oEntry['cache_id']),
-                $field_values);
-        }
-
-        return $cEntry;
-    }
-
-    /**
-     * Changes the "pagepath" value of an entry in the pathcache table
-     *
-     * @param    integer        Path Cache id (cache_id)
-     * @param    string        New value for the pagepath
-     * @return    void
-     */
-    public function editPathCacheEntry($cache_id, $value)
-    {
-        $field_values = array(
-            'pagepath' => $value
-        );
-        $GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_realurl_pathcache', 'cache_id=' . intval($cache_id), $field_values);
-
-        // Look up the page id so we can clear the encodeCache entries:
-        list($page_id_rec) = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('page_id', 'tx_realurl_pathcache',
-            'cache_id=' . intval($cache_id));
-        $this->clearDEncodeCache('page_' . $page_id_rec['page_id']); // Encode cache
-        $this->clearDEncodeCache('page_' . $page_id_rec['page_id'], true);    // Decode cache
-    }
-
-    /**
-     * Will look for submitted pagepath cache entries to save
-     *
-     * @return    void
-     */
-    public function edit_save()
-    {
-        if (t3lib_div::_POST('_edit_save')) {
-            $editArray = t3lib_div::_POST('edit');
-            foreach ($editArray as $cache_id => $value) {
-                $this->editPathCacheEntry($cache_id, trim($value));
-            }
-        }
-    }
-
-    /**
      * Save / Cancel buttons
      *
      * @param    string        Extra code.
@@ -548,14 +413,6 @@ class tx_realurl_modfunc1 extends t3lib_extobjbase
 
         return $output;
     }
-
-
-
-
-
-
-
-
 
 
 

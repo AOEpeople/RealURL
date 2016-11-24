@@ -73,11 +73,15 @@ class tx_realurl_tcemain
     protected function clearOtherCaches($pageId)
     {
         /** @noinspection PhpUndefinedMethodInspection */
-        $GLOBALS['TYPO3_DB']->exec_DELETEquery('tx_realurl_urldecodecache',
-            'page_id=' . intval($pageId));
+        $GLOBALS['TYPO3_DB']->exec_DELETEquery(
+            'tx_realurl_urldecodecache',
+            'page_id=' . intval($pageId)
+        );
         /** @noinspection PhpUndefinedMethodInspection */
-        $GLOBALS['TYPO3_DB']->exec_DELETEquery('tx_realurl_urlencodecache',
-            'page_id=' . intval($pageId));
+        $GLOBALS['TYPO3_DB']->exec_DELETEquery(
+            'tx_realurl_urlencodecache',
+            'page_id=' . intval($pageId)
+        );
     }
 
     /**
@@ -89,8 +93,10 @@ class tx_realurl_tcemain
     protected function clearPathCache($pageId)
     {
         /** @noinspection PhpUndefinedMethodInspection */
-        $GLOBALS['TYPO3_DB']->exec_DELETEquery('tx_realurl_pathcache',
-            'page_id=' . intval($pageId));
+        $GLOBALS['TYPO3_DB']->exec_DELETEquery(
+            'tx_realurl_cache',
+            'pageid=' . intval($pageId)
+        );
     }
 
     /**
@@ -120,15 +126,15 @@ class tx_realurl_tcemain
      */
     protected function expirePathCache($pageId, $languageId)
     {
-        $expirationTime = $this->getExpirationTime();
         $pageIds = $this->getChildPages($pageId);
         $pageIds[] = intval($pageId);
 
         /** @noinspection PhpUndefinedMethodInspection */
-        $GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_realurl_pathcache',
-            'page_id IN (' . implode(',', $pageIds) . ') AND language_id=' . intval($languageId) . ' AND expire=0',
+        $GLOBALS['TYPO3_DB']->exec_UPDATEquery(
+            'tx_realurl_cache',
+            'pageid IN (' . implode(',', $pageIds) . ') AND languageid=' . intval($languageId),
             array(
-                'expire' => $expirationTime
+                'dirty' => '1'
             ));
     }
 
@@ -140,15 +146,15 @@ class tx_realurl_tcemain
      */
     protected function expirePathCacheForAllLanguages($pageId)
     {
-        $expirationTime = $this->getExpirationTime();
         $pageIds = $this->getChildPages($pageId);
         $pageIds[] = intval($pageId);
 
         /** @noinspection PhpUndefinedMethodInspection */
-        $GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_realurl_pathcache',
-            'page_id IN (' . implode(',', $pageIds) . ') AND expire=0',
+        $GLOBALS['TYPO3_DB']->exec_UPDATEquery(
+            'tx_realurl_cache',
+            'pageid IN (' . implode(',', $pageIds) . ')',
             array(
-                'expire' => $expirationTime
+                'dirty' => '1'
             ));
     }
 

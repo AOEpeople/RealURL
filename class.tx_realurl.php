@@ -1857,12 +1857,12 @@ class tx_realurl
                 $rootpage_id = intval($this->extConf['pagePath']['rootpage_id']);
                 $hash = md5($speakingURIpath . $rootpage_id);
                 /** @noinspection PhpUndefinedMethodInspection */
-                $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('content', 'tx_realurl_urldecodecache',
-                    'url_hash=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($hash, 'tx_realurl_urldecodecache') .
-                    ' AND ' .
-                    //No need for root page id if we use full md5!
-                    //'rootpage_id='.intval($rootpage_id) . ' AND ' .
-                    'tstamp>' . strtotime('midnight', time() - 24 * 3600 * $this->decodeCacheTTL));
+                $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+                    'content',
+                    'tx_realurl_urldecodecache',
+                    'url_hash=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($hash, 'tx_realurl_urldecodecache')
+                        . ' AND tstamp>' . strtotime('midnight', time() - 24 * 3600 * $this->decodeCacheTTL)
+                );
                 /** @noinspection PhpUndefinedMethodInspection */
                 $row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
                 /** @noinspection PhpUndefinedMethodInspection */
@@ -2546,11 +2546,20 @@ class tx_realurl
             /** @noinspection PhpUndefinedMethodInspection */
             $pageIdList = implode(',', $GLOBALS['TYPO3_DB']->cleanIntArray($pageIdArray));
             /** @noinspection PhpUndefinedMethodInspection */
-            $GLOBALS['TYPO3_DB']->exec_DELETEquery('tx_realurl_urlencodecache', 'page_id IN (' . $pageIdList . ')');
+            $GLOBALS['TYPO3_DB']->exec_DELETEquery(
+                'tx_realurl_urlencodecache',
+                'page_id IN (' . $pageIdList . ')'
+            );
             /** @noinspection PhpUndefinedMethodInspection */
-            $GLOBALS['TYPO3_DB']->exec_DELETEquery('tx_realurl_urldecodecache', 'page_id IN (' . $pageIdList . ')');
+            $GLOBALS['TYPO3_DB']->exec_DELETEquery(
+                'tx_realurl_urldecodecache',
+                'page_id IN (' . $pageIdList . ')'
+            );
             /** @noinspection PhpUndefinedMethodInspection */
-            $GLOBALS['TYPO3_DB']->exec_DELETEquery('tx_realurl_pathcache', 'page_id IN (' . $pageIdList . ') AND expire>0 AND expire<=' . time());
+            $GLOBALS['TYPO3_DB']->exec_DELETEquery(
+                'tx_realurl_cache',
+                'pageid IN (' . $pageIdList . ')'
+            );
         }
     }
 
