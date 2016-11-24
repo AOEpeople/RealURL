@@ -39,7 +39,6 @@ include_once(t3lib_extMgm::extPath('realurl') . 'class.tx_realurl_cachemgmt.php'
  * @subpackage realurl
  *
  * @todo    check if internal cache array can improve speed
- * @todo    move oldlinks to redirects
  * @todo    check last updatetime of pages
  */
 class tx_realurl_pagepath

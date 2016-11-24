@@ -33,7 +33,6 @@
 /**
  * TODO:
  - check if internal cache array can improve speed
- - move oldlinks to redirects
  - check last updatetime of pages
  **/
 
@@ -45,7 +44,7 @@
  */
 class tx_realurl_cachemgmt
 {
-    
+
     //cache key values
     public $workspaceId;
     public $languageId;
@@ -53,12 +52,12 @@ class tx_realurl_cachemgmt
     public $rootPid;
     public $cacheTimeOut = 1000; //timeout in seconds for cache entries
     public $useUnstrictCacheWhere = false;
-    
+
     /**
      * @var t3lib_DB
      */
     protected $dbObj;
-    
+
     public static $cache = array();
 
     /**
@@ -222,7 +221,7 @@ class tx_realurl_cachemgmt
                     $_ignore = $record['uid'];
                 }
             }
-            
+
             if ($this->_readCacheForPath($buildedPath, $_ignore) && !$disableCollisionDetection) {
                 $buildedPath .= '_' . $pid;
             }
@@ -326,7 +325,7 @@ class tx_realurl_cachemgmt
         if (isset($this->cache[$cacheKey]) && is_array($this->cache[$cacheKey])) {
             return $this->cache[$cacheKey];
         }
-        
+
         $row = false;
         $where = 'pageid=' . intval($pid) . $this->_getAddCacheWhere();
         if (method_exists($this->dbObj, 'exec_SELECTquery_master')) {
@@ -338,11 +337,11 @@ class tx_realurl_cachemgmt
         if ($query) {
             $row = $this->dbObj->sql_fetch_assoc($query);
         }
-        
+
         if (is_array($row)) {
             $this->cache[$cacheKey] = $row;
         }
-        
+
         return $row;
     }
 

@@ -1110,46 +1110,6 @@ class tx_realurl
                 }
             }
         }
-
-        // DB defined redirects
-        $hash = t3lib_div::md5int($speakingURIpath);
-        /** @noinspection PhpUndefinedMethodInspection */
-        $url = $GLOBALS['TYPO3_DB']->fullQuoteStr($speakingURIpath, 'tx_realurl_redirects');
-        $domainId = $this->getCurrentDomainId();
-        /** @noinspection PhpUndefinedMethodInspection */
-        list($redirectRow) = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
-            'destination,has_moved,domain_limit', 'tx_realurl_redirects',
-            'url_hash=' . $hash . ' AND url=' . $url . ' AND domain_limit IN (0,' . $domainId . ')',
-            '', 'domain_limit DESC');
-        if (is_array($redirectRow)) {
-            // Update statistics
-            $fields_values = array(
-                'counter' => 'counter+1',
-                'tstamp' => time(),
-                'last_referer' => t3lib_div::getIndpEnv('HTTP_REFERER')
-            );
-            /** @noinspection PhpUndefinedMethodInspection */
-            $GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_realurl_redirects',
-                'url_hash=' . $hash . ' AND url=' . $url . ' AND domain_limit=' . $redirectRow['domain_limit'],
-                $fields_values, array('counter'));
-
-            /**
-             * This is the part the actually differs from the original method
-             */
-            // Convert to realurl url if the path begins with '/id='
-            if (t3lib_div::isFirstPartOfStr($redirectRow['destination'], '/id=')) {
-                $redirectRow['destination'] = $this->encodeSpURL_doEncode(substr($redirectRow['destination'], 1), $this->extConf['init']['enableCHashCache']);
-            }
-            /**
-             * This is the part the actually differs from the original method [end]
-             */
-
-            // Redirect
-            $redirectCode = ($redirectRow['has_moved'] ? 301 : 302);
-            header('HTTP/1.1 ' . $redirectCode . ' TYPO3 RealURL Redirect M' . __LINE__);
-            header('Location: ' . t3lib_div::locationHeaderUrl($redirectRow['destination']));
-            exit();
-        }
     }
 
     /**

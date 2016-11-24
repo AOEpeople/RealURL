@@ -95,21 +95,6 @@ CREATE TABLE tx_realurl_errorlog (
 	KEY counter (counter,tstamp)
 );
 
-CREATE TABLE tx_realurl_redirects (
-	uid int(11) NOT NULL auto_increment,
-	url_hash int(11) DEFAULT '0' NOT NULL,
-	url text NOT NULL,
-	destination text NOT NULL,
-	last_referer text NOT NULL,
-	counter int(11) DEFAULT '0' NOT NULL,
-	tstamp int(11) DEFAULT '0' NOT NULL,
-	has_moved int(11) DEFAULT '0' NOT NULL,
-	domain_limit int(11) DEFAULT '0' NOT NULL,
-
-	PRIMARY KEY (uid),
-	UNIQUE KEY sel01 (url_hash,domain_limit)
-);
-
 #
 # Modifying pages table
 #
