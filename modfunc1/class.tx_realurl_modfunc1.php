@@ -216,12 +216,9 @@ class tx_realurl_modfunc1 extends t3lib_extobjbase
     {
         if ($this->pObj->id) {
             $theOutput = '';
-            if (version_compare(TYPO3_version, '4.3.0', '<')) {
-                $cachemgmtClassName = t3lib_div::makeInstanceClassName('tx_realurl_cachemgmt');
-                $this->cachemgmt = new $cachemgmtClassName($GLOBALS['BE_USER']->workspace, 0, 1);
-            } else {
-                $this->cachemgmt = t3lib_div::makeInstance('tx_realurl_cachemgmt', $GLOBALS['BE_USER']->workspace, 0, 1);
-            }
+
+            $this->cachemgmt = t3lib_div::makeInstance('tx_realurl_cachemgmt', $GLOBALS['BE_USER']->workspace, 0, 1);
+
             $this->pathgen = t3lib_div::makeInstance('tx_realurl_pathgenerator');
             $this->pathgen->init(array());
 

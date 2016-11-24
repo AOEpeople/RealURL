@@ -86,8 +86,6 @@ class tx_realurl
     public $multidomain = false;
     public $urlPrepend = array();
 
-    public $useMySQLExtendedSyntax = false;
-
     /**
      * Holds a uid of the detected language during decoding to limit search of
      * titles only to this language. Valid values are:
@@ -180,10 +178,6 @@ class tx_realurl
      */
     public function __construct()
     {
-        if (!t3lib_extMgm::isLoaded('dbal')) {
-            // allow to use the MySQL features of 5.x with mysqli
-            $this->useMySQLExtendedSyntax = true;
-        }
         $sysconf = (array)unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['realurl']);
         $this->enableStrictMode = (bool)$sysconf['enableStrictMode'];
         $this->enableChashUrlDebug = (bool)$sysconf['enableChashUrlDebug'];
@@ -788,29 +782,23 @@ class tx_realurl
 
                 if ($this->extConf['init']['enableUrlEncodeCache'] && $this->canCachePageURL($this->encodePageId)) {
                     $insertFields = array(
-                            'url_hash' => $hash,
-                            'origparams' => $urlData,
-                            'internalExtras' => count($internalExtras) ? serialize($internalExtras) : '',
-                            'content' => $setEncodedURL,
-                            'page_id' => $this->encodePageId,
-                            'tstamp' => time()
-                        );
-                    if ($this->useMySQLExtendedSyntax) {
-                        /** @noinspection PhpUndefinedMethodInspection */
-                        $query = $GLOBALS['TYPO3_DB']->INSERTquery('tx_realurl_urlencodecache', $insertFields);
-                        $query .= ' ON DUPLICATE KEY UPDATE tstamp=' . $insertFields['tstamp'];
-                        /** @noinspection PhpUndefinedMethodInspection */
-                        $GLOBALS['TYPO3_DB']->sql_query($query);
-                    } else {
-                        /** @noinspection PhpUndefinedMethodInspection */
-                        $GLOBALS['TYPO3_DB']->sql_query('START TRANSACTION');
-                        /** @noinspection PhpUndefinedMethodInspection */
-                        $GLOBALS['TYPO3_DB']->exec_DELETEquery('tx_realurl_urlencodecache', 'url_hash=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($hash, 'tx_realurl_urlencodecache'));
-                        /** @noinspection PhpUndefinedMethodInspection */
-                        $GLOBALS['TYPO3_DB']->exec_INSERTquery('tx_realurl_urlencodecache', $insertFields);
-                        /** @noinspection PhpUndefinedMethodInspection */
-                        $GLOBALS['TYPO3_DB']->sql_query('COMMIT');
-                    }
+                        'url_hash' => $hash,
+                        'origparams' => $urlData,
+                        'internalExtras' => count($internalExtras) ? serialize($internalExtras) : '',
+                        'content' => $setEncodedURL,
+                        'page_id' => $this->encodePageId,
+                        'tstamp' => time()
+                    );
+
+                    /** @noinspection PhpUndefinedMethodInspection */
+                    $GLOBALS['TYPO3_DB']->sql_query('START TRANSACTION');
+                    /** @noinspection PhpUndefinedMethodInspection */
+                    $GLOBALS['TYPO3_DB']->exec_DELETEquery('tx_realurl_urlencodecache',
+                        'url_hash=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($hash, 'tx_realurl_urlencodecache'));
+                    /** @noinspection PhpUndefinedMethodInspection */
+                    $GLOBALS['TYPO3_DB']->exec_INSERTquery('tx_realurl_urlencodecache', $insertFields);
+                    /** @noinspection PhpUndefinedMethodInspection */
+                    $GLOBALS['TYPO3_DB']->sql_query('COMMIT');
                 }
             }
         }
@@ -847,7 +835,7 @@ class tx_realurl
                 $cHashParameters = array_merge($this->cHashParameters, $paramKeyValues);
                 unset($cHashParameters['cHash']);
 
-                if (t3lib_div::compat_version('6.2') && $GLOBALS['TYPO3_CONF_VARS']['FE']['cHashIncludePageId'] == true && !isset($cHashParameters['id'])) {
+                if ($GLOBALS['TYPO3_CONF_VARS']['FE']['cHashIncludePageId'] == true && !isset($cHashParameters['id'])) {
                     // See https://typo3.org/teams/security/security-bulletins/typo3-core/typo3-core-sa-2016-022/
                     $cHashParameters['id'] = $this->encodePageId;
                 }
@@ -1055,7 +1043,7 @@ class tx_realurl
                     // Decode URL
                     $cachedInfo = $this->decodeSpURL_doDecode($speakingURIpath, $this->extConf['init']['enableCHashCache']);
 
-                    if (t3lib_div::compat_version('6.2') && $GLOBALS['TYPO3_CONF_VARS']['FE']['cHashIncludePageId'] == true && !isset($cachedInfo['GET_VARS']['id'])) {
+                    if ($GLOBALS['TYPO3_CONF_VARS']['FE']['cHashIncludePageId'] == true && !isset($cachedInfo['GET_VARS']['id'])) {
                         // See https://typo3.org/teams/security/security-bulletins/typo3-core/typo3-core-sa-2016-022/
                         $cachedInfo['GET_VARS']['id'] = $cachedInfo['id'];
                     }
@@ -1266,7 +1254,7 @@ class tx_realurl
             $cachedInfo['GET_VARS'] = t3lib_div::array_merge_recursive_overrule($cachedInfo['GET_VARS'], $file_GET_VARS);
         }
 
-        if (t3lib_div::compat_version('6.2') && $GLOBALS['TYPO3_CONF_VARS']['FE']['cHashIncludePageId'] == true && !isset($cachedInfo['GET_VARS']['id'])) {
+        if ($GLOBALS['TYPO3_CONF_VARS']['FE']['cHashIncludePageId'] == true && !isset($cachedInfo['GET_VARS']['id'])) {
             // See https://typo3.org/teams/security/security-bulletins/typo3-core/typo3-core-sa-2016-022/
             $cachedInfo['GET_VARS']['id'] = $cachedInfo['id'];
         }
@@ -1788,31 +1776,37 @@ class tx_realurl
             $hash = t3lib_div::md5int($this->speakingURIpath_procValue);
             $rootpage_id = intval($this->extConf['pagePath']['rootpage_id']);
             $cond = 'url_hash=' . intval($hash) . ' AND rootpage_id=' . $rootpage_id;
-            $fields_values = array('url_hash' => $hash, 'url' => $this->speakingURIpath_procValue, 'error' => $msg, 'counter' => 1, 'tstamp' => time(), 'cr_date' => time(), 'rootpage_id' => $rootpage_id, 'last_referer' => t3lib_div::getIndpEnv('HTTP_REFERER'));
-            if ($this->useMySQLExtendedSyntax) {
+            $fields_values = array(
+                'url_hash' => $hash,
+                'url' => $this->speakingURIpath_procValue,
+                'error' => $msg,
+                'counter' => 1,
+                'tstamp' => time(),
+                'cr_date' => time(),
+                'rootpage_id' => $rootpage_id,
+                'last_referer' => t3lib_div::getIndpEnv('HTTP_REFERER')
+            );
+
+            /** @noinspection PhpUndefinedMethodInspection */
+            $GLOBALS['TYPO3_DB']->sql_query('START TRANSACTION');
+            /** @noinspection PhpUndefinedMethodInspection */
+            list($error_row) = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('counter', 'tx_realurl_errorlog', $cond);
+            if (count($error_row)) {
                 /** @noinspection PhpUndefinedMethodInspection */
-                $query = $GLOBALS['TYPO3_DB']->INSERTquery('tx_realurl_errorlog', $fields_values);
+                $fields_values = array(
+                    'error' => $msg,
+                    'counter' => $error_row['counter'] + 1,
+                    'tstamp' => time(),
+                    'last_referer' => t3lib_div::getIndpEnv('HTTP_REFERER')
+                );
                 /** @noinspection PhpUndefinedMethodInspection */
-                $query .= ' ON DUPLICATE KEY UPDATE ' . 'error=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($msg, 'tx_realurl_errorlog') . ',' . 'counter=counter+1,' . 'tstamp=' . $fields_values['tstamp'] . ',' . 'last_referer=' . $GLOBALS['TYPO3_DB']->fullQuoteStr(t3lib_div::getIndpEnv('HTTP_REFERER'), 'tx_realurl_errorlog');
-                /** @noinspection PhpUndefinedMethodInspection */
-                $GLOBALS['TYPO3_DB']->sql_query($query);
+                $GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_realurl_errorlog', $cond, $fields_values);
             } else {
                 /** @noinspection PhpUndefinedMethodInspection */
-                $GLOBALS['TYPO3_DB']->sql_query('START TRANSACTION');
-                /** @noinspection PhpUndefinedMethodInspection */
-                list($error_row) = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('counter', 'tx_realurl_errorlog', $cond);
-                if (count($error_row)) {
-                    /** @noinspection PhpUndefinedMethodInspection */
-                    $fields_values = array('error' => $msg, 'counter' => $error_row['counter'] + 1, 'tstamp' => time(), 'last_referer' => t3lib_div::getIndpEnv('HTTP_REFERER'));
-                    /** @noinspection PhpUndefinedMethodInspection */
-                    $GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_realurl_errorlog', $cond, $fields_values);
-                } else {
-                    /** @noinspection PhpUndefinedMethodInspection */
-                    $GLOBALS['TYPO3_DB']->exec_INSERTquery('tx_realurl_errorlog', $fields_values);
-                }
-                /** @noinspection PhpUndefinedMethodInspection */
-                $GLOBALS['TYPO3_DB']->sql_query('COMMIT');
+                $GLOBALS['TYPO3_DB']->exec_INSERTquery('tx_realurl_errorlog', $fields_values);
             }
+            /** @noinspection PhpUndefinedMethodInspection */
+            $GLOBALS['TYPO3_DB']->sql_query('COMMIT');
         }
 
         // Call handler
@@ -1875,28 +1869,28 @@ class tx_realurl
             // Create hash string
             if (is_array($cachedInfo)) { // STORE cachedInfo
 
-
                 if (!$this->isBEUserLoggedIn() && $this->canCachePageURL($cachedInfo['id'])) {
                     $rootpage_id = intval($cachedInfo['rootpage_id']);
                     $hash = md5($speakingURIpath . $rootpage_id);
 
-                    $insertFields = array('url_hash' => $hash, 'spurl' => $speakingURIpath, 'content' => serialize($cachedInfo), 'page_id' => $cachedInfo['id'], 'rootpage_id' => $rootpage_id, 'tstamp' => time());
-                    if ($this->useMySQLExtendedSyntax) {
-                        /** @noinspection PhpUndefinedMethodInspection */
-                        $query = $GLOBALS['TYPO3_DB']->INSERTquery('tx_realurl_urldecodecache', $insertFields);
-                        $query .= ' ON DUPLICATE KEY UPDATE tstamp=' . $insertFields['tstamp'];
-                        /** @noinspection PhpUndefinedMethodInspection */
-                        $GLOBALS['TYPO3_DB']->sql_query($query);
-                    } else {
-                        /** @noinspection PhpUndefinedMethodInspection */
-                        $GLOBALS['TYPO3_DB']->sql_query('START TRANSACTION');
-                        /** @noinspection PhpUndefinedMethodInspection */
-                        $GLOBALS['TYPO3_DB']->exec_DELETEquery('tx_realurl_urldecodecache', 'url_hash=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($hash, 'tx_realurl_urldecodecache'));
-                        /** @noinspection PhpUndefinedMethodInspection */
-                        $GLOBALS['TYPO3_DB']->exec_INSERTquery('tx_realurl_urldecodecache', $insertFields);
-                        /** @noinspection PhpUndefinedMethodInspection */
-                        $GLOBALS['TYPO3_DB']->sql_query('COMMIT');
-                    }
+                    $insertFields = array(
+                        'url_hash' => $hash,
+                        'spurl' => $speakingURIpath,
+                        'content' => serialize($cachedInfo),
+                        'page_id' => $cachedInfo['id'],
+                        'rootpage_id' => $rootpage_id,
+                        'tstamp' => time()
+                    );
+
+                    /** @noinspection PhpUndefinedMethodInspection */
+                    $GLOBALS['TYPO3_DB']->sql_query('START TRANSACTION');
+                    /** @noinspection PhpUndefinedMethodInspection */
+                    $GLOBALS['TYPO3_DB']->exec_DELETEquery('tx_realurl_urldecodecache',
+                        'url_hash=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($hash, 'tx_realurl_urldecodecache'));
+                    /** @noinspection PhpUndefinedMethodInspection */
+                    $GLOBALS['TYPO3_DB']->exec_INSERTquery('tx_realurl_urldecodecache', $insertFields);
+                    /** @noinspection PhpUndefinedMethodInspection */
+                    $GLOBALS['TYPO3_DB']->sql_query('COMMIT');
                 }
             } else {
                 // GET cachedInfo.

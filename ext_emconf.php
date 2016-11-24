@@ -12,8 +12,8 @@ $EM_CONF[$_EXTKEY] = array(
     'version' => '1.12.8.AOE',
     'constraints' => array(
         'depends' => array(
-            'php' => '5.3.2-5.999.999',
-            'typo3' => '4.5.0-6.2.999',
+            'php' => '5.3.0-7.99.99',
+            'typo3' => '6.2.0-7.99.99',
         ),
         'conflicts' => array(
             'cooluri' => '',
