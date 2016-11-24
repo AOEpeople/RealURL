@@ -1,11 +1,7 @@
 <?php
-if (!defined('TYPO3_MODE')) {
-    die('Access denied.');
-}
+defined('TYPO3_MODE') or die();
 
-if (TYPO3_MODE=='BE') {
-    //	t3lib_extMgm::addModule('tools','txrealurlM1','',t3lib_extMgm::extPath($_EXTKEY).'mod1/');
-
+if (TYPO3_MODE == 'BE') {
     // Add Web>Info module:
     t3lib_extMgm::insertModuleFunction(
         'web_info',
@@ -23,7 +19,7 @@ if (version_compare(TYPO3_branch, '6.1', '<')) {
 $TCA['pages']['columns'] += array(
     'tx_realurl_pathsegment' => array(
         'label' => 'LLL:EXT:realurl/locallang_db.xml:pages.tx_realurl_pathsegment',
-//		'displayCond' => 'FIELD:tx_realurl_exclude:!=:1',
+//        'displayCond' => 'FIELD:tx_realurl_exclude:!=:1',
         'exclude' => 1,
         'config' => array(
             'type' => 'input',
@@ -72,7 +68,8 @@ $TCA['pages']['palettes']['137'] = array(
 
 // Put it for standard page
 t3lib_extMgm::addToAllTCAtypes('pages', 'tx_realurl_pathsegment;;137;;,tx_realurl_exclude', '2', 'after:nav_title');
-t3lib_extMgm::addToAllTCAtypes('pages', 'tx_realurl_pathsegment;;137;;,tx_realurl_exclude', '1,5,4,199,254', 'after:title');
+t3lib_extMgm::addToAllTCAtypes('pages', 'tx_realurl_pathsegment;;137;;,tx_realurl_exclude', '1,5,4,199,254',
+    'after:title');
 
 t3lib_extMgm::addLLrefForTCAdescr('pages', 'EXT:realurl/locallang_csh.xml');
 
@@ -108,4 +105,5 @@ $TCA['pages_language_overlay']['columns'] += array(
     ),
 );
 
-t3lib_extMgm::addToAllTCAtypes('pages_language_overlay', 'tx_realurl_pathsegment,tx_realurl_pathoverride,tx_realurl_exclude', '', 'after:nav_title');
+t3lib_extMgm::addToAllTCAtypes('pages_language_overlay',
+    'tx_realurl_pathsegment,tx_realurl_pathoverride,tx_realurl_exclude', '', 'after:nav_title');
