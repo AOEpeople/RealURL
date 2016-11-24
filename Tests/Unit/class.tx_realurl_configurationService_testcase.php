@@ -39,7 +39,7 @@ class tx_realurl_configurationService_testcase extends \TYPO3\CMS\Core\Tests\Uni
 
     public function setUp()
     {
-        $this->configurationService = t3lib_div::makeInstance('tx_realurl_configurationService');
+        $this->configurationService = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('tx_realurl_configurationService');
     }
 
     public function test_canGetDefaultConfiguration()

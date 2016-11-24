@@ -176,7 +176,7 @@ class tx_realurl_pathgenerator
             $result = $this->sys_page->getPage($id);
 
                 // if overlay for the of shortcuts is requested
-            if ($this->extconfArr ['localizeShortcuts'] && t3lib_div::inList($GLOBALS ['TYPO3_CONF_VARS'] ['FE'] ['pageOverlayFields'], 'shortcut') && $langid) {
+            if ($this->extconfArr ['localizeShortcuts'] && \TYPO3\CMS\Core\Utility\GeneralUtility::inList($GLOBALS ['TYPO3_CONF_VARS'] ['FE'] ['pageOverlayFields'], 'shortcut') && $langid) {
                 $resultOverlay = $this->_getPageOverlay($id, $langid);
                 if ($resultOverlay ["shortcut"]) {
                     $result ["shortcut"] = $resultOverlay ["shortcut"];
@@ -315,7 +315,7 @@ class tx_realurl_pathgenerator
      **/
     public function _buildPath($segment, $rootline)
     {
-        $segment = t3lib_div::trimExplode(",", $segment);
+        $segment = \TYPO3\CMS\Core\Utility\GeneralUtility::trimExplode(',', $segment);
         $path = array();
         $size = count($rootline);
         $rootline = array_reverse($rootline);
@@ -472,7 +472,7 @@ class tx_realurl_pathgenerator
                 'title' => $title,
                 'processedTitle' => $processedTitle
             );
-            $processedTitle = t3lib_div::callUserFunction($this->conf ['encodeTitle_userProc'], $params, $this);
+            $processedTitle = \TYPO3\CMS\Core\Utility\GeneralUtility::callUserFunction($this->conf ['encodeTitle_userProc'], $params, $this);
         }
             // Return encoded URL:
         return rawurlencode($processedTitle);
@@ -497,7 +497,7 @@ class tx_realurl_pathgenerator
              *	I also opted against "clone $GLOBALS['TSFE']->sys_page"
              *	since this might still cause race conditions on the object
              **/
-            $this->sys_page = t3lib_div::makeInstance('t3lib_pageSelect');
+            $this->sys_page = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\Page\PageRepository::class);
         }
         $this->sys_page->sys_language_uid = $langID;
         if ($workspace != 0 && is_numeric($workspace)) {
@@ -524,7 +524,6 @@ class tx_realurl_pathgenerator
             $fullPageArr = array_merge($fullPageArr, $this->_getPageOverlay($page ['uid'], $langid));
         }
 
-        t3lib_div::loadTCA('pages');
         $prefix = false;
         $prefixItems = $GLOBALS ['TCA'] ['pages'] ['columns'] ['urltype'] ['config'] ['items'];
         if (is_array($prefixItems)) {
@@ -551,8 +550,10 @@ class tx_realurl_pathgenerator
     public function _getPageOverlay($id, $langid = 0)
     {
         $relevantLangId = $langid;
-        if ($this->extconfArr ['useLanguagevisibility'] && t3lib_extMgm::isLoaded('languagevisibility')) {
-            require_once(t3lib_extMgm::extPath("languagevisibility") . 'class.tx_languagevisibility_feservices.php');
+        if ($this->extconfArr['useLanguagevisibility']
+            && \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::isLoaded('languagevisibility')
+        ) {
+            require_once(\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath('languagevisibility') . 'class.tx_languagevisibility_feservices.php');
             $relevantLangId = tx_languagevisibility_feservices::getOverlayLanguageIdForElementRecord($id, 'pages', $langid);
         }
         return $this->sys_page->getPageOverlay($id, $relevantLangId);

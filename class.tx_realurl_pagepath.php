@@ -24,13 +24,6 @@
  *
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-/**
- *
- * @author    Daniel Pötzinger
- * @author    Tolleiv Nietsch
- */
-include_once(t3lib_extMgm::extPath('realurl') . 'class.tx_realurl_pathgenerator.php');
-include_once(t3lib_extMgm::extPath('realurl') . 'class.tx_realurl_cachemgmt.php');
 
 /**
  *

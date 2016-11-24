@@ -1,6 +1,6 @@
 <?php
 
-$extensionPath = t3lib_extMgm::extPath('realurl');
+$extensionPath = \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath('realurl');
 return array(
     'tx_realurl' => $extensionPath . 'class.tx_realurl.php',
     'tx_realurl_cachemgmt' => $extensionPath . 'class.tx_realurl_cachemgmt.php',

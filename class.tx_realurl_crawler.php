@@ -47,7 +47,7 @@ class tx_realurl_crawler
         // Look for "crawler" extension activity:
         // Requirements are that the crawler is loaded, a crawler session is running and tx_cachemgm_recache requested as processing instruction:
         if (
-            t3lib_extMgm::isLoaded('crawler')
+            \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::isLoaded('crawler')
             && $pObj->applicationData ['tx_crawler'] ['running']
             && (
                 in_array('tx_cachemgm_recache', $pObj->applicationData ['tx_crawler'] ['parameters'] ['procInstructions'])
@@ -85,7 +85,7 @@ class tx_realurl_crawler
     public function headerNoCache(&$params, $tsfe)
     {
         if (
-            t3lib_extMgm::isLoaded('crawler')
+            \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::isLoaded('crawler')
             && $params['pObj']->applicationData['tx_crawler']['running']
             && in_array('tx_realurl_rebuild', $params['pObj']->applicationData['tx_crawler']['parameters']['procInstructions'])
         ) {

@@ -48,7 +48,7 @@ class tx_realurl_configurationService
     public function getConfigurationForDomain($host = '')
     {
         if ($host == '') {
-            $host = t3lib_div::getIndpEnv('TYPO3_HOST_ONLY');
+            $host = \TYPO3\CMS\Core\Utility\GeneralUtility::getIndpEnv('TYPO3_HOST_ONLY');
         }
         // First pass, finding configuration OR pointer string:
         if (isset($this->confArray[$host])) {
@@ -112,7 +112,7 @@ class tx_realurl_configurationService
                 if (!$domain[0]['redirectTo']) {
                     $rootpage_id = intval($domain[0]['pid']);
                     if ($this->enableDevLog) {
-                        t3lib_div::devLog('Found rootpage_id by domain lookup', 'realurl', 0, array('domain' => $domain[0]['domainName'], 'rootpage_id' => $rootpage_id));
+                        \TYPO3\CMS\Core\Utility\GeneralUtility::devLog('Found rootpage_id by domain lookup', 'realurl', 0, array('domain' => $domain[0]['domainName'], 'rootpage_id' => $rootpage_id));
                     }
                     break;
                 } else {
@@ -131,7 +131,7 @@ class tx_realurl_configurationService
             if (count($rows) == 1) {
                 $rootpage_id = $rows[0]['pid'];
                 if ($this->enableDevLog) {
-                    t3lib_div::devLog('Found rootpage_id by searching sys_template', 'realurl', 0, array('rootpage_id' => $rootpage_id));
+                    \TYPO3\CMS\Core\Utility\GeneralUtility::devLog('Found rootpage_id by searching sys_template', 'realurl', 0, array('rootpage_id' => $rootpage_id));
                 }
             }
         }

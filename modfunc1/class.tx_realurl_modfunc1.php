@@ -169,12 +169,11 @@ class tx_realurl_modfunc1 extends t3lib_extobjbase
     /**
      * Initializes the page tree.
      *
-     * @return t3lib_pageTree
+     * @return \TYPO3\CMS\Backend\Tree\View\PageTreeView
      */
     protected function initializeTree()
     {
-        $tree = t3lib_div::makeInstance('t3lib_pageTree');
-        /** @var t3lib_pageTree $tree */
+        $tree = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Backend\Tree\View\PageTreeView::class);
         $tree->addField('nav_title', true);
         $tree->addField('alias', true);
         $tree->addField('l18n_cfg');
@@ -1006,21 +1005,17 @@ class tx_realurl_modfunc1 extends t3lib_extobjbase
     /**
      * Shows configuration of the extension.
      *
-     * @return    string        HTML
+     * @return string
      */
     public function configView()
     {
-        global $TYPO3_CONF_VARS;
-
-        // Initialize array browser:
-        $arrayBrowser = t3lib_div::makeInstance('t3lib_arrayBrowser');
-        /** @var t3lib_arrayBrowser $arrayBrowser */
+        $arrayBrowser = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Lowlevel\Utility\ArrayBrowser::class);
         $arrayBrowser->expAll = true;
         $arrayBrowser->fixedLgd = false;
         $arrayBrowser->dontLinkVar = true;
 
         // Create the display code:
-        $theVar = $TYPO3_CONF_VARS['EXTCONF']['realurl'];
+        $theVar = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['realurl'];
         $tree = $arrayBrowser->tree($theVar, '', '');
 
         $tree = '<hr/>

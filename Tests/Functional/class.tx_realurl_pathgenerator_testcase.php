@@ -66,7 +66,7 @@ class tx_realurl_pathgenerator_testcase extends \TYPO3\CMS\Core\Tests\Functional
             $GLOBALS['TSFE'] = new stdClass();
         }
         if (!$GLOBALS['TSFE']->csConvObj) {
-            $GLOBALS['TSFE']->csConvObj = t3lib_div::makeInstance('t3lib_cs');
+            $GLOBALS['TSFE']->csConvObj = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Charset\CharsetConverter::class);
         }
         $GLOBALS['TSFE']->defaultCharSet = 'utf8';
     }

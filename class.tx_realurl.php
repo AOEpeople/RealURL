@@ -828,9 +828,7 @@ class tx_realurl
         // the same speaking URL in the cache table!)
         if (isset($paramKeyValues['cHash'])) {
             if ($this->rebuildCHash) {
-                $cacheHashClassExists = class_exists('t3lib_cacheHash');
-                $cacheHash = ($cacheHashClassExists ? t3lib_div::makeInstance('t3lib_cacheHash') : null);
-                /* @var t3lib_cacheHash $cacheHash */
+                $cacheHashCalculator = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\Page\CacheHashCalculator::class);
 
                 $cHashParameters = array_merge($this->cHashParameters, $paramKeyValues);
                 unset($cHashParameters['cHash']);
@@ -841,26 +839,14 @@ class tx_realurl
                 }
 
                 $cHashParameters = t3lib_div::implodeArrayForUrl('', $cHashParameters);
-                if ($cacheHashClassExists) {
-                    $cHashParameters = $cacheHash->getRelevantParameters($cHashParameters);
-                } else {
-                    /** @noinspection PhpUndefinedMethodInspection PhpDeprecationInspection */
-                    $cHashParameters = t3lib_div::cHashParams($cHashParameters);
-                }
+                $cHashParameters = $cacheHashCalculator->getRelevantParameters($cHashParameters);
+
                 unset($cHashParameters['']);
                 if (count($cHashParameters) == 1) {
                     // No cHash needed.
                     unset($paramKeyValues['cHash']);
                 } elseif (count($cHashParameters) > 1) {
-                    if ($cacheHashClassExists) {
-                        $paramKeyValues['cHash'] = $cacheHash->calculateCacheHash($cHashParameters);
-                    } elseif (method_exists('t3lib_div', 'calculateCHash')) {
-                        /** @noinspection PhpUndefinedMethodInspection PhpDeprecationInspection */
-                        $paramKeyValues['cHash'] = t3lib_div::calculateCHash($cHashParameters);
-                    } else {
-                        /** @noinspection PhpUndefinedMethodInspection PhpDeprecationInspection */
-                        $paramKeyValues['cHash'] = t3lib_div::shortMD5(serialize($cHashParameters));
-                    }
+                    $paramKeyValues['cHash'] = $cacheHashCalculator->calculateCacheHash($cHashParameters);
                 }
                 unset($cHashParameters);
             }
@@ -1221,16 +1207,10 @@ class tx_realurl
 
         // cHash handling
         if ($cHashCache) {
-            $queryString = t3lib_div::implodeArrayForUrl('', $cachedInfo['GET_VARS']);
-            $cacheHashClassExists = class_exists('t3lib_cacheHash');
-            if ($cacheHashClassExists) {
-                $cacheHash = t3lib_div::makeInstance('t3lib_cacheHash');
-                /** @var t3lib_cacheHash $cacheHash */
-                $containsRelevantParametersForCHashCreation = count($cacheHash->getRelevantParameters(ltrim($queryString, '&'))) > 0;
-            } else {
-                /** @noinspection PhpUndefinedMethodInspection PhpDeprecationInspection */
-                $containsRelevantParametersForCHashCreation = count(t3lib_div::cHashParams($queryString)) > 0;
-            }
+            $queryString = \TYPO3\CMS\Core\Utility\GeneralUtility::implodeArrayForUrl('', $cachedInfo['GET_VARS']);
+            $cacheHashCalculator = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\Page\CacheHashCalculator::class);
+
+            $containsRelevantParametersForCHashCreation = count($cacheHashCalculator->getRelevantParameters(ltrim($queryString, '&'))) > 0;
 
             if ($containsRelevantParametersForCHashCreation) {
                 $cHash_value = $this->decodeSpURL_cHashCache($speakingURIpath);
@@ -1239,7 +1219,7 @@ class tx_realurl
                 }
             }
         }
-        // Return information found
+
         return $cachedInfo;
     }
 

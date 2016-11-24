@@ -166,7 +166,7 @@ class tx_realurl_tcemain
      */
     protected function fetchRealURLConfiguration($pageId)
     {
-        $rootLine = t3lib_BEfunc::BEgetRootLine($pageId);
+        $rootLine = \TYPO3\CMS\Backend\Utility\BackendUtility::BEgetRootLine($pageId);
         $rootPageId = $rootLine[1]['uid'];
         $this->config = array();
         if (isset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['realurl'])) {
@@ -180,7 +180,7 @@ class tx_realurl_tcemain
                 $this->config = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['realurl']['_DEFAULT'];
             }
         } else {
-            t3lib_div::sysLog('RealURL is not configured! Please, configure it or uninstall.', 'RealURL', 3);
+            \TYPO3\CMS\Core\Utility\GeneralUtility::sysLog('RealURL is not configured! Please, configure it or uninstall.', 'RealURL', 3);
         }
     }
 
@@ -194,8 +194,7 @@ class tx_realurl_tcemain
     {
         $children  = array();
 
-        /** @var $tree t3lib_pageTree */
-        $tree = t3lib_div::makeInstance('t3lib_pageTree');
+        $tree = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Backend\Tree\View\PageTreeView::class);
         $tree->init('AND ' . $GLOBALS['BE_USER']->getPagePermsClause(1));
         $this->makeHTML = false;
         $tree->getTree($pageId, 99, '');
@@ -254,7 +253,7 @@ class tx_realurl_tcemain
             }
         }
         $fieldList .= ',hidden';
-        return array_unique(t3lib_div::trimExplode(',', $fieldList, true));
+        return array_unique(\TYPO3\CMS\Core\Utility\GeneralUtility::trimExplode(',', $fieldList, true));
     }
 
     /**
@@ -304,11 +303,11 @@ class tx_realurl_tcemain
      * @param string $tableName
      * @param int $recordId
      * @param array $databaseData
-     * @param t3lib_tcemain $reference
+     * @param \TYPO3\CMS\Core\DataHandling\DataHandler $reference
      * @return void
      * @todo Expire unique alias cache: how to get the proper timeout value easily here?
      */
-    public function processDatamap_afterDatabaseOperations($status, $tableName, $recordId, array $databaseData, t3lib_tcemain &$reference)
+    public function processDatamap_afterDatabaseOperations($status, $tableName, $recordId, array $databaseData, \TYPO3\CMS\Core\DataHandling\DataHandler &$reference)
     {
         $this->processContentUpdates($status, $tableName, $recordId, $databaseData);
         $this->markCachesDirty($tableName, $recordId, $reference);
@@ -325,18 +324,22 @@ class tx_realurl_tcemain
      * @param array $incomingFieldArray
      * @param string $table
      * @param string $id
-     * @param object $ref
+     * @param \TYPO3\CMS\Core\DataHandling\DataHandler $reference
      * @return void
      */
-    public function processDatamap_preProcessFieldArray(&$incomingFieldArray, $table, $id, t3lib_tcemain &$reference)
+    public function processDatamap_preProcessFieldArray(&$incomingFieldArray, $table, $id, \TYPO3\CMS\Core\DataHandling\DataHandler &$reference)
     {
         if ($table != 'pages_language_overlay' || $id != 'NEW') {
             return;
         }
 
         if (intval($incomingFieldArray['pid'])) {
-            $parent = t3lib_BEfunc::getRecord('pages', intval($incomingFieldArray['pid']), 'uid,pid,tx_realurl_exclude');
-            t3lib_BEfunc::workspaceOL('pages', $parent);
+            $parent = \TYPO3\CMS\Backend\Utility\BackendUtility::getRecord(
+                'pages',
+                intval($incomingFieldArray['pid']),
+                'uid,pid,tx_realurl_exclude'
+            );
+            \TYPO3\CMS\Backend\Utility\BackendUtility::workspaceOL('pages', $parent);
             if ($parent['tx_realurl_exclude']) {
                 $incomingFieldArray['tx_realurl_exclude'] = $parent['tx_realurl_exclude'];
             }
@@ -395,13 +398,13 @@ class tx_realurl_tcemain
     protected function markCachesDirty($tableName, $recordId, &$reference)
     {
         if ($tableName == 'pages') {
-            $cache = t3lib_div::makeInstance('tx_realurl_cachemgmt', $GLOBALS ['BE_USER']->workspace, 0);
+            $cache = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('tx_realurl_cachemgmt', $GLOBALS ['BE_USER']->workspace, 0);
             $cache->markAsDirtyCompletePid($recordId);
         }
         if ($tableName == 'pages_language_overlay') {
             $pid = $reference->checkValue_currentRecord ['pid'];
             if ($pid) {
-                $cache = t3lib_div::makeInstance('tx_realurl_cachemgmt', $GLOBALS ['BE_USER']->workspace, 0);
+                $cache = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('tx_realurl_cachemgmt', $GLOBALS ['BE_USER']->workspace, 0);
                 $cache->markAsDirtyCompletePid($pid);
             }
         }

@@ -38,7 +38,7 @@ class tx_environment_testcase extends \TYPO3\CMS\Core\Tests\FunctionalTestCase
      */
     public function pageOverlayFieldExists()
     {
-        $list = t3lib_div::trimExplode(',', $GLOBALS['TYPO3_CONF_VARS']['FE']['pageOverlayFields']);
+        $list = \TYPO3\CMS\Core\Utility\GeneralUtility::trimExplode(',', $GLOBALS['TYPO3_CONF_VARS']['FE']['pageOverlayFields']);
         $this->assertTrue(
             in_array('tx_realurl_pathsegment', $list),
             'tx_realurl_pathsegment missing in $GLOBALS[\'TYPO3_CONF_VARS\'][\'FE\'][\'pageOverlayFields\']');
@@ -58,7 +58,7 @@ class tx_environment_testcase extends \TYPO3\CMS\Core\Tests\FunctionalTestCase
      */
     public function rootlineFieldExists()
     {
-        $list = t3lib_div::trimExplode(',', $GLOBALS['TYPO3_CONF_VARS']['FE']['addRootLineFields']);
+        $list = \TYPO3\CMS\Core\Utility\GeneralUtility::trimExplode(',', $GLOBALS['TYPO3_CONF_VARS']['FE']['addRootLineFields']);
         $this->assertTrue(
             in_array('tx_realurl_pathsegment', $list),
             'tx_realurl_pathsegment missing in $GLOBALS[\'TYPO3_CONF_VARS\'][\'FE\'][\'addRootLineFields\']');

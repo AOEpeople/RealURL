@@ -213,9 +213,9 @@ class tx_realurl_cachemgmt
             $_ignore = $pid;
             $_workspace = $this->getWorkspaceId();
             if ($_workspace > 0) {
-                $record = t3lib_BEfunc::getLiveVersionOfRecord('pages', $pid, 'uid');
+                $record = \TYPO3\CMS\Backend\Utility\BackendUtility::getLiveVersionOfRecord('pages', $pid, 'uid');
                 if (!is_array($record)) {
-                    $record = t3lib_BEfunc::getWorkspaceVersionOfRecord($_workspace, 'pages', $pid, '*');
+                    $record = \TYPO3\CMS\Backend\Utility\BackendUtility::getWorkspaceVersionOfRecord($_workspace, 'pages', $pid, '*');
                 }
                 if (is_array($record)) {
                     $_ignore = $record['uid'];
