@@ -58,8 +58,7 @@ class tx_realurl
     public $appendedSlash = false; // Set true if slash is appended
     public $encodePageId = 0; // Set with the page id during encoding. for internal use only.
     public $speakingURIpath_procValue = ''; // For decoding, the path we are processing.
-    public $disableDecodeCache = false; // If set internally, decode caching is disabled. Used when a 303 header is set in tx_realurl_advanced.
-
+    public $disableDecodeCache = false; // If set internally, decode caching is disabled.
 
     public $decode_editInBackend = false; // If set (in adminjump function) then we will redirect to edit the found page id in the backend.
     public $encodeError = false; // If set true encoding failed , probably because the url was outside of root line - and the input url is returned directly.
@@ -2258,7 +2257,6 @@ class tx_realurl
 
     /**
      * Clean up the alias
-     * (Almost the same function as encodeTitle() in class.tx_realurl_advanced.php)
      *
      * @param array $cfg Configuration array
      * @param string $newAliasValue Alias value to clean up

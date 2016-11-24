@@ -73,7 +73,7 @@ class tx_realurl_configurationService_testcase extends \TYPO3\CMS\Core\Tests\Uni
                 'preVars' => array(),
                 'pagePath' => array(
                     'type' => 'user',
-                    'userFunc' => 'EXT:realurl/class.tx_realurl_advanced.php:&tx_realurl_advanced->main',
+                    'userFunc' => 'EXT:realurl/class.tx_realurl_pagepath.php:&tx_realurl_pagepath->main',
                     'spaceCharacter' => '-',
                     'cacheTimeOut' => '100',
                     'languageGetVar' => 'L',

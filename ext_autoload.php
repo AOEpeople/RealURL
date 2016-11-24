@@ -3,7 +3,6 @@
 $extensionPath = t3lib_extMgm::extPath('realurl');
 return array(
     'tx_realurl' => $extensionPath . 'class.tx_realurl.php',
-    'tx_realurl_advanced' => $extensionPath . 'class.tx_realurl_advanced.php',
     'tx_realurl_cachemgmt' => $extensionPath . 'class.tx_realurl_cachemgmt.php',
     'tx_realurl_configurationservice' => $extensionPath . 'class.tx_realurl_configurationService.php',
     'tx_realurl_configurationservice_exception' => $extensionPath . 'class.tx_realurl_configurationService_exception.php',

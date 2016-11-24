@@ -304,7 +304,7 @@ class tx_realurl_pathgenerator_testcase extends \TYPO3\CMS\Core\Tests\Functional
      */
     public function fixture_defaultconfig()
     {
-        $conf = array('type' => 'user', 'userFunc' => 'EXT:realurl/class.tx_realurl_advanced.php:&tx_realurl_advanced->main', 'spaceCharacter' => '-', 'cacheTimeOut' => '100', 'languageGetVar' => 'L', 'rootpage_id' => '1', 'strictMode' => 1, 'segTitleFieldList' => 'alias,tx_realurl_pathsegment,nav_title,title,subtitle');
+        $conf = array('type' => 'user', 'userFunc' => 'EXT:realurl/class.tx_realurl_pagepath.php:&tx_realurl_pagepath->main', 'spaceCharacter' => '-', 'cacheTimeOut' => '100', 'languageGetVar' => 'L', 'rootpage_id' => '1', 'strictMode' => 1, 'segTitleFieldList' => 'alias,tx_realurl_pathsegment,nav_title,title,subtitle');
 
         return $conf;
     }
@@ -315,7 +315,7 @@ class tx_realurl_pathgenerator_testcase extends \TYPO3\CMS\Core\Tests\Functional
      */
     public function fixture_delegationconfig()
     {
-        $conf = array('type' => 'user', 'userFunc' => 'EXT:realurl/class.tx_realurl_advanced.php:&tx_realurl_advanced->main', 'spaceCharacter' => '-', 'cacheTimeOut' => '100', 'languageGetVar' => 'L', 'rootpage_id' => '1', 'strictMode' => 1, 'segTitleFieldList' => 'alias,tx_realurl_pathsegment,nav_title,title,subtitle', 'delegation' => array(77 => 'url'));
+        $conf = array('type' => 'user', 'userFunc' => 'EXT:realurl/class.tx_realurl_pagepath.php:&tx_realurl_pagepath->main', 'spaceCharacter' => '-', 'cacheTimeOut' => '100', 'languageGetVar' => 'L', 'rootpage_id' => '1', 'strictMode' => 1, 'segTitleFieldList' => 'alias,tx_realurl_pathsegment,nav_title,title,subtitle', 'delegation' => array(77 => 'url'));
 
         return $conf;
     }
