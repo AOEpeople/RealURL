@@ -24,7 +24,6 @@
 ***************************************************************/
 
 $GLOBALS['LANG']->includeLLfile('EXT:realurl/modfunc1/locallang.xml');
-require_once(t3lib_extMgm::extPath('realurl', 'modfunc1/class.tx_realurl_pagebrowser.php'));
 
 /**
  * Speaking Url management extension

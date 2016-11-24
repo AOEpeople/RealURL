@@ -25,8 +25,6 @@
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-require_once(t3lib_extMgm::extPath('realurl') . 'class.tx_realurl_configurationService_exception.php');
-
 class tx_realurl_configurationService
 {
     private $confArray = array();
