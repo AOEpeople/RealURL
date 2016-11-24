@@ -44,19 +44,6 @@ class tx_realurl_tcemain
     protected $config;
 
     /**
-     * Removes autoconfiguration file if table name is sys_domain
-     *
-     * @param string $tableName
-     * @return void
-     */
-    protected function clearAutoConfiguration($tableName)
-    {
-        if ($tableName == 'sys_domain') {
-            @unlink(PATH_site . TX_REALURL_AUTOCONF_FILE);
-        }
-    }
-
-    /**
      * Clears RealURL caches if necessary
      *
      * @param string $command
@@ -304,7 +291,6 @@ class tx_realurl_tcemain
     public function processCmdmap_postProcess($command, $tableName, $recordId)
     {
         $this->clearCaches($command, $tableName, $recordId);
-        $this->clearAutoConfiguration($tableName);
         $this->clearUniqueAlias($command, $tableName, $recordId);
     }
 
@@ -322,7 +308,6 @@ class tx_realurl_tcemain
     public function processDatamap_afterDatabaseOperations($status, $tableName, $recordId, array $databaseData, t3lib_tcemain &$reference)
     {
         $this->processContentUpdates($status, $tableName, $recordId, $databaseData);
-        $this->clearAutoConfiguration($tableName);
         $this->markCachesDirty($tableName, $recordId, $reference);
     }
 

@@ -7,7 +7,6 @@ return array(
     'tx_realurl_pagepath' => $extensionPath . 'class.tx_realurl_pagepath.php',
     'tx_realurl_pathgenerator' => $extensionPath . 'class.tx_realurl_pathgenerator.php',
     'tx_realurl_advanced' => $extensionPath . 'class.tx_realurl_advanced.php',
-    'tx_realurl_autoconfgen' => $extensionPath . 'class.tx_realurl_autoconfgen.php',
     'tx_realurl_configurationservice' => $extensionPath . 'class.tx_realurl_configurationService.php',
     'tx_realurl_configurationservice_exception' => $extensionPath . 'class.tx_realurl_configurationService_exception.php',
     'tx_realurl_dummy' => $extensionPath . 'class.tx_realurl_dummy.php',

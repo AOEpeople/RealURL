@@ -37,10 +37,6 @@ if (is_array($_realurl_conf)) {
     unset($_realurl_conf_file);
 }
 
-define('TX_REALURL_AUTOCONF_FILE', 'typo3conf/realurl_autoconf.php');
-if (!isset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['realurl'])) {
-    @include_once(PATH_site . TX_REALURL_AUTOCONF_FILE);
-}
 unset($_realurl_conf);
 
 define('TX_REALURL_SEGTITLEFIELDLIST_DEFAULT', 'tx_realurl_pathsegment,alias,nav_title,title,uid');
