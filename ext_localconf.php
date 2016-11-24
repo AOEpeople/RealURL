@@ -42,9 +42,6 @@ unset($_realurl_conf);
 define('TX_REALURL_SEGTITLEFIELDLIST_DEFAULT', 'tx_realurl_pathsegment,alias,nav_title,title,uid');
 define('TX_REALURL_SEGTITLEFIELDLIST_PLO', 'tx_realurl_pathsegment,nav_title,title,uid');
 
-// TYPO3 clean up handler
-//$GLOBALS ['TYPO3_CONF_VARS']['EXTCONF']['lowlevel']['cleanerModules'][$_EXTKEY] = array('EXT:' . $_EXTKEY . '/class.tx_realurl_cleanuphandler.php:tx_realurl_cleanuphandler');
-
 if ($_realurl_conf['addpageOverlayFields'] !== 0) {
     $TYPO3_CONF_VARS['FE']['pageOverlayFields'] .= ',tx_realurl_pathsegment,tx_realurl_exclude,tx_realurl_pathoverride';
 }
