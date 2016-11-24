@@ -24,9 +24,6 @@
 *
 *  This copyright notice MUST APPEAR in all copies of the script!
 ***************************************************************/
-/**
- * $Id$
- */
 
 /**
  * TCEmain hook to update various caches when data is modified in TYPO3 Backend
@@ -403,8 +400,4 @@ class tx_realurl_tcemain
             }
         }
     }
-}
-
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/realurl/class.tx_realurl_tcemain.php']) {
-    include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/realurl/class.tx_realurl_tcemain.php']);
 }

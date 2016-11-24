@@ -22,47 +22,6 @@
 *
 *  This copyright notice MUST APPEAR in all copies of the script!
 ***************************************************************/
-/**
- * Speaking Url management extension
- *
- * $Id$
- *
- * @author	Kasper Skaarhoj <kasperYYYY@typo3.com>
- */
-/**
- * [CLASS/FUNCTION INDEX of SCRIPT]
- *
- *
- *
- *   78: class tx_realurl_modfunc1 extends t3lib_extobjbase
- *   89:     function modMenu()
- *  113:     function main()
- *
- *              SECTION: Path Cache rendering:
- *  215:     function renderModule($tree)
- *  435:     function getPathCache($pageId)
- *  471:     function linkSelf($addParams)
- *  480:     function renderSearchForm()
- *  524:     function deletePathCacheEntry($cache_id)
- *  535:     function editPathCacheEntry($cache_id,$value)
- *  547:     function edit_save()
- *  562:     function saveCancelButtons($extra='')
- *
- *              SECTION: Decode view
- *  593:     function decodeView($tree)
- *
- *              SECTION: Encode view
- *  698:     function encodeView($tree)
- *
- *              SECTION: Unique Alias
- *  806:     function uniqueAlias()
- *  939:     function editUniqAliasEntry($cache_id,$value)
- *  951:     function edit_save_uniqAlias()
- *
- * TOTAL FUNCTIONS: 15
- * (This index is automatically created/updated by the extension "extdeveval")
- *
- */
 
 $GLOBALS['LANG']->includeLLfile('EXT:realurl/modfunc1/locallang.xml');
 require_once(t3lib_extMgm::extPath('realurl', 'modfunc1/class.tx_realurl_pagebrowser.php'));
@@ -1960,8 +1919,4 @@ class tx_realurl_modfunc1 extends t3lib_extobjbase
 		</table>';
         return $output;
     }
-}
-
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/realurl/modfunc1/class.tx_realurl_modfunc1.php']) {
-    include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/realurl/modfunc1/class.tx_realurl_modfunc1.php']);
 }

@@ -21,10 +21,6 @@
 *
 *  This copyright notice MUST APPEAR in all copies of the script!
 ***************************************************************/
-/**
- * $Id$
- *
- */
 
  /**
   * This class is a page browser for the RealURL backend module.
@@ -146,8 +142,4 @@ class tx_realurl_pagebrowser
         $this->totalPages = intval($totalResults/$this->resultsPerPage) +
             (($totalResults % $this->resultsPerPage) != 0 ? 1 : 0);
     }
-}
-
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/realurl/modfunc1/class.tx_realurl_pagebrowser.php']) {
-    include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/realurl/modfunc1/class.tx_realurl_pagebrowser.php']);
 }

@@ -25,14 +25,6 @@
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-/**
- * Class for creating and parsing Speaking Urls
- *
- * $Id$
- *
- * @author	Kasper Skaarhoj <kasper@typo3.com>
- * @author	Dmitry Dulepov <dmitry@typo3.org>
- */
 
 /**
  * Class for creating and parsing Speaking Urls
@@ -855,12 +847,12 @@ class tx_realurl
 
                 $cHashParameters = array_merge($this->cHashParameters, $paramKeyValues);
                 unset($cHashParameters['cHash']);
-                
+
                 if (t3lib_div::compat_version('6.2') && $GLOBALS['TYPO3_CONF_VARS']['FE']['cHashIncludePageId'] == true && !isset($cHashParameters['id'])) {
                     // See https://typo3.org/teams/security/security-bulletins/typo3-core/typo3-core-sa-2016-022/
                     $cHashParameters['id'] = $this->encodePageId;
                 }
-                
+
                 $cHashParameters = t3lib_div::implodeArrayForUrl('', $cHashParameters);
                 if ($cacheHashClassExists) {
                     $cHashParameters = $cacheHash->getRelevantParameters($cHashParameters);
@@ -3030,10 +3022,4 @@ class tx_realurl
         }
         return $result;
     }
-}
-
-/** @noinspection PhpUndefinedVariableInspection */
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/realurl/class.tx_realurl.php']) {
-    /** @noinspection PhpUndefinedMethodInspection PhpUndefinedVariableInspection PhpIncludeInspection */
-    include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/realurl/class.tx_realurl.php']);
 }
