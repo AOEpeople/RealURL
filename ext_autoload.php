@@ -11,7 +11,6 @@ return array(
     'tx_realurl_tcemain' => $extensionPath . 'class.tx_realurl_tcemain.php',
 
     'tx_realurl_modfunc1' => $extensionPath . 'modfunc1/class.tx_realurl_modfunc1.php',
-    'tx_realurl_pagebrowser' => $extensionPath . 'modfunc1/class.tx_realurl_pagebrowser.php',
 
     'tx_realurl_abstractdatabase_testcase' => $extensionPath . 'tests/class.tx_realurl_abstractDatabase_testcase.php',
     'tx_realurl_configurationservice_testcase' => $extensionPath . 'tests/class.tx_realurl_configurationService_testcase.php'

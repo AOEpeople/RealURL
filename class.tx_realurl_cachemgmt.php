@@ -150,7 +150,7 @@ class tx_realurl_cachemgmt
      * @param array  $pagePathOrigin  the path which should be searched in cache
      * @param &$keepPath  -> passed by reference -> array with the n last pathparts which could not retrieved from cache -> they are propably preVars from translated parameters (like tt_news is etc...)
      *
-     * @return pagid or false
+     * @return integer|boolean
      **/
     public function checkCacheWithDecreasingPath($pagePathOrigin, &$keepPath)
     {
@@ -162,7 +162,7 @@ class tx_realurl_cachemgmt
      *
      * @param array  $pagePathOrigin  the path which should be searched in cache
      * @param &$keepPath  -> passed by reference -> array with the n last pathparts which could not retrieved from cache -> they are propably preVars from translated parameters (like tt_news is etc...)	 *
-     * @return pagid or false
+     * @return integer|boolean
      **/
     public function checkHistoryCacheWithDecreasingPath($pagePathOrigin, &$keepPath)
     {
@@ -201,7 +201,7 @@ class tx_realurl_cachemgmt
      * Stores the path in cache and checks if that path is unique, if not this function makes the path unique by adding some numbers
      * (throws error if caching fails)
      *
-     * @param string Path
+     * @param string $buildedPath
      * @return string unique path in cache
      */
     public function storeUniqueInCache($pid, $buildedPath, $disableCollisionDetection = false)
@@ -247,7 +247,7 @@ class tx_realurl_cachemgmt
     /**
      * checks cache and looks if a path exist (in workspace, rootpid, language)
      *
-     * @param string Path
+     * @param string $pagePath
      * @return string unique path in cache
      **/
     public function _readCacheForPath($pagePath, $ignoreUid = null)
@@ -277,7 +277,7 @@ class tx_realurl_cachemgmt
     /**
      * checks cache and looks if a path exist (in workspace, rootpid, language)
      *
-     * @param string Path
+     * @param string $pagePath
      * @return string unique path in cache
      **/
     public function _readHistoryCacheForPath($pagePath)

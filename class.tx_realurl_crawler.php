@@ -38,9 +38,9 @@ class tx_realurl_crawler
      * Publishes the current page as static HTML file if possible (depends on configuration and other circumstances)
      * (Hook-function called from TSFE, see ext_localconf.php for configuration)
      *
-     * @param	object		Reference to parent object (TSFE)
-     * @param	integer		[Not used here]
-     * @return	void
+     * @param object $pObj
+     * @param integer $timeOutTime
+     * @return void
      */
     public function insertPageIncache(&$pObj, $timeOutTime)
     {

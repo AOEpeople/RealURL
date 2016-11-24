@@ -65,7 +65,7 @@ class tx_realurl_cachemgmt_testcase extends \TYPO3\CMS\Core\Tests\FunctionalTest
         $cache = new tx_realurl_cachemgmt(0, 0);
         $cache->setCacheTimeOut(200);
         $cache->setRootPid(1);
-        $path = $cache->storeUniqueInCache('9999', 'test9999');
+        $cache->storeUniqueInCache('9999', 'test9999');
         $this->assertEquals('test9999', $cache->isInCache(9999), 'should be in cache');
         $cache->_delCacheForPid(9999);
         $this->assertFalse($cache->isInCache(9999), 'should not be in cache');
@@ -103,7 +103,7 @@ class tx_realurl_cachemgmt_testcase extends \TYPO3\CMS\Core\Tests\FunctionalTest
         $cache->clearAllCache();
         $cache->setCacheTimeOut(200);
         $cache->setRootPid(1);
-        $path = $cache->storeUniqueInCache('9995', '');
+        $cache->storeUniqueInCache('9995', '');
         $pidOrFalse = $cache->checkCacheWithDecreasingPath(array(''), $dummy);
         $this->assertEquals($pidOrFalse, 9995, 'should be in cache');
     }
@@ -118,9 +118,9 @@ class tx_realurl_cachemgmt_testcase extends \TYPO3\CMS\Core\Tests\FunctionalTest
         $cache = new tx_realurl_cachemgmt(0, 0);
         $cache->setCacheTimeOut(200);
         $cache->setRootPid(1);
-        $path = $cache->storeUniqueInCache('9999', 'test9999');
+        $cache->storeUniqueInCache('9999', 'test9999');
         $this->assertEquals('test9999', $cache->isInCache(9999), 'should be in cache');
-        $path = $cache->storeUniqueInCache('9998', 'test9999');
+        $cache->storeUniqueInCache('9998', 'test9999');
         $this->assertEquals('test9999_9998', $cache->isInCache(9998), 'should be in cache');
     }
 
@@ -136,7 +136,7 @@ class tx_realurl_cachemgmt_testcase extends \TYPO3\CMS\Core\Tests\FunctionalTest
         $liveCache = new tx_realurl_cachemgmt(0, 0);
         $liveCache->setCacheTimeOut(200);
         $liveCache->setRootPid(1);
-        $path = $liveCache->storeUniqueInCache('1000', 'test1000');
+        $liveCache->storeUniqueInCache('1000', 'test1000');
         $this->assertEquals('test1000', $liveCache->isInCache(1000), 'should be in cache');
         unset($liveCache);
 
@@ -180,14 +180,14 @@ class tx_realurl_cachemgmt_testcase extends \TYPO3\CMS\Core\Tests\FunctionalTest
         $cache = new tx_realurl_cachemgmt(1, 0);
         $cache->setCacheTimeOut(200);
         $cache->setRootPid(1);
-        $path = $cache->storeUniqueInCache('1001', 'test1000');
+        $cache->storeUniqueInCache('1001', 'test1000');
         $this->assertEquals('test1000', $cache->isInCache(1001), 'should be in cache');
         unset($cache);
 
         $cache = new tx_realurl_cachemgmt(0, 0);
         $cache->setCacheTimeOut(200);
         $cache->setRootPid(1);
-        $path = $cache->storeUniqueInCache('1000', 'test1000');
+        $cache->storeUniqueInCache('1000', 'test1000');
         $this->assertEquals('test1000', $cache->isInCache(1000), 'should be in cache and should not collide with the workspace-record');
     }
 
@@ -202,19 +202,19 @@ class tx_realurl_cachemgmt_testcase extends \TYPO3\CMS\Core\Tests\FunctionalTest
         $cache->clearAllCache();
         $cache->setCacheTimeOut(200);
         $cache->setRootPid(1);
-        $path = $cache->storeUniqueInCache('9990', 'sample');
+        $cache->storeUniqueInCache('9990', 'sample');
         $this->assertEquals('sample', $cache->isInCache(9990), 'sample should be in cache');
         //store same page in another workspace
         $cache->workspaceId = 2;
-        $path = $cache->storeUniqueInCache('9990', 'sample');
+        $cache->storeUniqueInCache('9990', 'sample');
         $this->assertEquals('sample', $cache->isInCache(9990), 'sample should be in cache for workspace=2');
-        //	store same page in another workspace
+        // store same page in another workspace
         $cache->workspaceId = 3;
-        $path = $cache->storeUniqueInCache('9990', 'sample');
+        $cache->storeUniqueInCache('9990', 'sample');
         $this->assertEquals('sample', $cache->isInCache(9990), 'should be in cache for workspace=3');
-        //	and in another language also
+        // and in another language also
         $cache->languageId = 1;
-        $path = $cache->storeUniqueInCache('9990', 'sample');
+        $cache->storeUniqueInCache('9990', 'sample');
         $this->assertEquals('sample', $cache->isInCache(9990), 'should be in cache for workspace=3 and language=1');
     }
 

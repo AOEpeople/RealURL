@@ -152,7 +152,7 @@ class tx_realurl_modfunc1 extends t3lib_extobjbase
 			FIELDSET { border: none; padding: 16px 0; }
 			FIELDSET DIV { clear: left; border-collapse: collapse; margin-bottom: 5px; }
 			FIELDSET DIV LABEL { display: block; float: left; width: 100px; }
-		' . tx_realurl_pagebrowser::getInlineStyles();
+		';
     }
 
     /**

@@ -204,8 +204,8 @@ class tx_realurl
      * Translates a URL with query string (GET parameters) into Speaking URL.
      * Called from t3lib_tstemplate::linkData
      *
-     * @param	array		Array of parameters from t3lib_tstemplate::linkData - the function creating all links inside TYPO3
-     * @return	void
+     * @param array $params
+     * @return void
      */
     public function encodeSpURL(&$params)
     {
@@ -1802,8 +1802,8 @@ class tx_realurl
     /**
      * Will exit after redirect to backend (with "&edit=...") if $this->decode_editInBackend is set
      *
-     * @param	integer		Page id.
-     * @return	void
+     * @param integer $pageId
+     * @return void
      */
     protected function decodeSpURL_jumpAdmin_goBackend($pageId)
     {
