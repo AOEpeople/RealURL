@@ -2,18 +2,17 @@
 defined('TYPO3_MODE') or die();
 
 if (TYPO3_MODE == 'BE') {
-    // Add Web>Info module:
     \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::insertModuleFunction(
         'web_info',
         'tx_realurl_modfunc1',
-        \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath($_EXTKEY) . 'modfunc1/class.tx_realurl_modfunc1.php',
+        null,
         'LLL:EXT:realurl/locallang_db.xml:moduleFunction.tx_realurl_modfunc1',
         'function',
         'online'
     );
 }
 
-$TCA['pages']['columns'] += array(
+$GLOBALS['TCA']['pages']['columns'] += array(
     'tx_realurl_pathsegment' => array(
         'label' => 'LLL:EXT:realurl/locallang_db.xml:pages.tx_realurl_pathsegment',
 //        'displayCond' => 'FIELD:tx_realurl_exclude:!=:1',
@@ -56,10 +55,10 @@ $TCA['pages']['columns'] += array(
     )
 );
 
-$TCA['pages']['ctrl']['requestUpdate'] .= ',tx_realurl_exclude';
-$TCA['pages']['ctrl']['shadowColumnsForNewPlaceholders'] .=
+$GLOBALS['TCA']['pages']['ctrl']['requestUpdate'] .= ',tx_realurl_exclude';
+$GLOBALS['TCA']['pages']['ctrl']['shadowColumnsForNewPlaceholders'] .=
     ',tx_realurl_pathsegment,tx_realurl_exclude,tx_realurl_pathoverride,tx_realurl_nocache';
-$TCA['pages']['palettes']['137'] = array(
+$GLOBALS['TCA']['pages']['palettes']['137'] = array(
     'showitem' => 'tx_realurl_pathoverride'
 );
 
@@ -79,7 +78,7 @@ $TCA['pages']['palettes']['137'] = array(
 
 \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('pages', 'EXT:realurl/locallang_csh.xml');
 
-$TCA['pages_language_overlay']['columns'] += array(
+$GLOBALS['TCA']['pages_language_overlay']['columns'] += array(
     'tx_realurl_pathsegment' => array(
         'label' => 'LLL:EXT:realurl/locallang_db.xml:pages.tx_realurl_pathsegment',
         'exclude' => 1,
