@@ -32,6 +32,8 @@
  */
 class tx_realurl_tcemain
 {
+    const SEGTITLEFIELDLIST_DEFAULT = 'tx_realurl_pathsegment,alias,nav_title,title,uid';
+    const SEGTITLEFIELDLIST_PLO = 'tx_realurl_pathsegment,nav_title,title,uid';
 
     /**
      * RealURL configuration for the current host
@@ -244,12 +246,12 @@ class tx_realurl_tcemain
     protected function getFieldList($tableName)
     {
         if ($tableName == 'pages_language_overlay') {
-            $fieldList = TX_REALURL_SEGTITLEFIELDLIST_PLO;
+            $fieldList = self::SEGTITLEFIELDLIST_PLO;
         } else {
             if (isset($this->config['pagePath']['segTitleFieldList'])) {
                 $fieldList = $this->config['pagePath']['segTitleFieldList'];
             } else {
-                $fieldList = TX_REALURL_SEGTITLEFIELDLIST_DEFAULT;
+                $fieldList = self::SEGTITLEFIELDLIST_DEFAULT;
             }
         }
         $fieldList .= ',hidden';

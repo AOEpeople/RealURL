@@ -48,9 +48,6 @@ if (is_array($_realurl_conf)) {
 
 unset($_realurl_conf);
 
-define('TX_REALURL_SEGTITLEFIELDLIST_DEFAULT', 'tx_realurl_pathsegment,alias,nav_title,title,uid');
-define('TX_REALURL_SEGTITLEFIELDLIST_PLO', 'tx_realurl_pathsegment,nav_title,title,uid');
-
 // TODO this can never be true after unsetting $_realurl_conf
 if ($_realurl_conf['addpageOverlayFields'] !== 0) {
     $TYPO3_CONF_VARS['FE']['pageOverlayFields'] .= ',tx_realurl_pathsegment,tx_realurl_exclude,tx_realurl_pathoverride';
