@@ -98,11 +98,13 @@ class tx_realurl_configurationService
     }
 
     /**
-     * Attempts to find root page ID for the current host. Processes redirectes as well.
+     * Attempts to find root page ID for the current host
+     * Processes redirects as well
      *
-     * @return	int		Found root page false if not found
+     * @param string $host
+     * @return boolean|integer
      */
-    private function findRootPageId($domain = '')
+    private function findRootPageId($host = '')
     {
         $rootpage_id = false;
         // Search by host

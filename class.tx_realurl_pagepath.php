@@ -229,7 +229,7 @@ class tx_realurl_pagepath
     private function createWildcardWhereClause($pathSegment)
     {
         $spaceCharacter = isset($this->conf['spaceCharacter']) ? $this->conf['spaceCharacter'] : '-';
-        $titleFieldList = t3lib_div::trimExplode(',', $this->conf['segTitleFieldList']);
+        $titleFieldList = \TYPO3\CMS\Core\Utility\GeneralUtility::trimExplode(',', $this->conf['segTitleFieldList']);
 
         $whereClause = array();
         foreach ($titleFieldList as $titleField) {
@@ -250,7 +250,7 @@ class tx_realurl_pagepath
     {
         $filteredPageIds = array();
         foreach ($pageIds as $pageId) {
-            $rootLine = t3lib_BEfunc::BEgetRootLine($pageId);
+            $rootLine = \TYPO3\CMS\Backend\Utility\BackendUtility::BEgetRootLine($pageId);
             foreach ($rootLine as $pageInRootLine) {
                 if ((int)$pageInRootLine['uid'] === (int)$this->conf['rootpage_id']) {
                     $filteredPageIds[] = $pageId;
@@ -292,7 +292,7 @@ class tx_realurl_pagepath
         $_params = array();
         if (is_array($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['EXT:realurl/class.tx_realurl_pagepath.php']['checkAndDoRedirect'])) {
             foreach ($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['EXT:realurl/class.tx_realurl_pagepath.php']['checkAndDoRedirect'] as $_funcRef) {
-                t3lib_div::callUserFunction($_funcRef, $_params, $this);
+                \TYPO3\CMS\Core\Utility\GeneralUtility::callUserFunction($_funcRef, $_params, $this);
             }
         }
     }
@@ -315,51 +315,6 @@ class tx_realurl_pagepath
     }
 
     /**
-     * Gets the value of current language
-     * What needs to happen:
-     * decode: -the languageid is used by cachemgmt in order to retrieve the correct pid for the given path
-     * -that means it needs to return the languageid of the current context:
-     * (means the L parameter value after realurl processing)
-     *
-     * encode: - the langugeid is used to build the path + to cache the path
-     * - if in the url parameters it is forced to generate the url in a specific language it needs to use this (L parameter defined in typolink)
-     * -
-     * first it tries to recieve it from the get-parameters directly
-     * - orig_paramKeyValues is set by realurl during encoding, and it has the L paremeter value that is passed to typolink
-     *
-     * @return    integer        Current language or 0
-     * @deprecated
-     * @todo Should be replaced with the new methods - tests "tests/tx_realurl_pagepath_testcase.php"
-     */
-    public function _getLanguageVar()
-    {
-        $lang = false;
-        $getVarName = $this->conf ['languageGetVar'] ? $this->conf ['languageGetVar'] : 'L';
-
-        // Setting the language variable based on GETvar in URL which has been configured to carry the language uid:
-        if ($getVarName && array_key_exists($getVarName, $this->pObj->orig_paramKeyValues)) {
-            $lang = intval($this->pObj->orig_paramKeyValues [$getVarName]);
-            // Might be excepted (like you should for CJK cases which does not translate to ASCII equivalents)
-            if (t3lib_div::inList($this->conf ['languageExceptionUids'], $lang)) {
-                $lang = 0;
-            }
-        }
-        if ($lang === false) {
-            //TODO next line is not covered by a test
-            $lang = t3lib_div::_GP($getVarName);
-            if ($lang == 0 && method_exists($this->pObj, 'getRetrievedPreGetVar')) {
-                $lang = intval($this->pObj->getRetrievedPreGetVar($getVarName));
-            }
-        }
-
-        if ($this->conf ['languageGetVarPostFunc']) {
-            $lang = t3lib_div::callUserFunction($this->conf ['languageGetVarPostFunc'], $lang, $this);
-        }
-
-        return intval($lang);
-    }
-
-    /**
      * DECODE
      * Find the current language id.
      *
@@ -377,7 +332,7 @@ class tx_realurl_pagepath
         $lang = $this->pObj->getRetrievedPreGetVar($getVarName);
 
         if ($this->conf['languageGetVarPostFunc']) {
-            $lang = t3lib_div::callUserFunction($this->conf['languageGetVarPostFunc'], $lang, $this);
+            $lang = \TYPO3\CMS\Core\Utility\GeneralUtility::callUserFunction($this->conf['languageGetVarPostFunc'], $lang, $this);
         }
 
         return (int)$lang;
@@ -405,13 +360,13 @@ class tx_realurl_pagepath
         if ($getVarName && array_key_exists($getVarName, $this->pObj->orig_paramKeyValues)) {
             $lang = intval($this->pObj->orig_paramKeyValues[$getVarName]);
             // Might be excepted (like you should for CJK cases which does not translate to ASCII equivalents)
-            if (t3lib_div::inList($this->conf['languageExceptionUids'], $lang)) {
+            if (\TYPO3\CMS\Core\Utility\GeneralUtility::inList($this->conf['languageExceptionUids'], $lang)) {
                 $lang = 0;
             }
         }
 
         if ($this->conf['languageGetVarPostFunc']) {
-            $lang = t3lib_div::callUserFunction($this->conf['languageGetVarPostFunc'], $lang, $this);
+            $lang = \TYPO3\CMS\Core\Utility\GeneralUtility::callUserFunction($this->conf['languageGetVarPostFunc'], $lang, $this);
         }
 
         return (int)$lang;
@@ -437,7 +392,7 @@ class tx_realurl_pagepath
      */
     public function _getWorkspaceId()
     {
-        if (is_object($GLOBALS ['BE_USER']) && t3lib_div::_GP('ADMCMD_noBeUser') != 1) {
+        if (is_object($GLOBALS ['BE_USER']) && \TYPO3\CMS\Core\Utility\GeneralUtility::_GP('ADMCMD_noBeUser') != 1) {
             if (is_object($GLOBALS ['TSFE']->sys_page)) {
                 if ($GLOBALS ['TSFE']->sys_page->versioningPreview == 1) {
                     return $GLOBALS ['TSFE']->sys_page->versioningWorkspaceId;
@@ -461,7 +416,7 @@ class tx_realurl_pagepath
     public function _isCrawlerRun()
     {
         if (
-            t3lib_extMgm::isLoaded('crawler')
+            \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::isLoaded('crawler')
             && $GLOBALS['TSFE']->applicationData['tx_crawler']['running']
             && (
                 in_array('tx_cachemgm_recache',
@@ -505,7 +460,7 @@ class tx_realurl_pagepath
      */
     public function initGenerator()
     {
-        $this->generator = t3lib_div::makeInstance('tx_realurl_pathgenerator');
+        $this->generator = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('tx_realurl_pathgenerator');
         $this->generator->init($this->conf);
         $this->generator->setRootPid($this->_getRootPid());
         $this->generator->setParentObject($this->pObj);
@@ -519,7 +474,7 @@ class tx_realurl_pagepath
      */
     public function initCacheMgm($lang)
     {
-        $this->cachemgmt = t3lib_div::makeInstance('tx_realurl_cachemgmt', $this->_getWorkspaceId(), $lang);
+        $this->cachemgmt = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('tx_realurl_cachemgmt', $this->_getWorkspaceId(), $lang);
         $this->cachemgmt->setCacheTimeout($this->conf ['cacheTimeOut']);
         $this->cachemgmt->setRootPid($this->_getRootPid());
     }

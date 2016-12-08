@@ -32,7 +32,6 @@
 
 /**
  * TODO:
- - check if internal cache array can improve speed
  - check last updatetime of pages
  **/
 
@@ -54,11 +53,14 @@ class tx_realurl_cachemgmt
     public $useUnstrictCacheWhere = false;
 
     /**
-     * @var t3lib_DB
+     * @var \TYPO3\CMS\Core\Database\DatabaseConnection
      */
     protected $dbObj;
 
-    public static $cache = array();
+    /**
+     * @var array
+     */
+    private $cache = [];
 
     /**
      * Class constructor (PHP4 style)

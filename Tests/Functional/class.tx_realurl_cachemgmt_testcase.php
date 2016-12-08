@@ -252,8 +252,8 @@ class tx_realurl_cachemgmt_testcase extends \TYPO3\CMS\Core\Tests\FunctionalTest
     {
         $cache = new tx_realurl_cachemgmt(0, 0);
         $cache->setCacheTimeOut(1);
-        $this->assertFalse($cache->_isCacheRowStillValid(array('dirty' => '1'), false), 'should return false');
-        $this->assertFalse($cache->_isCacheRowStillValid(array('tstamp' => ($GLOBALS['EXEC_TIME'] - 2)), false), 'should return false');
+        $this->assertFalse($cache->_isCacheRowStillValid(array('dirty' => '1')), 'should return false');
+        $this->assertFalse($cache->_isCacheRowStillValid(array('tstamp' => ($GLOBALS['EXEC_TIME'] - 2))), 'should return false');
     }
 
     /**

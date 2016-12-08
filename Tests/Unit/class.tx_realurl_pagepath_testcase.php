@@ -21,14 +21,6 @@
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-/**
- * Test case for checking the PHPUnit 3.1.9
- *
- * WARNING: Never ever run a unit test like this on a live site!
- *
- *
- * @author    Tolleiv Nietsch
- */
 
 /**
  * Class tx_realurl_pagepath_testcase
@@ -51,7 +43,7 @@ class tx_realurl_pagepath_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCase
         $pp->_setConf(array());
         $pp->_setParent($mock);
 
-        $this->assertEquals(true, 0 === $pp->_getLanguageVar(), 'Wrong default language');
+        $this->assertEquals(true, 0 === $pp->_getLanguageVarEncode(), 'Wrong default language');
     }
 
     /**
@@ -68,7 +60,7 @@ class tx_realurl_pagepath_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCase
         $pp->_setConf(array('languageGetVar' => 'L'));
         $pp->_setParent($mock);
 
-        $this->assertEquals(3, $pp->_getLanguageVar(), 'Wrong language detected');
+        $this->assertEquals(3, $pp->_getLanguageVarEncode(), 'Wrong language detected');
     }
 
     /**
@@ -85,7 +77,7 @@ class tx_realurl_pagepath_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCase
         $pp->_setConf(array());
         $pp->_setParent($mock);
 
-        $this->assertEquals(3, $pp->_getLanguageVar(), 'it seems that L is not used as default-parameter for the language detection');
+        $this->assertEquals(3, $pp->_getLanguageVarEncode(), 'it seems that L is not used as default-parameter for the language detection');
     }
 
     /**
@@ -104,7 +96,7 @@ class tx_realurl_pagepath_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCase
         $pp->_setConf(array('languageGetVar' => 'newL'));
         $pp->_setParent($mock);
 
-        $this->assertEquals(10, $pp->_getLanguageVar(), 'seems that we\'re using the wrong GET var to read the language');
+        $this->assertEquals(10, $pp->_getLanguageVarEncode(), 'seems that we\'re using the wrong GET var to read the language');
     }
 
     /**
@@ -122,9 +114,9 @@ class tx_realurl_pagepath_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCase
         $pp->_setConf(array('languageExceptionUids' => '2'));
         $pp->_setParent($mock);
 
-        $this->assertEquals(3, $pp->_getLanguageVar(), 'it seems that a regular request was filtered with the blacklist');
+        $this->assertEquals(3, $pp->_getLanguageVarEncode(), 'it seems that a regular request was filtered with the blacklist');
         $mock->orig_paramKeyValues ['L'] = 2;
-        $this->assertEquals(0, $pp->_getLanguageVar(), 'it seems that a excepted / blacklisted language wasn\'t filtered');
+        $this->assertEquals(0, $pp->_getLanguageVarEncode(), 'it seems that a excepted / blacklisted language wasn\'t filtered');
     }
 
     /**
@@ -142,6 +134,6 @@ class tx_realurl_pagepath_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCase
         $pp->_setConf(array());
         $pp->_setParent($mock);
 
-        $this->assertEquals(7, $pp->_getLanguageVar(), 'pregetvar isn\'t used as supposed');
+        $this->assertEquals(7, $pp->_getLanguageVarDecode(), 'pregetvar isn\'t used as supposed');
     }
 }
