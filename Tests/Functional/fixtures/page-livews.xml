@@ -13,9 +13,9 @@
 		<php_tree_stop>1</php_tree_stop>
 		<shortcut>0</shortcut>
 		<shortcut_mode>0</shortcut_mode>
-		<tx_realurl_exclude></tx_realurl_exclude>
-		<tx_realurl_pathoverride></tx_realurl_pathoverride>
 		<tx_realurl_pathsegment></tx_realurl_pathsegment>
+		<tx_realurl_pathoverride>0</tx_realurl_pathoverride>
+		<tx_realurl_exclude>0</tx_realurl_exclude>
 		<urltype>1</urltype>
 	</pages>
 	<pages>
@@ -29,9 +29,9 @@
 		<is_siteroot>0</is_siteroot>
 		<shortcut>0</shortcut>
 		<shortcut_mode>0</shortcut_mode>
-		<tx_realurl_exclude>1</tx_realurl_exclude>
-		<tx_realurl_pathoverride>1</tx_realurl_pathoverride>
 		<tx_realurl_pathsegment>override/path/item</tx_realurl_pathsegment>
+		<tx_realurl_pathoverride>1</tx_realurl_pathoverride>
+		<tx_realurl_exclude>1</tx_realurl_exclude>
 		<urltype>1</urltype>
 	</pages>
 	<pages>
@@ -45,9 +45,9 @@
 		<is_siteroot>0</is_siteroot>
 		<shortcut>0</shortcut>
 		<shortcut_mode>0</shortcut_mode>
-		<tx_realurl_exclude>1</tx_realurl_exclude>
-		<tx_realurl_pathoverride>1</tx_realurl_pathoverride>
 		<tx_realurl_pathsegment>specialpath/withspecial/おはようございます/chars</tx_realurl_pathsegment>
+		<tx_realurl_pathoverride>1</tx_realurl_pathoverride>
+		<tx_realurl_exclude>1</tx_realurl_exclude>
 		<urltype>1</urltype>
 	</pages>
 	<pages>
@@ -61,9 +61,9 @@
 		<is_siteroot>0</is_siteroot>
 		<shortcut>0</shortcut>
 		<shortcut_mode>0</shortcut_mode>
-		<tx_realurl_exclude>1</tx_realurl_exclude>
-		<tx_realurl_pathoverride>1</tx_realurl_pathoverride>
 		<tx_realurl_pathsegment>おはようございます/北方话/广东话</tx_realurl_pathsegment>
+		<tx_realurl_pathoverride>1</tx_realurl_pathoverride>
+		<tx_realurl_exclude>1</tx_realurl_exclude>
 		<urltype>1</urltype>
 	</pages>
 	<pages>
@@ -77,9 +77,9 @@
 		<is_siteroot>0</is_siteroot>
 		<shortcut>0</shortcut>
 		<shortcut_mode>0</shortcut_mode>
-		<tx_realurl_exclude>1</tx_realurl_exclude>
-		<tx_realurl_pathoverride></tx_realurl_pathoverride>
 		<tx_realurl_pathsegment></tx_realurl_pathsegment>
+		<tx_realurl_pathoverride>0</tx_realurl_pathoverride>
+		<tx_realurl_exclude>1</tx_realurl_exclude>
 		<urltype>1</urltype>
 	</pages>
 	<pages>
@@ -93,9 +93,9 @@
 		<is_siteroot>0</is_siteroot>
 		<shortcut>0</shortcut>
 		<shortcut_mode>0</shortcut_mode>
-		<tx_realurl_exclude></tx_realurl_exclude>
-		<tx_realurl_pathoverride></tx_realurl_pathoverride>
 		<tx_realurl_pathsegment></tx_realurl_pathsegment>
+		<tx_realurl_pathoverride>0</tx_realurl_pathoverride>
+		<tx_realurl_exclude>0</tx_realurl_exclude>
 		<urltype>1</urltype>
 	</pages>
 	<pages>
@@ -109,9 +109,9 @@
 		<is_siteroot>0</is_siteroot>
 		<shortcut>0</shortcut>
 		<shortcut_mode>0</shortcut_mode>
-		<tx_realurl_exclude></tx_realurl_exclude>
-		<tx_realurl_pathoverride></tx_realurl_pathoverride>
 		<tx_realurl_pathsegment>subpagepathsegment</tx_realurl_pathsegment>
+		<tx_realurl_pathoverride>0</tx_realurl_pathoverride>
+		<tx_realurl_exclude>0</tx_realurl_exclude>
 		<urltype>1</urltype>
 	</pages>
 	<pages>
@@ -125,9 +125,9 @@
 		<is_siteroot>0</is_siteroot>
 		<shortcut>0</shortcut>
 		<shortcut_mode>0</shortcut_mode>
-		<tx_realurl_exclude></tx_realurl_exclude>
-		<tx_realurl_pathoverride></tx_realurl_pathoverride>
 		<tx_realurl_pathsegment></tx_realurl_pathsegment>
+		<tx_realurl_pathoverride>0</tx_realurl_pathoverride>
+		<tx_realurl_exclude>0</tx_realurl_exclude>
 		<urltype>1</urltype>
 	</pages>
 	<pages>
@@ -141,9 +141,9 @@
 		<is_siteroot>0</is_siteroot>
 		<shortcut>0</shortcut>
 		<shortcut_mode>0</shortcut_mode>
-		<tx_realurl_exclude></tx_realurl_exclude>
-		<tx_realurl_pathoverride></tx_realurl_pathoverride>
 		<tx_realurl_pathsegment></tx_realurl_pathsegment>
+		<tx_realurl_pathoverride>0</tx_realurl_pathoverride>
+		<tx_realurl_exclude>0</tx_realurl_exclude>
 		<urltype>1</urltype>
 	</pages>
 	<pages>
@@ -157,9 +157,9 @@
 		<is_siteroot>0</is_siteroot>
 		<shortcut>0</shortcut>
 		<shortcut_mode>0</shortcut_mode>
-		<tx_realurl_exclude></tx_realurl_exclude>
-		<tx_realurl_pathoverride></tx_realurl_pathoverride>
 		<tx_realurl_pathsegment></tx_realurl_pathsegment>
+		<tx_realurl_pathoverride>0</tx_realurl_pathoverride>
+		<tx_realurl_exclude>0</tx_realurl_exclude>
 		<urltype>1</urltype>
 	</pages>
 	<pages>
@@ -173,9 +173,9 @@
 		<is_siteroot>0</is_siteroot>
 		<shortcut>0</shortcut>
 		<shortcut_mode>0</shortcut_mode>
-		<tx_realurl_exclude></tx_realurl_exclude>
-		<tx_realurl_pathoverride></tx_realurl_pathoverride>
 		<tx_realurl_pathsegment></tx_realurl_pathsegment>
+		<tx_realurl_pathoverride>0</tx_realurl_pathoverride>
+		<tx_realurl_exclude>0</tx_realurl_exclude>
 		<urltype>1</urltype>
 	</pages>
 
@@ -191,8 +191,8 @@
 		<php_tree_stop>0</php_tree_stop>
 		<shortcut>0</shortcut>
 		<shortcut_mode>0</shortcut_mode>
-		<tx_realurl_pathoverride></tx_realurl_pathoverride>
 		<tx_realurl_pathsegment></tx_realurl_pathsegment>
+		<tx_realurl_pathoverride>0</tx_realurl_pathoverride>
 		<tx_realurl_exclude>0</tx_realurl_exclude>
 		<urltype>1</urltype>
 	</pages>
@@ -208,8 +208,8 @@
 		<is_siteroot>0</is_siteroot>
 		<php_tree_stop>0</php_tree_stop>
 		<hidden>0</hidden>
-		<tx_realurl_pathoverride></tx_realurl_pathoverride>
 		<tx_realurl_pathsegment></tx_realurl_pathsegment>
+		<tx_realurl_pathoverride>0</tx_realurl_pathoverride>
 		<tx_realurl_exclude>0</tx_realurl_exclude>
 		<urltype>1</urltype>
 	</pages>
@@ -222,8 +222,8 @@
 		<doktype>1</doktype>
 		<is_siteroot>0</is_siteroot>
 		<php_tree_stop>0</php_tree_stop>
-		<tx_realurl_pathoverride></tx_realurl_pathoverride>
 		<tx_realurl_pathsegment></tx_realurl_pathsegment>
+		<tx_realurl_pathoverride>0</tx_realurl_pathoverride>
 		<tx_realurl_exclude>0</tx_realurl_exclude>
 		<urltype>1</urltype>
 	</pages>
@@ -239,8 +239,8 @@
 		<is_siteroot>0</is_siteroot>
 		<php_tree_stop>0</php_tree_stop>
 		<hidden>0</hidden>
-		<tx_realurl_pathoverride></tx_realurl_pathoverride>
 		<tx_realurl_pathsegment></tx_realurl_pathsegment>
+		<tx_realurl_pathoverride>0</tx_realurl_pathoverride>
 		<tx_realurl_exclude>0</tx_realurl_exclude>
 		<urltype>1</urltype>
 	</pages>
@@ -255,8 +255,8 @@
 		<is_siteroot>0</is_siteroot>
 		<php_tree_stop>0</php_tree_stop>
 		<hidden>0</hidden>
-		<tx_realurl_pathoverride></tx_realurl_pathoverride>
 		<tx_realurl_pathsegment></tx_realurl_pathsegment>
+		<tx_realurl_pathoverride>0</tx_realurl_pathoverride>
 		<tx_realurl_exclude>0</tx_realurl_exclude>
 		<urltype>1</urltype>
 	</pages>
@@ -271,8 +271,8 @@
 		<is_siteroot>0</is_siteroot>
 		<php_tree_stop>0</php_tree_stop>
 		<hidden>0</hidden>
-		<tx_realurl_pathoverride></tx_realurl_pathoverride>
 		<tx_realurl_pathsegment></tx_realurl_pathsegment>
+		<tx_realurl_pathoverride>0</tx_realurl_pathoverride>
 		<tx_realurl_exclude>0</tx_realurl_exclude>
 		<urltype>1</urltype>
 	</pages>
@@ -286,8 +286,8 @@
 		<is_siteroot>0</is_siteroot>
 		<php_tree_stop>0</php_tree_stop>
 		<hidden>0</hidden>
-		<tx_realurl_pathoverride></tx_realurl_pathoverride>
 		<tx_realurl_pathsegment></tx_realurl_pathsegment>
+		<tx_realurl_pathoverride>0</tx_realurl_pathoverride>
 		<tx_realurl_exclude>0</tx_realurl_exclude>
 		<urltype>1</urltype>
 	</pages>
@@ -302,8 +302,8 @@
 		<is_siteroot>0</is_siteroot>
 		<php_tree_stop>0</php_tree_stop>
 		<hidden>0</hidden>
-		<tx_realurl_pathoverride></tx_realurl_pathoverride>
 		<tx_realurl_pathsegment></tx_realurl_pathsegment>
+		<tx_realurl_pathoverride>0</tx_realurl_pathoverride>
 		<tx_realurl_exclude>0</tx_realurl_exclude>
 		<urltype>1</urltype>
 	</pages>
@@ -319,8 +319,8 @@
 		<is_siteroot>0</is_siteroot>
 		<php_tree_stop>0</php_tree_stop>
 		<hidden>0</hidden>
-		<tx_realurl_pathoverride></tx_realurl_pathoverride>
 		<tx_realurl_pathsegment></tx_realurl_pathsegment>
+		<tx_realurl_pathoverride>0</tx_realurl_pathoverride>
 		<tx_realurl_exclude>0</tx_realurl_exclude>
 		<urltype>1</urltype>
 	</pages>
@@ -336,9 +336,9 @@
 		<php_tree_stop>1</php_tree_stop>
 		<shortcut>0</shortcut>
 		<shortcut_mode>0</shortcut_mode>
-		<tx_realurl_exclude></tx_realurl_exclude>
-		<tx_realurl_pathoverride></tx_realurl_pathoverride>
 		<tx_realurl_pathsegment></tx_realurl_pathsegment>
+		<tx_realurl_pathoverride>0</tx_realurl_pathoverride>
+		<tx_realurl_exclude>0</tx_realurl_exclude>
 		<urltype>1</urltype>
 	</pages>
 	<pages>
@@ -353,9 +353,9 @@
 		<php_tree_stop>1</php_tree_stop>
 		<shortcut>0</shortcut>
 		<shortcut_mode>0</shortcut_mode>
-		<tx_realurl_exclude></tx_realurl_exclude>
-		<tx_realurl_pathoverride></tx_realurl_pathoverride>
 		<tx_realurl_pathsegment></tx_realurl_pathsegment>
+		<tx_realurl_pathoverride>0</tx_realurl_pathoverride>
+		<tx_realurl_exclude>0</tx_realurl_exclude>
 		<urltype>1</urltype>
 	</pages>
 	<pages>

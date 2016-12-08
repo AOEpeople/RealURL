@@ -8,8 +8,8 @@
 		<title>excludeofmiddle-austria--8</title>
 		<subtitle></subtitle>
 		<nav_title></nav_title>
-		<tx_realurl_pathoverride></tx_realurl_pathoverride>
 		<tx_realurl_pathsegment></tx_realurl_pathsegment>
+		<tx_realurl_pathoverride>0</tx_realurl_pathoverride>
 		<tx_realurl_exclude>1</tx_realurl_exclude>
 	</pages_language_overlay>
 	<pages_language_overlay>
@@ -19,8 +19,8 @@
 		<title>languagemix-austria</title>
 		<subtitle></subtitle>
 		<nav_title></nav_title>
-		<tx_realurl_pathoverride>1</tx_realurl_pathoverride>
 		<tx_realurl_pathsegment>own/url/for/austria</tx_realurl_pathsegment>
+		<tx_realurl_pathoverride>1</tx_realurl_pathoverride>
 		<tx_realurl_exclude>0</tx_realurl_exclude>
 	</pages_language_overlay>
 	<pages_language_overlay>
@@ -31,8 +31,8 @@
 		<subtitle></subtitle>
 		<nav_title></nav_title>
 		<description></description>
-		<tx_realurl_pathoverride></tx_realurl_pathoverride>
 		<tx_realurl_pathsegment>languagemix-segment</tx_realurl_pathsegment>
+		<tx_realurl_pathoverride>0</tx_realurl_pathoverride>
 		<tx_realurl_exclude>0</tx_realurl_exclude>
 	</pages_language_overlay>
 	<pages_language_overlay>
@@ -42,8 +42,8 @@
 		<title>subpage-austria</title>
 		<subtitle></subtitle>
 		<nav_title></nav_title>
-		<tx_realurl_pathoverride></tx_realurl_pathoverride>
 		<tx_realurl_pathsegment>subpagepathsegment-austria</tx_realurl_pathsegment>
+		<tx_realurl_pathoverride>0</tx_realurl_pathoverride>
 		<tx_realurl_exclude>1</tx_realurl_exclude>
 	</pages_language_overlay>
 	<pages_language_overlay>
@@ -53,8 +53,8 @@
 		<title>sub-subpage-austria</title>
 		<subtitle></subtitle>
 		<nav_title></nav_title>
-		<tx_realurl_pathoverride></tx_realurl_pathoverride>
 		<tx_realurl_pathsegment></tx_realurl_pathsegment>
+		<tx_realurl_pathoverride>0</tx_realurl_pathoverride>
 		<tx_realurl_exclude>0</tx_realurl_exclude>
 	</pages_language_overlay>
 	<pages_language_overlay>
@@ -73,8 +73,8 @@
 		<title>languagemix-de--73</title>
 		<subtitle></subtitle>
 		<nav_title></nav_title>
-		<tx_realurl_pathoverride></tx_realurl_pathoverride>
 		<tx_realurl_pathsegment></tx_realurl_pathsegment>
+		<tx_realurl_pathoverride>0</tx_realurl_pathoverride>
 		<tx_realurl_exclude>0</tx_realurl_exclude>
 	</pages_language_overlay>
 	<pages_language_overlay>
@@ -93,8 +93,8 @@
 		<title>subpage-ws-de--93</title>
 		<subtitle></subtitle>
 		<nav_title></nav_title>
-		<tx_realurl_pathoverride></tx_realurl_pathoverride>
 		<tx_realurl_pathsegment></tx_realurl_pathsegment>
+		<tx_realurl_pathoverride>0</tx_realurl_pathoverride>
 		<tx_realurl_exclude>0</tx_realurl_exclude>
 	</pages_language_overlay>
 	<pages_language_overlay>
@@ -104,8 +104,8 @@
 		<title>subsektion--104</title>
 		<subtitle></subtitle>
 		<nav_title></nav_title>
-		<tx_realurl_pathoverride></tx_realurl_pathoverride>
 		<tx_realurl_pathsegment></tx_realurl_pathsegment>
+		<tx_realurl_pathoverride>0</tx_realurl_pathoverride>
 		<tx_realurl_exclude>0</tx_realurl_exclude>
 	</pages_language_overlay>
 	<pages_language_overlay>
@@ -115,8 +115,8 @@
 		<title>shortcut2--115</title>
 		<subtitle></subtitle>
 		<nav_title></nav_title>
-		<tx_realurl_pathoverride></tx_realurl_pathoverride>
 		<tx_realurl_pathsegment></tx_realurl_pathsegment>
+		<tx_realurl_pathoverride>0</tx_realurl_pathoverride>
 		<tx_realurl_exclude>0</tx_realurl_exclude>
 	</pages_language_overlay>
 	<pages_language_overlay>
@@ -126,8 +126,8 @@
 		<title>my page austria</title>
 		<subtitle></subtitle>
 		<nav_title></nav_title>
-		<tx_realurl_pathoverride></tx_realurl_pathoverride>
 		<tx_realurl_pathsegment>austria--130</tx_realurl_pathsegment>
+		<tx_realurl_pathoverride>0</tx_realurl_pathoverride>
 		<tx_realurl_exclude>0</tx_realurl_exclude>
 	</pages_language_overlay>
 	<pages_language_overlay>
@@ -137,8 +137,8 @@
 		<title>page通信经理袁军等 exclude</title>
 		<subtitle></subtitle>
 		<nav_title></nav_title>
-		<tx_realurl_pathoverride></tx_realurl_pathoverride>
 		<tx_realurl_pathsegment></tx_realurl_pathsegment>
+		<tx_realurl_pathoverride>0</tx_realurl_pathoverride>
 		<tx_realurl_exclude>1</tx_realurl_exclude>
 	</pages_language_overlay>
 	<pages_language_overlay>
@@ -148,9 +148,9 @@
 		<title>网络会议</title>
 		<subtitle></subtitle>
 		<nav_title></nav_title>
-		<tx_realurl_pathoverride></tx_realurl_pathoverride>
 		<tx_realurl_pathsegment></tx_realurl_pathsegment>
-		<tx_realurl_exclude></tx_realurl_exclude>
+		<tx_realurl_pathoverride>0</tx_realurl_pathoverride>
+		<tx_realurl_exclude>0</tx_realurl_exclude>
 	</pages_language_overlay>
 	<pages_language_overlay>
 		<uid>96</uid>
@@ -159,9 +159,9 @@
 		<title>医疗保健</title>
 		<subtitle></subtitle>
 		<nav_title></nav_title>
-		<tx_realurl_pathoverride></tx_realurl_pathoverride>
 		<tx_realurl_pathsegment></tx_realurl_pathsegment>
-		<tx_realurl_exclude></tx_realurl_exclude>
+		<tx_realurl_pathoverride>0</tx_realurl_pathoverride>
+		<tx_realurl_exclude>0</tx_realurl_exclude>
 	</pages_language_overlay>
 	<pages_language_overlay>
 		<uid>97</uid>
@@ -170,9 +170,9 @@
 		<title>vivelafrance</title>
 		<subtitle></subtitle>
 		<nav_title></nav_title>
-		<tx_realurl_pathoverride></tx_realurl_pathoverride>
 		<tx_realurl_pathsegment></tx_realurl_pathsegment>
-		<tx_realurl_exclude></tx_realurl_exclude>
+		<tx_realurl_pathoverride>0</tx_realurl_pathoverride>
+		<tx_realurl_exclude>0</tx_realurl_exclude>
 	</pages_language_overlay>
 	<pages_language_overlay>
 		<uid>150</uid>
@@ -182,9 +182,9 @@
 		<title>vivelafrance</title>
 		<subtitle></subtitle>
 		<nav_title></nav_title>
-		<tx_realurl_pathoverride></tx_realurl_pathoverride>
 		<tx_realurl_pathsegment></tx_realurl_pathsegment>
-		<tx_realurl_exclude></tx_realurl_exclude>
+		<tx_realurl_pathoverride>0</tx_realurl_pathoverride>
+		<tx_realurl_exclude>0</tx_realurl_exclude>
 	</pages_language_overlay>
 	<pages_language_overlay>
 		<uid>151</uid>
@@ -195,8 +195,8 @@
 		<nav_title></nav_title>
 		<url>www.aoe.com</url>
 		<urltype>4</urltype>
-		<tx_realurl_pathoverride></tx_realurl_pathoverride>
 		<tx_realurl_pathsegment></tx_realurl_pathsegment>
-		<tx_realurl_exclude></tx_realurl_exclude>
+		<tx_realurl_pathoverride>0</tx_realurl_pathoverride>
+		<tx_realurl_exclude>0</tx_realurl_exclude>
 	</pages_language_overlay>
 </dataset>

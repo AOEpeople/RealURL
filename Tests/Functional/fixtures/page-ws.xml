@@ -13,8 +13,8 @@
 		<php_tree_stop>1</php_tree_stop>
 		<shortcut>0</shortcut>
 		<shortcut_mode>0</shortcut_mode>
-		<tx_realurl_pathoverride></tx_realurl_pathoverride>
 		<tx_realurl_pathsegment>subpagepathsegment-ws</tx_realurl_pathsegment>
+		<tx_realurl_pathoverride>0</tx_realurl_pathoverride>
 		<tx_realurl_exclude>0</tx_realurl_exclude>
 		<urltype>1</urltype>
 
