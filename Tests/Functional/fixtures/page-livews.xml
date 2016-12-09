@@ -247,7 +247,7 @@
 	<pages>
 		<uid>96</uid>
 		<pid>1</pid>
-		<title>deligated-page1</title>
+		<title>delegated-page1</title>
 		<nav_title></nav_title>
 		<subtitle></subtitle>
 		<doktype>77</doktype>
@@ -263,7 +263,7 @@
 	<pages>
 		<uid>97</uid>
 		<pid>1</pid>
-		<title>deligated-page2</title>
+		<title>delegated-page2</title>
 		<nav_title></nav_title>
 		<subtitle></subtitle>
 		<doktype>77</doktype>
@@ -279,7 +279,7 @@
 	<pages>
 		<uid>98</uid>
 		<pid>1</pid>
-		<title>deligation-target</title>
+		<title>delegation-target</title>
 		<nav_title></nav_title>
 		<subtitle></subtitle>
 		<doktype>1</doktype>
@@ -294,7 +294,7 @@
 	<pages>
 		<uid>99</uid>
 		<pid>1</pid>
-		<title>deligated-page3</title>
+		<title>delegated-page3</title>
 		<nav_title></nav_title>
 		<subtitle></subtitle>
 		<doktype>77</doktype>

@@ -178,10 +178,12 @@
 		<uid>150</uid>
 		<pid>199</pid>
 		<sys_language_uid>5</sys_language_uid>
-		<url>www.aoe.com/fr</url>
 		<title>vivelafrance</title>
 		<subtitle></subtitle>
 		<nav_title></nav_title>
+		<doktype>3</doktype>
+		<url>www.aoe.com/fr</url>
+		<urltype>4</urltype>
 		<tx_realurl_pathsegment></tx_realurl_pathsegment>
 		<tx_realurl_pathoverride>0</tx_realurl_pathoverride>
 		<tx_realurl_exclude>0</tx_realurl_exclude>
@@ -193,6 +195,7 @@
 		<title>china</title>
 		<subtitle></subtitle>
 		<nav_title></nav_title>
+		<doktype>3</doktype>
 		<url>www.aoe.com</url>
 		<urltype>4</urltype>
 		<tx_realurl_pathsegment></tx_realurl_pathsegment>

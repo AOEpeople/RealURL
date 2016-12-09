@@ -284,7 +284,10 @@ class tx_realurl_pathgenerator
         }
         if (! $rootPidFound) {
             if ($this->conf ['strictMode'] == 1) {
-                throw new Exception('The rootpid ' . $this->rootPid . '.configured for pagepath generation was not found in the rootline for page' . $pid);
+                throw new Exception(
+                    'The configured root pid ' . $this->rootPid . ' could not be found in the rootline of page ' . $pid,
+                    1481273270
+                );
             }
             return $rootLine;
         }
@@ -308,43 +311,48 @@ class tx_realurl_pathgenerator
     }
 
     /**
-     * builds the path based on the rootline
-     * @param $segment configuration wich field from database should use
-     * @param $rootline The rootLine  from the actual page
-     * @return array with rootLine and path
+     * Builds the path based on the rootline
+     *
+     * @param string $segment configuration wich field from database should use
+     * @param array $rootline The rootLine  from the actual page
+     * @return string
      **/
     public function _buildPath($segment, $rootline)
     {
-        $segment = \TYPO3\CMS\Core\Utility\GeneralUtility::trimExplode(',', $segment);
-        $path = array();
-        $size = count($rootline);
+        $path = [];
         $rootline = array_reverse($rootline);
-            //do not include rootpage itself, except it is only the root and filename is set:
-        if ($size > 1 || $rootline [0] ['tx_realurl_pathsegment'] == '') {
+        $segment = \TYPO3\CMS\Core\Utility\GeneralUtility::trimExplode(',', $segment);
+
+        // Do not include rootpage itself, except it is only the root and filename is set
+        if (count($rootline) > 1 || $rootline[0]['tx_realurl_pathsegment'] === '') {
             array_shift($rootline);
-            $size = count($rootline);
         }
+
         $i = 1;
-        foreach ($rootline as $key => $value) {
-            //check if the page should exlude from path (if not last)
-            if ($value ['tx_realurl_exclude'] && $i != $size) {
+        foreach ($rootline as $page) {
+            // Continue if page should be excluded from path (if not last)
+            if ($page['tx_realurl_exclude'] && $i != count($rootline)) {
             } else {  //the normal way
 
-                $pathSeg = $this->_getPathSeg($value, $segment);
-                if (strcmp($pathSeg, '') === 0) {
-                    if ($value['_PAGES_OVERLAY']) {
-                        $pathSeg = $this->_getPathSeg($this->_getDefaultRecord($value), $segment);
-                    } else {
-                        $pathSeg = 'page_' . $value['uid'];
-                    }
+                // (1) Language Overlay
+                $pathSegment = $this->_getPathSeg($page, $segment);
+
+                // (2) Default Language
+                if (empty($pathSegment) && $page['_PAGES_OVERLAY']) {
+                    $pathSegment = $this->_getPathSeg($this->_getDefaultRecord($page), $segment);
                 }
-                $path [] = $pathSeg;
+
+                // (3) Fallback
+                if (empty($pathSegment)) {
+                    $pathSegment = 'page_' . $page['uid'];
+                }
+
+                $path [] = $pathSegment;
             }
-            $i ++;
+            $i++;
         }
-            //build the path
-        $path = implode("/", $path);
-        return $path;
+
+        return implode('/', $path);
     }
 
     /**
@@ -368,14 +376,15 @@ class tx_realurl_pathgenerator
     /**
      *
      * @param array $l10nrec
-     * @return arrray
+     * @return array
      */
-    public function _getDefaultRecord($l10nrec)
+    public function _getDefaultRecord(array $l10nrec)
     {
         $lang = $this->sys_page->sys_language_uid;
         $this->sys_page->sys_language_uid = 0;
-        $rec = $this->sys_page->getPage($l10nrec ['uid']);
+        $rec = $this->sys_page->getPage($l10nrec['uid']);
         $this->sys_page->sys_language_uid = $lang;
+
         return $rec;
     }
 
