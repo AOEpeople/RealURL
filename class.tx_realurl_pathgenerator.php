@@ -328,28 +328,27 @@ class tx_realurl_pathgenerator
             array_shift($rootline);
         }
 
-        $i = 1;
+        $i = 0;
         foreach ($rootline as $page) {
             // Continue if page should be excluded from path (if not last)
-            if ($page['tx_realurl_exclude'] && $i != count($rootline)) {
-            } else {  //the normal way
-
-                // (1) Language Overlay
-                $pathSegment = $this->_getPathSeg($page, $segment);
-
-                // (2) Default Language
-                if (empty($pathSegment) && $page['_PAGES_OVERLAY']) {
-                    $pathSegment = $this->_getPathSeg($this->_getDefaultRecord($page), $segment);
-                }
-
-                // (3) Fallback
-                if (empty($pathSegment)) {
-                    $pathSegment = 'page_' . $page['uid'];
-                }
-
-                $path [] = $pathSegment;
+            if ($page['tx_realurl_exclude'] && ++$i !== count($rootline)) {
+                continue;
             }
-            $i++;
+
+            // (1) Language Overlay
+            $pathSegment = $this->_getPathSeg($page, $segment);
+
+            // (2) Default Language
+            if (empty($pathSegment) && $page['_PAGES_OVERLAY']) {
+                $pathSegment = $this->_getPathSeg($this->_getDefaultRecord($page), $segment);
+            }
+
+            // (3) Fallback
+            if (empty($pathSegment)) {
+                $pathSegment = 'page_' . $page['uid'];
+            }
+
+            $path [] = $pathSegment;
         }
 
         return implode('/', $path);
