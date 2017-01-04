@@ -360,7 +360,7 @@ class tx_realurl_tcemain
      */
     protected function processContentUpdates($status, $tableName, $recordId, array $databaseData)
     {
-        if ($status == 'update' && tx_realurl::testInt($recordId)) {
+        if ($status == 'update' && \TYPO3\CMS\Core\Utility\MathUtility::canBeInterpretedAsInteger($recordId)) {
             list($pageId, $languageId) = $this->getPageData($tableName, $recordId);
             $this->fetchRealURLConfiguration($pageId);
             if ($this->shouldFixCaches($tableName, $databaseData)) {

@@ -45,10 +45,7 @@ class tx_realurl
     public $decodeCacheTTL = 1; // TTL for decode cache, default is 1 day.
     public $encodeCacheTTL = 1; // TTL for encode cache, default is 1 day.
 
-
     // Internal
-    /** @var tslib_fe */
-    public $pObj; // tslib_fe / GLOBALS['TSFE'] (for ->decodeSpURL())
     public $extConf; // Configuration for extension, from $TYPO3_CONF_VARS['EXTCONF']['realurl']
     public $adminJumpSet = false; // Is set true (->encodeSpURL) if AdminJump is active in some way. Is set false again when captured first time!
     public $fe_user_prefix_set = false; // Is set true (->encodeSpURL) if there is a frontend user logged in
@@ -62,7 +59,6 @@ class tx_realurl
 
     public $decode_editInBackend = false; // If set (in adminjump function) then we will redirect to edit the found page id in the backend.
     public $encodeError = false; // If set true encoding failed , probably because the url was outside of root line - and the input url is returned directly.
-
 
     public $host = ''; // Current host name. Set in setConfig()
 
@@ -167,6 +163,12 @@ class tx_realurl
      */
     protected $rebuildCHash;
 
+    /**
+     * @var \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController
+     */
+    protected $typoScriptFrontendController;
+
+
     /************************************
      *
      * Translate parameters to a Speaking URL (t3lib_tstemplate::linkData)
@@ -244,7 +246,7 @@ class tx_realurl
         try {
             $this->extConf = $this->configurationService->getConfigurationForDomain($params['args']['targetDomain']);
         } catch (Exception $e) {
-            $this->pObj->pageNotFoundAndExit($e->getMessage());
+            $this->typoScriptFrontendController->pageNotFoundAndExit($e->getMessage());
         }
         $adjustedConfiguration = $this->adjustConfigurationByHost('encode', $params);
         $internalExtras = array();
@@ -772,11 +774,11 @@ class tx_realurl
             return $GLOBALS['TSFE']->applicationData['tx_realurl']['_CACHE'][$hash];
         } else { // Setting encoded URL in cache:
             // No caching if FE editing is enabled!
-            if (!$this->isBEUserLoggedIn()) {
+            if (!$this->typoScriptFrontendController->isBackendUserLoggedIn()) {
                 $GLOBALS['TSFE']->applicationData['tx_realurl']['_CACHE'][$hash] = $setEncodedURL;
 
                 // If the page id is NOT an integer, it's an alias we have to look up
-                if (!self::testInt($this->encodePageId)) {
+                if (!\TYPO3\CMS\Core\Utility\MathUtility::canBeInterpretedAsInteger($this->encodePageId)) {
                     $this->encodePageId = $this->pageAliasToID($this->encodePageId);
                 }
 
@@ -920,18 +922,18 @@ class tx_realurl
         $this->devLog('Entering decodeSpURL');
 
         // Setting parent object reference (which is $GLOBALS['TSFE'])
-        $this->pObj = &$params['pObj'];
+        $this->typoScriptFrontendController = &$params['pObj'];
 
         // Initializing config / request URL
         try {
             $this->extConf = $this->configurationService->getConfigurationForDomain();
         } catch (Exception $e) {
-            $this->pObj->pageNotFoundAndExit($e->getMessage());
+            $this->typoScriptFrontendController->pageNotFoundAndExit($e->getMessage());
         }
         $this->adjustConfigurationByHost('decode');
 
         // If there has been a redirect (basically; we arrived here otherwise than via "index.php" in the URL) this can happened either due to a CGI-script or because of reWrite rule. Earlier we used $GLOBALS['HTTP_SERVER_VARS']['REDIRECT_URL'] to check but...
-        if ($this->pObj->siteScript && substr($this->pObj->siteScript, 0, 9) != 'index.php' && substr($this->pObj->siteScript, 0, 1) != '?') {
+        if ($this->typoScriptFrontendController->siteScript && substr($this->typoScriptFrontendController->siteScript, 0, 9) != 'index.php' && substr($this->typoScriptFrontendController->siteScript, 0, 1) != '?') {
 
             // Getting the path which is above the current site url
             // For instance "first/second/third/index.html?&param1=value1&param2=value2"
@@ -939,8 +941,8 @@ class tx_realurl
             // "http://localhost/typo3/dev/dummy_1/first/second/third/index.html?&param1=value1&param2=value2"
             // Note: sometimes in fcgi installations it is absolute, so we have to make it
             // relative to work properly.
-            $speakingURIpath = $this->pObj->siteScript{0}
-            == '/' ? substr($this->pObj->siteScript, 1) : $this->pObj->siteScript;
+            $speakingURIpath = $this->typoScriptFrontendController->siteScript{0}
+            == '/' ? substr($this->typoScriptFrontendController->siteScript, 1) : $this->typoScriptFrontendController->siteScript;
 
             if ($this->isURIpathContainingAnProtocolWrapper($speakingURIpath)) {
                 header('Location:'.$this->getURIpathWithoutProtocolWrapper($speakingURIpath), true, 301);
@@ -999,7 +1001,11 @@ class tx_realurl
 
             // If the URL is a single script like "123.1.html" it might be an "old" simulateStaticDocument request. If this is the case and support for this is configured, do NOT try and resolve it as a Speaking URL
             $fI = \TYPO3\CMS\Core\Utility\GeneralUtility::split_fileref($speakingURIpath);
-            if (!self::testInt($this->pObj->id) && $fI['path'] == '' && $this->extConf['fileName']['defaultToHTMLsuffixOnPrev'] && $this->extConf['init']['respectSimulateStaticURLs']) {
+            if (!\TYPO3\CMS\Core\Utility\MathUtility::canBeInterpretedAsInteger($this->typoScriptFrontendController->id)
+                && $fI['path'] == ''
+                && $this->extConf['fileName']['defaultToHTMLsuffixOnPrev']
+                && $this->extConf['init']['respectSimulateStaticURLs']
+            ) {
                 // If page ID does not exist yet and page is on the root level and both
                 // respectSimulateStaticURLs and defaultToHTMLsuffixOnPrev are set, than
                 // ignore respectSimulateStaticURLs and attempt to resolve page id.
@@ -1045,8 +1051,8 @@ class tx_realurl
                 $this->decodeSpURL_jumpAdmin_goBackend($cachedInfo['id']);
 
                 // Setting info in TSFE
-                $this->pObj->mergingWithGetVars($cachedInfo['GET_VARS']);
-                $this->pObj->id = $cachedInfo['id'];
+                $this->typoScriptFrontendController->mergingWithGetVars($cachedInfo['GET_VARS']);
+                $this->typoScriptFrontendController->id = $cachedInfo['id'];
 
                 if ($this->mimeType) {
                     header('Content-type: ' . $this->mimeType);
@@ -1154,10 +1160,14 @@ class tx_realurl
         $pre_GET_VARS = $this->decodeSpURL_settingPreVars($pathParts, $this->extConf['preVars']);
         if (isset($this->extConf['pagePath']['languageGetVar'])) {
             $languageGetVar = $this->extConf['pagePath']['languageGetVar'];
-            if (isset($pre_GET_VARS[$languageGetVar]) && self::testInt($pre_GET_VARS[$languageGetVar])) {
+            if (isset($pre_GET_VARS[$languageGetVar])
+                && \TYPO3\CMS\Core\Utility\MathUtility::canBeInterpretedAsInteger($pre_GET_VARS[$languageGetVar])
+            ) {
                 // Language from URL
                 $this->detectedLanguage = $pre_GET_VARS[$languageGetVar];
-            } elseif (isset($_GET[$languageGetVar]) && self::testInt($_GET[$languageGetVar])) {
+            } elseif (isset($_GET[$languageGetVar])
+                && \TYPO3\CMS\Core\Utility\MathUtility::canBeInterpretedAsInteger($_GET[$languageGetVar])
+            ) {
                 // This is for _DOMAINS feature
                 $this->detectedLanguage = $_GET[$languageGetVar];
             }
@@ -1646,7 +1656,7 @@ class tx_realurl
                             } elseif (is_array($setup['lookUpTable']) && $value != '') {
                                 $temp = $value;
                                 $value = $this->lookUpTranslation($setup['lookUpTable'], $value, true);
-                                if (!self::testInt($value) && !strcmp($value, $temp)) {
+                                if (!\TYPO3\CMS\Core\Utility\MathUtility::canBeInterpretedAsInteger($value) && !strcmp($value, $temp)) {
                                     // no match found
                                     if ($setup['lookUpTable']['enable404forInvalidAlias']) {
                                         $this->decodeSpURL_throw404('Couldn\'t map alias "' . $value . '" to an ID');
@@ -1750,7 +1760,7 @@ class tx_realurl
         }
 
         // Call handler
-        $this->pObj->pageNotFoundAndExit($msg);
+        $this->typoScriptFrontendController->pageNotFoundAndExit($msg);
     }
 
     /**
@@ -1760,7 +1770,7 @@ class tx_realurl
      */
     protected function decodeSpURL_jumpAdmin()
     {
-        if ($this->pObj->beUserLogin && is_object($GLOBALS['BE_USER'])) {
+        if ($this->typoScriptFrontendController->beUserLogin && is_object($GLOBALS['BE_USER'])) {
             if ($this->extConf['init']['adminJumpToBackend']) {
                 $this->decode_editInBackend = true;
             } elseif ($GLOBALS['BE_USER']->extAdmEnabled) {
@@ -1809,7 +1819,7 @@ class tx_realurl
             // Create hash string
             if (is_array($cachedInfo)) { // STORE cachedInfo
 
-                if (!$this->isBEUserLoggedIn() && $this->canCachePageURL($cachedInfo['id'])) {
+                if (!$this->typoScriptFrontendController->isBackendUserLoggedIn() && $this->canCachePageURL($cachedInfo['id'])) {
                     $rootpage_id = intval($cachedInfo['rootpage_id']);
                     $hash = md5($speakingURIpath . $rootpage_id);
 
@@ -2282,7 +2292,7 @@ class tx_realurl
     {
 
         // If the page id is NOT an integer, it's an alias we have to look up
-        if (!self::testInt($pageId)) {
+        if (!\TYPO3\CMS\Core\Utility\MathUtility::canBeInterpretedAsInteger($pageId)) {
             $pageId = $this->pageAliasToID($pageId);
         }
 
@@ -2360,17 +2370,6 @@ class tx_realurl
     }
 
     /**
-     * Checks if BE user is logged in.
-     *
-     * @return bool <code>true</code> if BE user is logged in
-     * @internal
-     */
-    public function isBEUserLoggedIn()
-    {
-        return $this->pObj->beUserLogin;
-    }
-
-    /**
      * Adjusts the configuration used for RealURL processing, depending on a specific domain disposal.
      *
      * @param string $type Calling type of realurl (encode|decode)
@@ -2427,7 +2426,8 @@ class tx_realurl
                                 $this->ignoreGETvar = $GETvar;
                                 $this->setConfigurationByReference($disposal['useConfiguration']);
                             }
-                            $this->additionalParametersForChash[$GETvar] = $this->testInt($urlParams[$GETvar]) ? intval($urlParams[$GETvar]) : $urlParams[$GETvar];
+                            $this->additionalParametersForChash[$GETvar] =
+                                \TYPO3\CMS\Core\Utility\MathUtility::canBeInterpretedAsInteger($urlParams[$GETvar]) ? intval($urlParams[$GETvar]) : $urlParams[$GETvar];
                             return $disposal;
                         } else {
                             $this->ignoreGETvar = $GETvar;
@@ -2470,7 +2470,8 @@ class tx_realurl
                     foreach ($hostConfiguration['GETvars'] as $key => $value) {
                         if (empty($_GET[$key])) {
                             $_GET[$key] = $value;
-                            $this->additionalParametersForChash[$key] = $this->testInt($value) ? intval($value) : $value;
+                            $this->additionalParametersForChash[$key] =
+                                \TYPO3\CMS\Core\Utility\MathUtility::canBeInterpretedAsInteger($value) ? intval($value) : $value;
                         }
                     }
                     if (isset($hostConfiguration['useConfiguration'])) {
@@ -2655,7 +2656,7 @@ class tx_realurl
     {
         if (!$this->extConf['pagePath']['rootpage_id']) {
             if ($this->enableStrictMode) {
-                $this->pObj->pageNotFoundAndExit('RealURL strict mode error: ' .
+                $this->typoScriptFrontendController->pageNotFoundAndExit('RealURL strict mode error: ' .
                     'multi-domain configuration without rootpage_id. ' .
                     'Please, fix your RealURL configuration!');
             }
@@ -2666,7 +2667,7 @@ class tx_realurl
             $this->extConf['pagePath']['rootpage_id'] = $this->findRootPageId();
 
             if ($this->multidomain && !$this->extConf['pagePath']['rootpage_id']) {
-                $this->pObj->pageNotFoundAndExit('RealURL error: ' .
+                $this->typoScriptFrontendController->pageNotFoundAndExit('RealURL error: ' .
                     'unable to determine rootpage_id for the current domain.');
             }
         }
@@ -2939,28 +2940,5 @@ class tx_realurl
     public function getDetectedLanguage()
     {
         return intval($this->detectedLanguage);
-    }
-
-    /**
-     * Tests if the value represents an integer number.
-     *
-     * @param mixed $value
-     * @return bool
-     */
-    public static function testInt($value)
-    {
-        static $useOldGoodTestInt = null;
-
-        if (is_null($useOldGoodTestInt)) {
-            $useOldGoodTestInt = !class_exists('t3lib_utility_Math');
-        }
-        if ($useOldGoodTestInt) {
-            /** @noinspection PhpDeprecationInspection PhpUndefinedMethodInspection */
-            $result = \TYPO3\CMS\Core\Utility\GeneralUtility::testInt($value);
-        } else {
-            /** @noinspection PhpDeprecationInspection */
-            $result = t3lib_utility_Math::canBeInterpretedAsInteger($value);
-        }
-        return $result;
     }
 }
