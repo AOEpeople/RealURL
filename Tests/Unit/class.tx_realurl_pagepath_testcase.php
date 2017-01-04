@@ -36,14 +36,18 @@ class tx_realurl_pagepath_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCase
      */
     public function defaultLanguageIs0()
     {
-        $mock = $this->getMock('tx_realurl', array('getRetrievedPreGetVar'));
-        $mock->expects($this->any())->method('getRetrievedPreGetVar')->will($this->returnValue(false));
+        $mock = $this->getMockBuilder(tx_realurl::class)
+            ->setMethods(['getRetrievedPreGetVar'])
+            ->getMock();
+        $mock->expects($this->any())
+            ->method('getRetrievedPreGetVar')
+            ->will($this->returnValue(false));
 
         $pp = new tx_realurl_pagepath();
-        $pp->_setConf(array());
+        $pp->_setConf([]);
         $pp->_setParent($mock);
 
-        $this->assertEquals(true, 0 === $pp->_getLanguageVarEncode(), 'Wrong default language');
+        $this->assertSame(0, $pp->_getLanguageVarEncode(), 'Wrong default language');
     }
 
     /**
@@ -53,14 +57,15 @@ class tx_realurl_pagepath_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCase
      */
     public function basicLanguageDetectionWorks()
     {
-        $mock = $this->getMock('tx_realurl', array());
-        $mock->orig_paramKeyValues ['L'] = 3;
+        $mock = $this->getMockBuilder(tx_realurl::class)
+            ->getMock();
+        $mock->orig_paramKeyValues['L'] = 3;
 
         $pp = new tx_realurl_pagepath();
-        $pp->_setConf(array('languageGetVar' => 'L'));
+        $pp->_setConf(['languageGetVar' => 'L']);
         $pp->_setParent($mock);
 
-        $this->assertEquals(3, $pp->_getLanguageVarEncode(), 'Wrong language detected');
+        $this->assertSame(3, $pp->_getLanguageVarEncode(), 'Wrong language detected');
     }
 
     /**
@@ -70,14 +75,15 @@ class tx_realurl_pagepath_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCase
      */
     public function abbrevLisTheDefaultAbbreviation()
     {
-        $mock = $this->getMock('tx_realurl', array());
-        $mock->orig_paramKeyValues ['L'] = 3;
+        $mock = $this->getMockBuilder(tx_realurl::class)
+            ->getMock();
+        $mock->orig_paramKeyValues['L'] = 3;
 
         $pp = new tx_realurl_pagepath();
-        $pp->_setConf(array());
+        $pp->_setConf([]);
         $pp->_setParent($mock);
 
-        $this->assertEquals(3, $pp->_getLanguageVarEncode(), 'it seems that L is not used as default-parameter for the language detection');
+        $this->assertSame(3, $pp->_getLanguageVarEncode(), 'it seems that L is not used as default-parameter for the language detection');
     }
 
     /**
@@ -88,15 +94,16 @@ class tx_realurl_pagepath_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCase
      */
     public function languageAbbrevCanBeChanged()
     {
-        $mock = $this->getMock('tx_realurl', array());
-        $mock->orig_paramKeyValues ['L'] = 3;
-        $mock->orig_paramKeyValues ['newL'] = 10;
+        $mock = $this->getMockBuilder(tx_realurl::class)
+            ->getMock();
+        $mock->orig_paramKeyValues['L'] = 3;
+        $mock->orig_paramKeyValues['newL'] = 10;
 
         $pp = new tx_realurl_pagepath();
-        $pp->_setConf(array('languageGetVar' => 'newL'));
+        $pp->_setConf(['languageGetVar' => 'newL']);
         $pp->_setParent($mock);
 
-        $this->assertEquals(10, $pp->_getLanguageVarEncode(), 'seems that we\'re using the wrong GET var to read the language');
+        $this->assertSame(10, $pp->_getLanguageVarEncode(), 'seems that we\'re using the wrong GET var to read the language');
     }
 
     /**
@@ -107,15 +114,17 @@ class tx_realurl_pagepath_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCase
      */
     public function languageExceptionsWork()
     {
-        $mock = $this->getMock('tx_realurl', array());
-        $mock->orig_paramKeyValues ['L'] = 3;
+        $mock = $this->getMockBuilder(tx_realurl::class)
+            ->getMock();
+        $mock->orig_paramKeyValues['L'] = 3;
 
         $pp = new tx_realurl_pagepath();
-        $pp->_setConf(array('languageExceptionUids' => '2'));
+        $pp->_setConf(['languageExceptionUids' => '2']);
         $pp->_setParent($mock);
 
         $this->assertEquals(3, $pp->_getLanguageVarEncode(), 'it seems that a regular request was filtered with the blacklist');
-        $mock->orig_paramKeyValues ['L'] = 2;
+
+        $mock->orig_paramKeyValues['L'] = 2;
         $this->assertEquals(0, $pp->_getLanguageVarEncode(), 'it seems that a excepted / blacklisted language wasn\'t filtered');
     }
 
@@ -127,13 +136,17 @@ class tx_realurl_pagepath_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCase
      */
     public function languageIsDetectedFromPreVar()
     {
-        $mock = $this->getMock('tx_realurl', array('getRetrievedPreGetVar'));
-        $mock->expects($this->any())->method('getRetrievedPreGetVar')->will($this->returnValue(7));
+        $mock = $this->getMockBuilder(tx_realurl::class)
+            ->setMethods(['getRetrievedPreGetVar'])
+            ->getMock();
+        $mock->expects($this->any())
+            ->method('getRetrievedPreGetVar')
+            ->will($this->returnValue(7));
 
         $pp = new tx_realurl_pagepath();
-        $pp->_setConf(array());
+        $pp->_setConf([]);
         $pp->_setParent($mock);
 
-        $this->assertEquals(7, $pp->_getLanguageVarDecode(), 'pregetvar isn\'t used as supposed');
+        $this->assertSame(7, $pp->_getLanguageVarDecode(), 'pregetvar isn\'t used as supposed');
     }
 }
