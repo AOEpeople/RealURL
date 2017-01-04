@@ -37,6 +37,10 @@
  */
 class tx_realurl_cachemgmt_testcase extends \TYPO3\CMS\Core\Tests\FunctionalTestCase
 {
+    /**
+     * @var array
+     */
+    protected $coreExtensionsToLoad = array('version', 'workspaces');
 
     /**
      * @var array
