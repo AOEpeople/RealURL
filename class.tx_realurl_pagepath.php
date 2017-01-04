@@ -373,19 +373,6 @@ class tx_realurl_pagepath
     }
 
     /**
-     *
-     * @return boolean
-     */
-    public function _isBELogin()
-    {
-        if (!is_object($GLOBALS ['BE_USER'])) {
-            return false;
-        } else {
-            return true;
-        }
-    }
-
-    /**
      * if workspace preview in FE return that workspace
      *
      * @return int

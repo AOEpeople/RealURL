@@ -302,15 +302,6 @@ class tx_realurl_pathgenerator
     }
 
     /**
-     * checks if the user is logged in backend
-     * @return bool
-     **/
-    public function _isBELogin()
-    {
-        return is_object($GLOBALS ['BE_USER']);
-    }
-
-    /**
      * Builds the path based on the rootline
      *
      * @param string $segment configuration wich field from database should use
