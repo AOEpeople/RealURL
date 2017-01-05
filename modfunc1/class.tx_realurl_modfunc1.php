@@ -23,8 +23,6 @@
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-$GLOBALS['LANG']->includeLLfile('EXT:realurl/modfunc1/locallang.xml');
-
 /**
  * Speaking Url management extension
  *
@@ -34,14 +32,15 @@ $GLOBALS['LANG']->includeLLfile('EXT:realurl/modfunc1/locallang.xml');
  */
 class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModule
 {
-
-    // Internal, dynamic:
+    /**
+     * @var integer
+     */
     public $searchResultCounter = 0;
 
     /**
      * Returns the menu array
      *
-     * @return    array
+     * @return array
      */
     public function modMenu()
     {
@@ -50,7 +49,7 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
                 0 => $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xlf:labels.depth_0'),
                 1 => $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xlf:labels.depth_1'),
                 2 => $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xlf:labels.depth_2'),
-                3 => $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xlf.php:labels.depth_3'),
+                3 => $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xlf:labels.depth_3'),
                 99 => $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xlf:labels.depth_infi'),
             ),
             'type' => array(
@@ -63,8 +62,11 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
             )
         );
 
-        $modMenu['type'] = \TYPO3\CMS\Backend\Utility\BackendUtility::unsetMenuItems($this->pObj->modTSconfig['properties'], $modMenu['type'],
-            'menu.realurl_type');
+        $modMenu['type'] = \TYPO3\CMS\Backend\Utility\BackendUtility::unsetMenuItems(
+            $this->pObj->modTSconfig['properties'],
+            $modMenu['type'],
+            'menu.realurl_type'
+        );
 
         return $modMenu;
     }
@@ -72,7 +74,7 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
     /**
      * MAIN function for cache information
      *
-     * @return    string        Output HTML for the module.
+     * @return string        Output HTML for the module.
      */
     public function main()
     {
@@ -98,7 +100,6 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
             case 'pathcache':
                 $result .= $this->getDepthSelector();
                 $moduleContent = $this->renderModule($this->initializeTree());
-                //$result .= $this->renderSearchForm();
                 $result .= $moduleContent;
                 break;
             case 'encode':
@@ -132,10 +133,14 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
      */
     protected function getFunctionMenu()
     {
-        return $GLOBALS['LANG']->getLL('function') . ' ' .
-        \TYPO3\CMS\Backend\Utility\BackendUtility::getFuncMenu($this->pObj->id, 'SET[type]',
-            $this->pObj->MOD_SETTINGS['type'], $this->pObj->MOD_MENU['type'],
-            'index.php');
+        return $GLOBALS['LANG']->getLL('function')
+            . ' '
+            . \TYPO3\CMS\Backend\Utility\BackendUtility::getFuncMenu(
+                $this->pObj->id, 'SET[type]',
+                $this->pObj->MOD_SETTINGS['type'],
+                $this->pObj->MOD_MENU['type'],
+                'index.php'
+            );
     }
 
     /**
@@ -146,12 +151,12 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
     protected function addModuleStyles()
     {
         $this->pObj->doc->inDocStyles .= '
-			TABLE.c-list TR TD { white-space: nowrap; vertical-align: top; }
-			TABLE#tx-realurl-pathcacheTable TD { vertical-align: top; }
-			FIELDSET { border: none; padding: 16px 0; }
-			FIELDSET DIV { clear: left; border-collapse: collapse; margin-bottom: 5px; }
-			FIELDSET DIV LABEL { display: block; float: left; width: 100px; }
-		';
+            TABLE.c-list TR TD { white-space: nowrap; vertical-align: top; }
+            TABLE#tx-realurl-pathcacheTable TD { vertical-align: top; }
+            FIELDSET { border: none; padding: 16px 0; }
+            FIELDSET DIV { clear: left; border-collapse: collapse; margin-bottom: 5px; }
+            FIELDSET DIV LABEL { display: block; float: left; width: 100px; }
+        ';
     }
 
     /**
@@ -161,9 +166,14 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
      */
     protected function getDepthSelector()
     {
-        return $GLOBALS['LANG']->getLL('depth') .
-        \TYPO3\CMS\Backend\Utility\BackendUtility::getFuncMenu($this->pObj->id, 'SET[depth]', $this->pObj->MOD_SETTINGS['depth'],
-            $this->pObj->MOD_MENU['depth'], 'index.php');
+        return $GLOBALS['LANG']->getLL('depth')
+            . \TYPO3\CMS\Backend\Utility\BackendUtility::getFuncMenu(
+                $this->pObj->id,
+                'SET[depth]',
+                $this->pObj->MOD_SETTINGS['depth'],
+                $this->pObj->MOD_MENU['depth'],
+                'index.php'
+            );
     }
 
     /**
@@ -199,6 +209,7 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
     }
 
 
+
     /****************************
      *
      * Path Cache rendering:
@@ -213,32 +224,31 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
      */
     public function renderModule(\TYPO3\CMS\Backend\Tree\View\PageTreeView $tree)
     {
+        $theOutput = '';
+
         if ($this->pObj->id) {
-            $theOutput = '';
-
-            $this->cachemgmt = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('tx_realurl_cachemgmt', $GLOBALS['BE_USER']->workspace, 0, 1);
-
-            $this->pathgen = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('tx_realurl_pathgenerator');
+            $this->cachemgmt = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(tx_realurl_cachemgmt::class, $GLOBALS['BE_USER']->workspace, 0, 1);
+            $this->pathgen = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(tx_realurl_pathgenerator::class);
             $this->pathgen->init(array());
 
             //Add action buttons:
             $theOutput .= '
-				<table><tr><td valign="top">
-				<h3>Actions:</h3>
-				<input name="id" value="' . $this->pObj->id . '" type="hidden"><input type="submit" value="clear all (complete cache and history)" name="_action_clearall">';
+                <table><tr><td valign="top">
+                <h3>Actions:</h3>
+                <input name="id" value="' . $this->pObj->id . '" type="hidden"><input type="submit" value="clear all (complete cache and history)" name="_action_clearall">';
             $theOutput .= '<br /><input type="submit" value="clear visible tree" name="_action_clearvisible">';
             $theOutput .= '<br /><input type="submit" value="mark visible tree as dirty" name="_action_dirtyvisible">';
             $theOutput .= '<br /><input type="submit" value="clear complete history cache" name="_action_clearallhistory">';
             $theOutput .= '<br /><input type="submit" value="regenerate (FE-calls)" name="_action_regenerate"></td><td valign="top">
-				<h3>Colors:</h3>
-					<table border="0">
-					<tr><td class="c-ok">Cache found</td></tr>
-					<tr><td class="c-ok-expired">Cache expired</td></tr>
-					<tr><td class="c-shortcut">Shortcut (no cache needed)</td></tr>
-					<tr><td class="c-delegation">Delegation (no cache needed)</td></tr>
-					<tr><td class="c-nok">No cache found</td></tr></table>
-				</td></tr></table>';
-            //$theOutput.='<input type="submit" value="regenerate!" name="_action_clearall">';
+                <h3>Colors:</h3>
+                    <table border="0">
+                    <tr><td class="c-ok">Cache found</td></tr>
+                    <tr><td class="c-ok-expired">Cache expired</td></tr>
+                    <tr><td class="c-shortcut">Shortcut (no cache needed)</td></tr>
+                    <tr><td class="c-delegation">Delegation (no cache needed)</td></tr>
+                    <tr><td class="c-nok">No cache found</td></tr></table>
+                </td></tr></table>';
+
             //check actions:
             if (\TYPO3\CMS\Core\Utility\GeneralUtility::_GP('_action_clearall') != '') {
                 $this->cachemgmt->clearAllCache();
@@ -249,25 +259,25 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
 
             // Add CSS needed:
             $css_content = '
-				TABLE#langTable {
-					margin-top: 10px;
-				}
-				TABLE#langTable TR TD {
-					padding-left : 2px;
-					padding-right : 2px;
-					white-space: nowrap;
-				}
+                TABLE#langTable {
+                    margin-top: 10px;
+                }
+                TABLE#langTable TR TD {
+                    padding-left : 2px;
+                    padding-right : 2px;
+                    white-space: nowrap;
+                }
 
-				TR.odd { background-color:#ddd; }
+                TR.odd { background-color:#ddd; }
 
-				TD.c-ok { background-color: #A8E95C; }
-				TD.c-ok-expired { background-color: #B8C95C; }
-				TD.c-shortcut { background-color: #B8E95C; font-weight: 200}
-				TD.c-delegation { background-color: #EE0; }
-				/*TD.c-nok { background-color: #E9CD5C; }*/
-				TD.c-leftLine {border-left: 2px solid black; }
-				TD.bgColor5 { font-weight: bold; }
-			';
+                TD.c-ok { background-color: #A8E95C; }
+                TD.c-ok-expired { background-color: #B8C95C; }
+                TD.c-shortcut { background-color: #B8E95C; font-weight: 200}
+                TD.c-delegation { background-color: #EE0; }
+                /*TD.c-nok { background-color: #E9CD5C; }*/
+                TD.c-leftLine {border-left: 2px solid black; }
+                TD.bgColor5 { font-weight: bold; }
+            ';
             $marker = '/*###POSTCSSMARKER###*/';
             if (!stristr($this->pObj->content, $marker)) {
                 $theOutput = '<style type="text/css">' . $css_content . '</style>' . chr(10) . $theOutput;
@@ -275,6 +285,7 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
                 $this->pObj->content = str_replace($marker, $css_content . chr(10) . $marker, $this->pObj->content);
             }
             $theOutput .= '<hr />AOE realurl path cache for workspace: ' . $GLOBALS['BE_USER']->workspace;
+
             // Render information table:
             $theOutput .= $this->renderTable($tree);
         }
@@ -291,79 +302,6 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
     public function linkSelf($addParams)
     {
         return htmlspecialchars('index.php?id=' . $this->pObj->id . '&showLanguage=' . rawurlencode(\TYPO3\CMS\Core\Utility\GeneralUtility::_GP('showLanguage')) . $addParams);
-    }
-
-    /**
-     * Create search form
-     *
-     * @return    string        HTML
-     */
-    public function renderSearchForm()
-    {
-        $output = '<fieldset>';
-        $output .= $this->getLanguageSelector();
-        $output .= '<div>' . $this->getSearchField() . '</div>';
-        $output .= $this->getReplaceAndDeleteFields();
-
-        $output .= '<input type="hidden" name="id" value="' . $this->pObj->id . '" />';
-        $output .= '</fieldset>';
-
-        return $output;
-    }
-
-    /**
-     * Obtains fields for replace/delete.
-     *
-     * @return string
-     */
-    private function getReplaceAndDeleteFields()
-    {
-        $output = '';
-
-        if ($this->searchResultCounter && !\TYPO3\CMS\Core\Utility\GeneralUtility::_POST('_replace') && !\TYPO3\CMS\Core\Utility\GeneralUtility::_POST('_delete')) {
-            $output .= '<div><label for="pathPrefixReplace">Replace with:</label> <input type="text" name="pathPrefixReplace" value="' . htmlspecialchars(\TYPO3\CMS\Core\Utility\GeneralUtility::_GP('pathPrefixSearch')) . '" />';
-            $output .= '<input type="submit" name="_replace" value="Replace" /> or <input type="submit" name="_delete" value="Delete" /></div>';
-            $output .= '<div><b>' . sprintf('Found: %d result(s).', $this->searchResultCounter) . '</b></div>';
-        }
-
-        return $output;
-    }
-
-    /**
-     * Enter description here ...
-     *
-     * @param output
-     */
-    protected function getSearchField()
-    {
-        $output = '<label for="pathPrefixSearch">' . $GLOBALS['LANG']->getLL('search_path', true) .
-            '</label> <input type="text" name="pathPrefixSearch" id="pathPrefixSearch" value="' .
-            htmlspecialchars(\TYPO3\CMS\Core\Utility\GeneralUtility::_GP('pathPrefixSearch')) . '" />' .
-            '<input type="submit" name="_" value="' .
-            $GLOBALS['LANG']->getLL('look_up', true) . '" />';
-
-        return $output;
-    }
-
-    /**
-     * Generates language selector.
-     *
-     * @return string
-     */
-    protected function getLanguageSelector()
-    {
-        $languages = $this->getSystemLanguages();
-
-        $options = array();
-        $showLanguage = \TYPO3\CMS\Core\Utility\GeneralUtility::_GP('showLanguage');
-        foreach ($languages as $language) {
-            $selected = $showLanguage === $language['uid'] ? ' selected="selected"' : '';
-            $options[] = '<option value="' . $language['uid'] . '"' . $selected . '>' .
-                htmlspecialchars($language['title']) . '</option>';
-        }
-
-        return '<div><label for="showLanguage">' . $GLOBALS['LANG']->getLL('language', true) .
-        '</label> <select name="showLanguage">' . implode('', $options) . '</select></div>';
     }
 
     /**
@@ -447,8 +385,13 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
         foreach ($tree->tree as $row) {
 
             // Select rows:
-            $displayRows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('*', 'tx_realurl_urldecodecache',
-                'page_id=' . intval($row['row']['uid']), '', 'spurl');
+            $displayRows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
+                '*',
+                'tx_realurl_urldecodecache',
+                'page_id=' . intval($row['row']['uid']),
+                '',
+                'spurl'
+            );
 
             // Row title:
             $rowTitle = $row['HTML'] . \TYPO3\CMS\Backend\Utility\BackendUtility::getRecordTitle('pages', $row['row'], true);
@@ -465,10 +408,10 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
 
                 // Compile Row:
                 $output .= '
-					<tr class="bgColor' . ($cc % 2 ? '-20' : '-10') . '">
-						' . implode('
-						', $tCells) . '
-					</tr>';
+                    <tr class="bgColor' . ($cc % 2 ? '-20' : '-10') . '">
+                        ' . implode('
+                        ', $tCells) . '
+                    </tr>';
                 $cc++;
 
                 if ($subcmd === 'displayed') {
@@ -515,18 +458,21 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
 
                     // Compile Row:
                     $output .= '
-						<tr class="bgColor' . ($cc % 2 ? '-20' : '-10') . '">
-							' . implode('
-							', $tCells) . '
-						</tr>';
+                        <tr class="bgColor' . ($cc % 2 ? '-20' : '-10') . '">
+                            ' . implode('
+                            ', $tCells) . '
+                        </tr>';
                     $cc++;
                     $countDisplayed++;
                 }
             }
         }
 
-        list($count_allInTable) = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('count(*) AS count',
-            'tx_realurl_urldecodecache', '');
+        list($count_allInTable) = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
+            'count(*) AS count',
+            'tx_realurl_urldecodecache',
+            ''
+        );
 
         // Create header:
         $tCells = array();
@@ -539,38 +485,30 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
         $tCells[] = '<td>Timestamp:</td>';
 
         $output = '
-			<tr class="bgColor5 tableheader">
-				' . implode('
-				', $tCells) . '
-			</tr>' . $output;
+            <tr class="bgColor5 tableheader">
+                ' . implode('
+                ', $tCells) . '
+            </tr>' . $output;
 
         // Compile final table and return:
         $output = '<br/><br/>
-		Displayed entries: <b>' . $countDisplayed . '</b> ' .
+        Displayed entries: <b>' . $countDisplayed . '</b> ' .
             '<a href="' . $this->linkSelf('&cmd=deleteDC&entry=displayed') . '">' .
             '<img' . \TYPO3\CMS\Backend\Utility\IconUtility::skinImg($this->pObj->doc->backPath, 'gfx/garbage.gif',
                 'width="11" height="12"') . ' title="Delete displayed entries" alt="" />' .
             '</a>' .
             '<br/>
-		Total entries in decode cache: <b>' . $count_allInTable['count'] . '</b> ' .
+        Total entries in decode cache: <b>' . $count_allInTable['count'] . '</b> ' .
             '<a href="' . $this->linkSelf('&cmd=deleteDC&entry=all') . '">' .
             '<img' . \TYPO3\CMS\Backend\Utility\IconUtility::skinImg($this->pObj->doc->backPath, 'gfx/garbage.gif',
                 'width="11" height="12"') . ' title="Delete WHOLE decode cache!" alt="" />' .
             '</a>' .
             '<br/>
-		<table border="0" cellspacing="1" cellpadding="0" id="tx-realurl-pathcacheTable" class="lrPadding c-list">' . $output . '
-		</table>';
+        <table border="0" cellspacing="1" cellpadding="0" id="tx-realurl-pathcacheTable" class="lrPadding c-list">' . $output . '
+        </table>';
 
         return $output;
     }
-
-
-
-
-
-
-
-
 
 
 
@@ -625,10 +563,10 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
 
                 // Compile Row:
                 $output .= '
-					<tr class="bgColor' . ($cc % 2 ? '-20' : '-10') . '">
-						' . implode('
-						', $tCells) . '
-					</tr>';
+                    <tr class="bgColor' . ($cc % 2 ? '-20' : '-10') . '">
+                        ' . implode('
+                        ', $tCells) . '
+                    </tr>';
                 $cc++;
 
                 if ($subcmd === 'displayed') {
@@ -677,10 +615,10 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
 
                     // Compile Row:
                     $output .= '
-						<tr class="bgColor' . ($cc % 2 ? '-20' : '-10') . '">
-							' . implode('
-							', $tCells) . '
-						</tr>';
+                        <tr class="bgColor' . ($cc % 2 ? '-20' : '-10') . '">
+                            ' . implode('
+                            ', $tCells) . '
+                        </tr>';
                     $cc++;
 
                     $countDisplayed++;
@@ -692,8 +630,11 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
             }
         }
 
-        list($count_allInTable) = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('count(*) AS count',
-            'tx_realurl_urlencodecache', '');
+        list($count_allInTable) = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
+            'count(*) AS count',
+            'tx_realurl_urlencodecache',
+            ''
+        );
 
         // Create header:
         $tCells = array();
@@ -708,30 +649,30 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
         $tCells[] = '<td>Timestamp:</td>';
 
         $output = '
-			<tr class="bgColor5 tableheader">
-				' . implode('
-				', $tCells) . '
-			</tr>' . $output;
+            <tr class="bgColor5 tableheader">
+                ' . implode('
+                ', $tCells) . '
+            </tr>' . $output;
 
         // Compile final table and return:
         $output = '
 
-		<br/>
-		<br/>
-		Displayed entries: <b>' . $countDisplayed . '</b> ' .
+        <br/>
+        <br/>
+        Displayed entries: <b>' . $countDisplayed . '</b> ' .
             '<a href="' . $this->linkSelf('&cmd=deleteEC&entry=displayed') . '">' .
             '<img' . \TYPO3\CMS\Backend\Utility\IconUtility::skinImg($this->pObj->doc->backPath, 'gfx/garbage.gif',
                 'width="11" height="12"') . ' title="Delete displayed entries" alt="" />' .
             '</a>' .
             '<br/>
-		Total entries in encode cache: <b>' . $count_allInTable['count'] . '</b> ' .
+        Total entries in encode cache: <b>' . $count_allInTable['count'] . '</b> ' .
             '<a href="' . $this->linkSelf('&cmd=deleteEC&entry=all') . '">' .
             '<img' . \TYPO3\CMS\Backend\Utility\IconUtility::skinImg($this->pObj->doc->backPath, 'gfx/garbage.gif',
                 'width="11" height="12"') . ' title="Delete WHOLE encode cache!" alt="" />' .
             '</a>' .
             '<br/>
-		<table border="0" cellspacing="1" cellpadding="0" id="tx-realurl-pathcacheTable" class="lrPadding c-list">' . $output . '
-		</table>';
+        <table border="0" cellspacing="1" cellpadding="0" id="tx-realurl-pathcacheTable" class="lrPadding c-list">' . $output . '
+        </table>';
 
         return $output;
     }
@@ -762,12 +703,6 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
 
 
 
-
-
-
-
-
-
     /*****************************
      *
      * Unique Alias
@@ -787,8 +722,15 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
         $search = \TYPO3\CMS\Core\Utility\GeneralUtility::_POST('search');
 
         // Select rows:
-        $overviewRows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('tablename,count(*) as number_of_rows',
-            'tx_realurl_uniqalias', '', 'tablename', '', '', 'tablename');
+        $overviewRows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
+            'tablename,count(*) as number_of_rows',
+            'tx_realurl_uniqalias',
+            '',
+            'tablename',
+            '',
+            '',
+            'tablename'
+        );
 
         if ($tableName && isset($overviewRows[$tableName])) {    // Show listing of single table:
 
@@ -864,10 +806,10 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
 
                 // Compile Row:
                 $output .= '
-					<tr class="bgColor' . ($cc % 2 ? '-20' : '-10') . '">
-						' . implode('
-						', $tCells) . '
-					</tr>';
+                    <tr class="bgColor' . ($cc % 2 ? '-20' : '-10') . '">
+                        ' . implode('
+                        ', $tCells) . '
+                    </tr>';
                 $cc++;
 
                 $duplicates[$keyForDuplicates] = $aliasRecord['value_id'];
@@ -897,22 +839,22 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
             $tCells[] = '<td>Error:</td>';
 
             $output = '
-				<tr class="bgColor5 tableheader">
-					' . implode('
-					', $tCells) . '
-				</tr>' . $output;
+                <tr class="bgColor5 tableheader">
+                    ' . implode('
+                    ', $tCells) . '
+                </tr>' . $output;
             // Compile final table and return:
             $output = '
 
-			<br/>
-			Table: <b>' . htmlspecialchars($tableName) . '</b><br/>
-			Aliases: <b>' . htmlspecialchars(count($tableContent)) . '</b><br/>
-			Search: <input type="text" name="search" value="' . htmlspecialchars($search) . '" /><input type="submit" name="_" value="Search" />
-			<input type="hidden" name="table" value="' . htmlspecialchars($tableName) . '" />
-			<input type="hidden" name="id" value="' . htmlspecialchars($this->pObj->id) . '" />
-			<br/><br/>
-			<table border="0" cellspacing="1" cellpadding="0" id="tx-realurl-pathcacheTable" class="lrPadding c-list">' . $output . '
-			</table>';
+            <br/>
+            Table: <b>' . htmlspecialchars($tableName) . '</b><br/>
+            Aliases: <b>' . htmlspecialchars(count($tableContent)) . '</b><br/>
+            Search: <input type="text" name="search" value="' . htmlspecialchars($search) . '" /><input type="submit" name="_" value="Search" />
+            <input type="hidden" name="table" value="' . htmlspecialchars($tableName) . '" />
+            <input type="hidden" name="id" value="' . htmlspecialchars($this->pObj->id) . '" />
+            <br/><br/>
+            <table border="0" cellspacing="1" cellpadding="0" id="tx-realurl-pathcacheTable" class="lrPadding c-list">' . $output . '
+            </table>';
 
             if ($entry === 'ALL') {
                 $output .= $this->saveCancelButtons('<input type="hidden" name="table" value="' . htmlspecialchars($tableName) . '" /><input type="hidden" name="id" value="' . htmlspecialchars($this->pObj->id) . '" />');
@@ -930,10 +872,10 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
 
                     // Compile Row:
                     $output .= '
-						<tr class="bgColor' . ($cc % 2 ? '-20' : '-10') . '">
-							' . implode('
-							', $tCells) . '
-						</tr>';
+                        <tr class="bgColor' . ($cc % 2 ? '-20' : '-10') . '">
+                            ' . implode('
+                            ', $tCells) . '
+                        </tr>';
                     $cc++;
                 }
 
@@ -943,15 +885,15 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
                 $tCells[] = '<td>Aliases:</td>';
 
                 $output = '
-					<tr class="bgColor5 tableheader">
-						' . implode('
-						', $tCells) . '
-					</tr>' . $output;
+                    <tr class="bgColor5 tableheader">
+                        ' . implode('
+                        ', $tCells) . '
+                    </tr>' . $output;
 
                 // Compile final table and return:
                 $output = '
-				<table border="0" cellspacing="1" cellpadding="0" id="tx-realurl-pathcacheTable" class="lrPadding c-list">' . $output . '
-				</table>';
+                <table border="0" cellspacing="1" cellpadding="0" id="tx-realurl-pathcacheTable" class="lrPadding c-list">' . $output . '
+                </table>';
             }
         }
 
@@ -970,7 +912,11 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
         $field_values = array(
             'value_alias' => $value
         );
-        $GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_realurl_uniqalias', 'uid=' . intval($cache_id), $field_values);
+        $GLOBALS['TYPO3_DB']->exec_UPDATEquery(
+            'tx_realurl_uniqalias',
+            'uid=' . intval($cache_id),
+            $field_values
+        );
     }
 
     /**
@@ -987,14 +933,6 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
             }
         }
     }
-
-
-
-
-
-
-
-
 
 
 
@@ -1021,20 +959,12 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
         $tree = $arrayBrowser->tree($theVar, '', '');
 
         $tree = '<hr/>
-		<b>$TYPO3_CONF_VARS[\'EXTCONF\'][\'realurl\']</b>
-		<br/>
-		<span class="nobr">' . $tree . '</span>';
+        <b>$TYPO3_CONF_VARS[\'EXTCONF\'][\'realurl\']</b>
+        <br/>
+        <span class="nobr">' . $tree . '</span>';
 
         return $tree;
     }
-
-
-
-
-
-
-
-
 
 
 
@@ -1095,10 +1025,10 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
 
                 // Compile Row:
                 $output .= '
-					<tr class="bgColor' . ($cc % 2 ? '-20' : '-10') . '">
-						' . implode('
-						', $tCells) . '
-					</tr>';
+                    <tr class="bgColor' . ($cc % 2 ? '-20' : '-10') . '">
+                        ' . implode('
+                        ', $tCells) . '
+                    </tr>';
                 $cc++;
             }
             // Create header:
@@ -1111,21 +1041,21 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
             $tCells[] = '<td>First time:</td>';
 
             $output = '
-				<tr class="bgColor5 tableheader">
-					' . implode('
-					', $tCells) . '
-				</tr>' . $output;
+                <tr class="bgColor5 tableheader">
+                    ' . implode('
+                    ', $tCells) . '
+                </tr>' . $output;
 
             // Compile final table and return:
             $output = '
-			<br/>
-				<a href="' . $this->linkSelf('&cmd=deleteAll') . '">' .
+            <br/>
+                <a href="' . $this->linkSelf('&cmd=deleteAll') . '">' .
                 '<img' . \TYPO3\CMS\Backend\Utility\IconUtility::skinImg($this->pObj->doc->backPath, 'gfx/garbage.gif',
                     'width="11" height="12"') . ' title="Delete All" alt="" />' .
                 ' Flush log</a>
-				<br/>
-			<table border="0" cellspacing="1" cellpadding="0" id="tx-realurl-pathcacheTable" class="lrPadding c-list">' . $output . '
-			</table>';
+                <br/>
+            <table border="0" cellspacing="1" cellpadding="0" id="tx-realurl-pathcacheTable" class="lrPadding c-list">' . $output . '
+            </table>';
 
             return $output;
         }
@@ -1261,10 +1191,10 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
             }
             $rows++;
             $output .= '
-			<tr' . (($rows % 2) ? ' class="odd"' : '') . '>
-				' . implode('
-				', $tCells) . '
-			</tr>';
+            <tr' . (($rows % 2) ? ' class="odd"' : '') . '>
+                ' . implode('
+                ', $tCells) . '
+            </tr>';
         }
         //first ROW:
         //****************
@@ -1275,14 +1205,14 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
             }
         }
         $output = '
-			<tr class="bgColor2">
-				' . implode('
-				', $firstRowCells) . '
-			</tr>' . $output;
+            <tr class="bgColor2">
+                ' . implode('
+                ', $firstRowCells) . '
+            </tr>' . $output;
         $output = '
 
-		<table border="0" cellspacing="0" cellpadding="0" id="langTable">' . $output . '
-		</table>';
+        <table border="0" cellspacing="0" cellpadding="0" id="langTable">' . $output . '
+        </table>';
 
         return $output;
     }
