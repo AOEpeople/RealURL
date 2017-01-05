@@ -32,6 +32,7 @@ $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['checkAlte
     'EXT:realurl/class.tx_realurl.php:&tx_realurl->decodeSpURL';
 
 $GLOBALS['TYPO3_CONF_VARS']['FE']['addRootLineFields'] .= ',tx_realurl_pathsegment,tx_realurl_exclude,tx_realurl_pathoverride';
+$GLOBALS['TYPO3_CONF_VARS']['FE']['pageOverlayFields'] .= ',tx_realurl_pathsegment,tx_realurl_exclude,tx_realurl_pathoverride';
 
 // Include configuration file
 $_realurl_conf = @unserialize($_EXTCONF);
@@ -44,8 +45,3 @@ if (is_array($_realurl_conf)) {
 }
 
 unset($_realurl_conf);
-
-// TODO this can never be true after unsetting $_realurl_conf
-if ($_realurl_conf['addpageOverlayFields'] !== 0) {
-    $GLOBALS['TYPO3_CONF_VARS']['FE']['pageOverlayFields'] .= ',tx_realurl_pathsegment,tx_realurl_exclude,tx_realurl_pathoverride';
-}
