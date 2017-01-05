@@ -395,22 +395,15 @@ class tx_realurl_pagepath
     }
 
     /**
-     * returns true/false if the current context is within a crawler call (procInstr. tx_cachemgm_recache)
+     * returns true/false if the current context is within a crawler call
      * This is used for some logging. The status is cached for performance reasons
      *
      * @return boolean
      */
     public function _isCrawlerRun()
     {
-        if (
-            \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::isLoaded('crawler')
+        if (\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::isLoaded('crawler')
             && $GLOBALS['TSFE']->applicationData['tx_crawler']['running']
-            && (
-                in_array('tx_cachemgm_recache',
-                    $GLOBALS['TSFE']->applicationData['tx_crawler']['parameters']['procInstructions'])
-                || in_array('tx_realurl_rebuild',
-                    $GLOBALS['TSFE']->applicationData['tx_crawler']['parameters']['procInstructions'])
-            )
         ) {
             return true;
         } else {
