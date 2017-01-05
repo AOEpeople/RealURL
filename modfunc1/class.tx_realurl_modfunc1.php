@@ -239,7 +239,7 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
             $theOutput .= '<br /><input type="submit" value="clear visible tree" name="_action_clearvisible">';
             $theOutput .= '<br /><input type="submit" value="mark visible tree as dirty" name="_action_dirtyvisible">';
             $theOutput .= '<br /><input type="submit" value="clear complete history cache" name="_action_clearallhistory">';
-            $theOutput .= '<br /><input type="submit" value="regenerate (FE-calls)" name="_action_regenerate"></td><td valign="top">
+            $theOutput .= '</td><td valign="top">
                 <h3>Colors:</h3>
                     <table border="0">
                     <tr><td class="c-ok">Cache found</td></tr>
@@ -1121,10 +1121,6 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
                 }
 
                 $langId = $language['uid'];
-                if (\TYPO3\CMS\Core\Utility\GeneralUtility::_GP('_action_regenerate') != '') {
-                    $url = \TYPO3\CMS\Core\Utility\GeneralUtility::getIndpEnv('TYPO3_SITE_URL') . 'index.php?id=' . $editUid . '&no_cache=1&L=' . $langId;
-                    fopen($url, 'r');
-                }
                 $info = '';
                 $params = '&edit[pages][' . $editUid . ']=edit';
 
@@ -1175,10 +1171,6 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
                             'gfx/edit2.gif',
                             'width="11" height="12"') . ' title="' . $LANG->getLL('lang_editDefaultLanguagePage',
                             '1') . '" border="0" alt="" />' . '</a>';
-                    /*	$info.= '<a href="#" onclick="'.htmlspecialchars('top.loadEditId('.intval($data['row']['uid']).',"&SET[language]=0"); return false;').'">'.
-                            '<img'.\TYPO3\CMS\Backend\Utility\IconUtility::skinImg($GLOBALS['BACK_PATH'],'gfx/edit_page.gif','width="12" height="12"').' title="'.$LANG->getLL('lang_editPage','1').'" border="0" alt="" />'.
-                            '</a>';
-                            */
                     $info .= str_replace('###LANG_UID###', '0', $viewPageLink);
                     $info .= $path;
                     // Put into cell:
