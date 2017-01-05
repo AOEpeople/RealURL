@@ -7,6 +7,7 @@
 	</meta>
 	<data type="array">
 		<languageKey index="default" type="array">
+			<label index="page_title">Title</label>
 			<label index="title">Speaking URL Management</label>
 			<label index="no_page_id">Please, select a page from the page tree.</label>
 			<label index="depth">Depth:</label>

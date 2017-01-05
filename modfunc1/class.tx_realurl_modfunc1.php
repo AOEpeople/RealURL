@@ -1190,7 +1190,7 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
         }
         //first ROW:
         //****************
-        $firstRowCells[] = '<td style="min-width:300px">' . $LANG->getLL('lang_renderl10n_page', '1') . ':</td>';
+        $firstRowCells[] = '<td style="min-width:300px">' . $LANG->getLL('page_title', '1') . ':</td>';
         foreach ($languageList as $language) {
             if ($language['uid'] !== '') {
                 $firstRowCells[] = '<td class="c-leftLine">' . $language['title'] . ' [' . $language['uid'] . ']</td>';
