@@ -150,7 +150,7 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
      */
     protected function addModuleStyles()
     {
-        $this->pObj->doc->inDocStyles .= '
+        $this->pObj->doc->inDocStylesArray[] = '
             TABLE.c-list TR TD { white-space: nowrap; vertical-align: top; }
             TABLE#tx-realurl-pathcacheTable TD { vertical-align: top; }
             FIELDSET { border: none; padding: 16px 0; }
