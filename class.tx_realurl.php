@@ -37,6 +37,7 @@
  */
 class tx_realurl
 {
+    const CACHE_DECODE = 'realurl_decode';
 
     // External, static
     public $NA = '-'; // Substitute value for "blank" values
@@ -136,13 +137,17 @@ class tx_realurl
     protected $emptyReplacerDefaultValue = '-';
 
     /**
+     * @var \TYPO3\CMS\Core\Cache\CacheManager
+     */
+    private $cacheManager;
+
+    /**
      * @var tx_realurl_configurationService
      */
     private $configurationService;
 
 
     private $pre_GET_VARS; //function decodeSpURL_doDecode stores the calculated pre_GET_VARS, so clients of this class can access this information
-
 
     /**
      * Contains URL parameters that were merged into URL. This is necessary
@@ -1815,50 +1820,23 @@ class tx_realurl
     protected function decodeSpURL_decodeCache($speakingURIpath, array $cachedInfo = null)
     {
         if ($this->extConf['init']['enableUrlDecodeCache'] && !$this->disableDecodeCache) {
-
-            // Create hash string
-            if (is_array($cachedInfo)) { // STORE cachedInfo
-
+            if (is_array($cachedInfo)) {
+                // STORE cachedInfo
                 if (!$this->typoScriptFrontendController->beUserLogin && $this->canCachePageURL($cachedInfo['id'])) {
                     $rootpage_id = intval($cachedInfo['rootpage_id']);
-                    $hash = md5($speakingURIpath . $rootpage_id);
+                    $hash = sha1($speakingURIpath . $rootpage_id);
+                    $tags = ['pageId_' . $cachedInfo['id']];
+                    $lifetime = 24 * 3600 * $this->decodeCacheTTL;
 
-                    $insertFields = array(
-                        'url_hash' => $hash,
-                        'spurl' => $speakingURIpath,
-                        'content' => serialize($cachedInfo),
-                        'page_id' => $cachedInfo['id'],
-                        'rootpage_id' => $rootpage_id,
-                        'tstamp' => time()
-                    );
-
-                    /** @noinspection PhpUndefinedMethodInspection */
-                    $GLOBALS['TYPO3_DB']->sql_query('START TRANSACTION');
-                    /** @noinspection PhpUndefinedMethodInspection */
-                    $GLOBALS['TYPO3_DB']->exec_DELETEquery('tx_realurl_urldecodecache',
-                        'url_hash=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($hash, 'tx_realurl_urldecodecache'));
-                    /** @noinspection PhpUndefinedMethodInspection */
-                    $GLOBALS['TYPO3_DB']->exec_INSERTquery('tx_realurl_urldecodecache', $insertFields);
-                    /** @noinspection PhpUndefinedMethodInspection */
-                    $GLOBALS['TYPO3_DB']->sql_query('COMMIT');
+                    $this->getCacheManager()->getCache(self::CACHE_DECODE)->set($hash, $cachedInfo, $tags, $lifetime);
                 }
             } else {
                 // GET cachedInfo.
                 $rootpage_id = intval($this->extConf['pagePath']['rootpage_id']);
-                $hash = md5($speakingURIpath . $rootpage_id);
-                /** @noinspection PhpUndefinedMethodInspection */
-                $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                    'content',
-                    'tx_realurl_urldecodecache',
-                    'url_hash=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($hash, 'tx_realurl_urldecodecache')
-                        . ' AND tstamp>' . strtotime('midnight', time() - 24 * 3600 * $this->decodeCacheTTL)
-                );
-                /** @noinspection PhpUndefinedMethodInspection */
-                $row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
-                /** @noinspection PhpUndefinedMethodInspection */
-                $GLOBALS['TYPO3_DB']->sql_free_result($res);
-                if ($row) {
-                    return unserialize($row['content']);
+                $hash = sha1($speakingURIpath . $rootpage_id);
+
+                if ($this->getCacheManager()->getCache(self::CACHE_DECODE)->has($hash)) {
+                    return $this->getCacheManager()->getCache(self::CACHE_DECODE)->get($hash);
                 }
             }
         }
@@ -2533,11 +2511,6 @@ class tx_realurl
             );
             /** @noinspection PhpUndefinedMethodInspection */
             $GLOBALS['TYPO3_DB']->exec_DELETEquery(
-                'tx_realurl_urldecodecache',
-                'page_id IN (' . $pageIdList . ')'
-            );
-            /** @noinspection PhpUndefinedMethodInspection */
-            $GLOBALS['TYPO3_DB']->exec_DELETEquery(
                 'tx_realurl_cache',
                 'pageid IN (' . $pageIdList . ')'
             );
@@ -2940,5 +2913,18 @@ class tx_realurl
     public function getDetectedLanguage()
     {
         return intval($this->detectedLanguage);
+    }
+
+    /**
+     * Gets the TYPO3 Cache Manager
+     *
+     * @return \TYPO3\CMS\Core\Cache\CacheManager
+     */
+    protected function getCacheManager()
+    {
+        if (null === $this->cacheManager) {
+            $this->cacheManager =  \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Cache\CacheManager::class);
+        }
+        return $this->cacheManager;
     }
 }

@@ -70,23 +70,6 @@ CREATE TABLE tx_realurl_chashcache (
 ) ENGINE=InnoDB;
 
 #
-# Table structure for table 'tx_realurl_urldecodecache'
-# Cache for Speaking URLS when translated to internal GET vars.
-# Flushable
-#
-CREATE TABLE tx_realurl_urldecodecache (
-	url_hash char(32) DEFAULT '' NOT NULL,
-	spurl tinytext NOT NULL,
-	content blob NOT NULL,
-	page_id int(11) DEFAULT '0' NOT NULL,
-	rootpage_id int(11) DEFAULT '0' NOT NULL,
-	tstamp int(11) DEFAULT '0' NOT NULL,
-
-	PRIMARY KEY (url_hash),
-	KEY page_id (page_id)
-) ENGINE=InnoDB;
-
-#
 # Table structure for table 'tx_realurl_urlencodecache'
 #
 CREATE TABLE tx_realurl_urlencodecache (

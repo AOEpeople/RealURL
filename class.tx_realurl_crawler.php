@@ -47,7 +47,6 @@ class tx_realurl_crawler
         }
 
         $GLOBALS['TYPO3_DB']->exec_DELETEquery('tx_realurl_urlencodecache', 'page_id=' . intval($GLOBALS['TSFE']->id));
-        $GLOBALS['TYPO3_DB']->exec_DELETEquery('tx_realurl_urldecodecache', 'page_id=' . intval($GLOBALS['TSFE']->id));
         $GLOBALS['TSFE']->applicationData['tx_realurl']['_CACHE'] = [];
 
         $lconf = [];
@@ -57,12 +56,12 @@ class tx_realurl_crawler
         $loginfos = '(lang: ' . $GLOBALS['TSFE']->sys_language_uid . ' langc:' . $GLOBALS['TSFE']->sys_language_content . ')';
 
         $pObj->applicationData['realurl']['crawlermode'] = true;
-        $pObj->applicationData['tx_crawler']['log'][] = 'force link generation: ' . $GLOBALS['TSFE']->cObj->typolink('test', $lconf) . $loginfos;
+        $pObj->applicationData['tx_crawler']['log'][] = 'Force link generation: ' . $GLOBALS['TSFE']->cObj->typolink('test', $lconf) . $loginfos;
         $pObj->applicationData['realurl']['crawlermode'] = false;
     }
 
     /**
-     * Hook wich disable the page cache if the current request is made by tx_crawler
+     * Hook to disable the page cache if the current request is made by tx_crawler
      *
      * @see TypoScriptFrontendController::headerNoCache
      *

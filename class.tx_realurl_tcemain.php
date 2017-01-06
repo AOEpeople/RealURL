@@ -76,11 +76,6 @@ class tx_realurl_tcemain
     {
         /** @noinspection PhpUndefinedMethodInspection */
         $GLOBALS['TYPO3_DB']->exec_DELETEquery(
-            'tx_realurl_urldecodecache',
-            'page_id=' . intval($pageId)
-        );
-        /** @noinspection PhpUndefinedMethodInspection */
-        $GLOBALS['TYPO3_DB']->exec_DELETEquery(
             'tx_realurl_urlencodecache',
             'page_id=' . intval($pageId)
         );

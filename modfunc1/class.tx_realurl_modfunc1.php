@@ -152,7 +152,7 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
     {
         $this->pObj->doc->inDocStylesArray[] = '
             TABLE.c-list TR TD { white-space: nowrap; vertical-align: top; }
-            TABLE#tx-realurl-pathcacheTable TD { vertical-align: top; }
+            TABLE#tx-realurl-pathcacheTable TD { padding: 0 1em; vertical-align: top; }
             FIELDSET { border: none; padding: 16px 0; }
             FIELDSET DIV { clear: left; border-collapse: collapse; margin-bottom: 5px; }
             FIELDSET DIV LABEL { display: block; float: left; width: 100px; }
@@ -383,15 +383,9 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
         $cc = 0;
         $countDisplayed = 0;
         foreach ($tree->tree as $row) {
-
-            // Select rows:
-            $displayRows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
-                '*',
-                'tx_realurl_urldecodecache',
-                'page_id=' . intval($row['row']['uid']),
-                '',
-                'spurl'
-            );
+            /** @var \TYPO3\CMS\Core\Cache\CacheManager $cacheManager */
+            $cacheManager = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Cache\CacheManager::class);
+            $displayRows = $cacheManager->getCache(tx_realurl::CACHE_DECODE)->getByTag('pageId_' . intval($row['row']['uid']));
 
             // Row title:
             $rowTitle = $row['HTML'] . \TYPO3\CMS\Backend\Utility\BackendUtility::getRecordTitle('pages', $row['row'], true);
@@ -404,7 +398,7 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
                 $tCells[] = '<td nowrap="nowrap">' . $rowTitle . '</td>';
 
                 // Empty row:
-                $tCells[] = '<td colspan="6" align="center">&nbsp;</td>';
+                $tCells[] = '<td colspan="4" align="center">&nbsp;</td>';
 
                 // Compile Row:
                 $output .= '
@@ -413,48 +407,22 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
                         ', $tCells) . '
                     </tr>';
                 $cc++;
-
-                if ($subcmd === 'displayed') {
-                    foreach ($displayRows as $c => $inf) {
-                        $this->clearDEncodeCache('urlhash_' . $inf['url_hash'], true);
-                    }
-                }
             } else {
                 foreach ($displayRows as $c => $inf) {
-
                     // Add icon/title and ID:
                     $tCells = array();
+
                     if (!$c) {
                         $tCells[] = '<td nowrap="nowrap" rowspan="' . count($displayRows) . '">' . $rowTitle . '</td>';
                         $tCells[] = '<td nowrap="nowrap" rowspan="' . count($displayRows) . '">' . $row['row']['uid'] . '</td>';
-                        $tCells[] = '<td rowspan="' . count($displayRows) . '">' .
-                            '<a href="' . $this->linkSelf('&cmd=deleteDC&entry=page_' . intval($row['row']['uid'])) . '">' .
-                            '<img' . \TYPO3\CMS\Backend\Utility\IconUtility::skinImg($this->pObj->doc->backPath, 'gfx/garbage.gif',
-                                'width="11" height="12"') . ' title="Delete entries for page" alt="" />' .
-                            '</a>' .
-                            '</td>';
                     }
 
                     // Path:
                     $tCells[] = '<td>' . htmlspecialchars($inf['spurl']) . '</td>';
 
                     // Get vars:
-                    $queryValues = unserialize($inf['content']);
-                    $queryParams = '?id=' . $queryValues['id'] .
-                        (is_array($queryValues['GET_VARS']) ? \TYPO3\CMS\Core\Utility\GeneralUtility::implodeArrayForUrl('',
-                            $queryValues['GET_VARS']) : '');
+                    $queryParams = (is_array($inf['GET_VARS']) ? \TYPO3\CMS\Core\Utility\GeneralUtility::implodeArrayForUrl('', $inf['GET_VARS']) : '');
                     $tCells[] = '<td>' . htmlspecialchars($queryParams) . '</td>';
-
-                    // Delete:
-                    $tCells[] = '<td>' .
-                        '<a href="' . $this->linkSelf('&cmd=deleteDC&entry=urlhash_' . intval($inf['url_hash'])) . '">' .
-                        '<img' . \TYPO3\CMS\Backend\Utility\IconUtility::skinImg($this->pObj->doc->backPath, 'gfx/garbage.gif',
-                            'width="11" height="12"') . ' title="Delete entry" alt="" />' .
-                        '</a>' .
-                        '</td>';
-
-                    // Timestamp:
-                    $tCells[] = '<td>' . htmlspecialchars(\TYPO3\CMS\Backend\Utility\BackendUtility::datetime($inf['tstamp'])) . ' / ' . htmlspecialchars(\TYPO3\CMS\Backend\Utility\BackendUtility::calcAge(time() - $inf['tstamp'])) . '</td>';
 
                     // Compile Row:
                     $output .= '
@@ -468,21 +436,12 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
             }
         }
 
-        list($count_allInTable) = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
-            'count(*) AS count',
-            'tx_realurl_urldecodecache',
-            ''
-        );
-
         // Create header:
         $tCells = array();
         $tCells[] = '<td>Title:</td>';
         $tCells[] = '<td>ID:</td>';
         $tCells[] = '<td>&nbsp;</td>';
-        $tCells[] = '<td>Path:</td>';
         $tCells[] = '<td>GET variables:</td>';
-        $tCells[] = '<td>&nbsp;</td>';
-        $tCells[] = '<td>Timestamp:</td>';
 
         $output = '
             <tr class="bgColor5 tableheader">
@@ -492,19 +451,8 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
 
         // Compile final table and return:
         $output = '<br/><br/>
-        Displayed entries: <b>' . $countDisplayed . '</b> ' .
-            '<a href="' . $this->linkSelf('&cmd=deleteDC&entry=displayed') . '">' .
-            '<img' . \TYPO3\CMS\Backend\Utility\IconUtility::skinImg($this->pObj->doc->backPath, 'gfx/garbage.gif',
-                'width="11" height="12"') . ' title="Delete displayed entries" alt="" />' .
-            '</a>' .
-            '<br/>
-        Total entries in decode cache: <b>' . $count_allInTable['count'] . '</b> ' .
-            '<a href="' . $this->linkSelf('&cmd=deleteDC&entry=all') . '">' .
-            '<img' . \TYPO3\CMS\Backend\Utility\IconUtility::skinImg($this->pObj->doc->backPath, 'gfx/garbage.gif',
-                'width="11" height="12"') . ' title="Delete WHOLE decode cache!" alt="" />' .
-            '</a>' .
-            '<br/>
-        <table border="0" cellspacing="1" cellpadding="0" id="tx-realurl-pathcacheTable" class="lrPadding c-list">' . $output . '
+        Displayed entries: <b>' . $countDisplayed . '</b> ' . '<br/>
+        <table border="0" cellspacing="1" cellpadding="1" id="tx-realurl-pathcacheTable" class="lrPadding c-list">' . $output . '
         </table>';
 
         return $output;
@@ -682,7 +630,7 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
      */
     public function clearDEncodeCache($cmd, $decodeCache = false)
     {
-        $table = $decodeCache ? 'tx_realurl_urldecodecache' : 'tx_realurl_urlencodecache';
+        $table ='tx_realurl_urlencodecache';
 
         list($keyword, $id) = explode('_', $cmd);
 

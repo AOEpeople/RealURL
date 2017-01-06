@@ -487,6 +487,7 @@ class tx_realurl_cachemgmt
      * Get cache key
      *
      * @param int $pid
+     * @return string
      */
     protected function getCacheKey($pid)
     {
