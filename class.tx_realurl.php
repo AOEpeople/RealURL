@@ -774,7 +774,7 @@ class tx_realurl
             return $GLOBALS['TSFE']->applicationData['tx_realurl']['_CACHE'][$hash];
         } else { // Setting encoded URL in cache:
             // No caching if FE editing is enabled!
-            if (!$this->typoScriptFrontendController->isBackendUserLoggedIn()) {
+            if (!$this->typoScriptFrontendController->beUserLogin) {
                 $GLOBALS['TSFE']->applicationData['tx_realurl']['_CACHE'][$hash] = $setEncodedURL;
 
                 // If the page id is NOT an integer, it's an alias we have to look up
@@ -1819,7 +1819,7 @@ class tx_realurl
             // Create hash string
             if (is_array($cachedInfo)) { // STORE cachedInfo
 
-                if (!$this->typoScriptFrontendController->isBackendUserLoggedIn() && $this->canCachePageURL($cachedInfo['id'])) {
+                if (!$this->typoScriptFrontendController->beUserLogin && $this->canCachePageURL($cachedInfo['id'])) {
                     $rootpage_id = intval($cachedInfo['rootpage_id']);
                     $hash = md5($speakingURIpath . $rootpage_id);
 
