@@ -369,16 +369,6 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
      */
     public function decodeView(\TYPO3\CMS\Backend\Tree\View\PageTreeView $tree)
     {
-
-        // Delete entries:
-        $cmd = \TYPO3\CMS\Core\Utility\GeneralUtility::_GP('cmd');
-        $subcmd = '';
-        if ($cmd === 'deleteDC') {
-            $subcmd = \TYPO3\CMS\Core\Utility\GeneralUtility::_GP('entry');
-            $this->clearDEncodeCache($subcmd, true);
-        }
-
-        // Traverse tree:
         $output = '';
         $cc = 0;
         $countDisplayed = 0;
@@ -391,10 +381,10 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
             $rowTitle = $row['HTML'] . \TYPO3\CMS\Backend\Utility\BackendUtility::getRecordTitle('pages', $row['row'], true);
 
             // Add at least one empty element:
-            if (!count($displayRows) || $subcmd === 'displayed') {
+            if (!count($displayRows)) {
 
                 // Add title:
-                $tCells = array();
+                $tCells = [];
                 $tCells[] = '<td nowrap="nowrap">' . $rowTitle . '</td>';
 
                 // Empty row:
@@ -410,7 +400,7 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
             } else {
                 foreach ($displayRows as $c => $inf) {
                     // Add icon/title and ID:
-                    $tCells = array();
+                    $tCells = [];
 
                     if (!$c) {
                         $tCells[] = '<td nowrap="nowrap" rowspan="' . count($displayRows) . '">' . $rowTitle . '</td>';
@@ -437,7 +427,7 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
         }
 
         // Create header:
-        $tCells = array();
+        $tCells = [];
         $tCells[] = '<td>Title:</td>';
         $tCells[] = '<td>ID:</td>';
         $tCells[] = '<td>&nbsp;</td>';
@@ -452,7 +442,7 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
         // Compile final table and return:
         $output = '<br/><br/>
         Displayed entries: <b>' . $countDisplayed . '</b> ' . '<br/>
-        <table border="0" cellspacing="1" cellpadding="1" id="tx-realurl-pathcacheTable" class="lrPadding c-list">' . $output . '
+        <table border="0" cellspacing="1" cellpadding="0" id="tx-realurl-pathcacheTable" class="lrPadding c-list">' . $output . '
         </table>';
 
         return $output;
@@ -474,40 +464,29 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
      */
     public function encodeView(\TYPO3\CMS\Backend\Tree\View\PageTreeView $tree)
     {
-
-        // Delete entries:
-        $cmd = \TYPO3\CMS\Core\Utility\GeneralUtility::_GP('cmd');
-        $subcmd = '';
-        if ($cmd === 'deleteEC') {
-            $subcmd = \TYPO3\CMS\Core\Utility\GeneralUtility::_GP('entry');
-            $this->clearDEncodeCache($subcmd);
-        }
-
-        // Traverse tree:
         $cc = 0;
         $countDisplayed = 0;
         $output = '';
-        $duplicates = array();
+        $duplicates = [];
 
         foreach ($tree->tree as $row) {
-
-            // Select rows:
-            $displayRows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('*', 'tx_realurl_urlencodecache',
-                'page_id=' . intval($row['row']['uid']), '', 'content');
+            /** @var \TYPO3\CMS\Core\Cache\CacheManager $cacheManager */
+            $cacheManager = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Cache\CacheManager::class);
+            $displayRows = $cacheManager->getCache(tx_realurl::CACHE_ENCODE)->getByTag('pageId_' . intval($row['row']['uid']));
 
             // Row title:
             $rowTitle = $row['HTML'] . \TYPO3\CMS\Backend\Utility\BackendUtility::getRecordTitle('pages', $row['row'], true);
 
             // Add at least one empty element:
-            if (!count($displayRows) || $subcmd === 'displayed') {
+            if (!count($displayRows)) {
 
                 // Add title:
-                $tCells = array();
+                $tCells = [];
                 $tCells[] = '<td nowrap="nowrap">' . $rowTitle . '</td>';
                 $tCells[] = '<td nowrap="nowrap">&nbsp;</td>';
 
                 // Empty row:
-                $tCells[] = '<td colspan="7" align="center">&nbsp;</td>';
+                $tCells[] = '<td colspan="4" align="center">&nbsp;</td>';
 
                 // Compile Row:
                 $output .= '
@@ -516,50 +495,21 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
                         ', $tCells) . '
                     </tr>';
                 $cc++;
-
-                if ($subcmd === 'displayed') {
-                    foreach ($displayRows as $c => $inf) {
-                        $this->clearDEncodeCache('urlhash_' . $inf['url_hash']);
-                    }
-                }
             } else {
                 foreach ($displayRows as $c => $inf) {
                     // Add icon/title and ID:
-                    $tCells = array();
+                    $tCells = [];
                     if (!$c) {
                         $tCells[] = '<td nowrap="nowrap" rowspan="' . count($displayRows) . '">' . $rowTitle . '</td>';
                         $tCells[] = '<td nowrap="nowrap" rowspan="' . count($displayRows) . '">' . $row['row']['uid'] . '</td>';
-                        $tCells[] = '<td rowspan="' . count($displayRows) . '">' .
-                            '<a href="' . $this->linkSelf('&cmd=deleteEC&entry=page_' . intval($row['row']['uid'])) . '">' .
-                            '<img' . \TYPO3\CMS\Backend\Utility\IconUtility::skinImg($this->pObj->doc->backPath, 'gfx/garbage.gif',
-                                'width="11" height="12"') . ' title="Delete entries for page" alt="" />' .
-                            '</a>' .
-                            '</td>';
                     }
 
-                    // Get vars:
-                    $tCells[] = '<td>' . htmlspecialchars(\TYPO3\CMS\Core\Utility\GeneralUtility::fixed_lgd_cs($inf['origparams'], 100)) . '</td>';
-
-                    // Internal Extras:
-                    $tCells[] = '<td>' . ($inf['internalExtras'] ? \TYPO3\CMS\Core\Utility\GeneralUtility::arrayToLogString(unserialize($inf['internalExtras'])) : '&nbsp;') . '</td>';
-
                     // Path:
-                    $tCells[] = '<td>' . htmlspecialchars(\TYPO3\CMS\Core\Utility\GeneralUtility::fixed_lgd_cs($inf['content'], 100)) . '</td>';
-
-                    // Delete:
-                    $tCells[] = '<td>' .
-                        '<a href="' . $this->linkSelf('&cmd=deleteEC&entry=urlhash_' . intval($inf['url_hash'])) . '">' .
-                        '<img' . \TYPO3\CMS\Backend\Utility\IconUtility::skinImg($this->pObj->doc->backPath, 'gfx/garbage.gif',
-                            'width="11" height="12"') . ' title="Delete entry" alt="" />' .
-                        '</a>' .
-                        '</td>';
+                    $tCells[] = '<td>' . htmlspecialchars(\TYPO3\CMS\Core\Utility\GeneralUtility::fixed_lgd_cs($inf, 100)) . '</td>';
 
                     // Error:
-                    $eMsg = ($duplicates[$inf['content']] && $duplicates[$inf['content']] !== $row['row']['uid'] ? $this->pObj->doc->icons(2) . 'Already used on page ID ' . $duplicates[$inf['content']] . '<br/>' : '');
+                    $eMsg = ($duplicates[$inf] && $duplicates[$inf] !== $row['row']['uid'] ? $this->pObj->doc->icons(2) . 'Already used on page ID ' . $duplicates[$inf] . '<br/>' : '');
                     $tCells[] = '<td>' . $eMsg . '</td>';
-
-                    // Timestamp:
-                    $tCells[] = '<td>' . htmlspecialchars(\TYPO3\CMS\Backend\Utility\BackendUtility::datetime($inf['tstamp'])) . ' / ' . htmlspecialchars(\TYPO3\CMS\Backend\Utility\BackendUtility::calcAge(time() - $inf['tstamp'])) . '</td>';
 
                     // Compile Row:
                     $output .= '
@@ -567,34 +517,23 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
                             ' . implode('
                             ', $tCells) . '
                         </tr>';
-                    $cc++;
 
+                    $cc++;
                     $countDisplayed++;
 
-                    if (!isset($duplicates[$inf['content']])) {
-                        $duplicates[$inf['content']] = $row['row']['uid'];
+                    if (!isset($duplicates[$inf])) {
+                        $duplicates[$inf] = $row['row']['uid'];
                     }
                 }
             }
         }
 
-        list($count_allInTable) = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
-            'count(*) AS count',
-            'tx_realurl_urlencodecache',
-            ''
-        );
-
         // Create header:
-        $tCells = array();
+        $tCells = [];
         $tCells[] = '<td>Title:</td>';
         $tCells[] = '<td>ID:</td>';
-        $tCells[] = '<td>&nbsp;</td>';
-        $tCells[] = '<td>Host | GET variables:</td>';
-        $tCells[] = '<td>Internal Extras:</td>';
         $tCells[] = '<td>Path:</td>';
-        $tCells[] = '<td>&nbsp;</td>';
         $tCells[] = '<td>Errors:</td>';
-        $tCells[] = '<td>Timestamp:</td>';
 
         $output = '
             <tr class="bgColor5 tableheader">
@@ -603,50 +542,12 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
             </tr>' . $output;
 
         // Compile final table and return:
-        $output = '
-
-        <br/>
-        <br/>
-        Displayed entries: <b>' . $countDisplayed . '</b> ' .
-            '<a href="' . $this->linkSelf('&cmd=deleteEC&entry=displayed') . '">' .
-            '<img' . \TYPO3\CMS\Backend\Utility\IconUtility::skinImg($this->pObj->doc->backPath, 'gfx/garbage.gif',
-                'width="11" height="12"') . ' title="Delete displayed entries" alt="" />' .
-            '</a>' .
-            '<br/>
-        Total entries in encode cache: <b>' . $count_allInTable['count'] . '</b> ' .
-            '<a href="' . $this->linkSelf('&cmd=deleteEC&entry=all') . '">' .
-            '<img' . \TYPO3\CMS\Backend\Utility\IconUtility::skinImg($this->pObj->doc->backPath, 'gfx/garbage.gif',
-                'width="11" height="12"') . ' title="Delete WHOLE encode cache!" alt="" />' .
-            '</a>' .
-            '<br/>
+        $output = '<br/><br/>
+        Displayed entries: <b>' . $countDisplayed . '</b> ' . '<br/>
         <table border="0" cellspacing="1" cellpadding="0" id="tx-realurl-pathcacheTable" class="lrPadding c-list">' . $output . '
         </table>';
 
         return $output;
-    }
-
-    /**
-     *
-     */
-    public function clearDEncodeCache($cmd, $decodeCache = false)
-    {
-        $table ='tx_realurl_urlencodecache';
-
-        list($keyword, $id) = explode('_', $cmd);
-
-        switch ((string)$keyword) {
-            case 'all':
-                $GLOBALS['TYPO3_DB']->exec_DELETEquery($table, '');
-                break;
-            case 'page':
-                $GLOBALS['TYPO3_DB']->exec_DELETEquery($table, 'page_id=' . intval($id));
-                break;
-            case 'urlhash':
-                $GLOBALS['TYPO3_DB']->exec_DELETEquery($table, 'url_hash=' . intval($id));
-                break;
-            default:
-                break;
-        }
     }
 
 

@@ -46,8 +46,12 @@ class tx_realurl_crawler
             return;
         }
 
-        $GLOBALS['TYPO3_DB']->exec_DELETEquery('tx_realurl_urlencodecache', 'page_id=' . intval($GLOBALS['TSFE']->id));
         $GLOBALS['TSFE']->applicationData['tx_realurl']['_CACHE'] = [];
+
+        /** @var \TYPO3\CMS\Core\Cache\CacheManager $cacheManager */
+        $cacheManager = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Cache\CacheManager::class);
+        $cacheManager->getCache(tx_realurl::CACHE_DECODE)->flushByTag('pageId_' . intval($GLOBALS['TSFE']->id));
+        $cacheManager->getCache(tx_realurl::CACHE_ENCODE)->flushByTag('pageId_' . intval($GLOBALS['TSFE']->id));
 
         $lconf = [];
         $lconf['parameter'] = $GLOBALS['TSFE']->id;

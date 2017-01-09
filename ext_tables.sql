@@ -70,21 +70,6 @@ CREATE TABLE tx_realurl_chashcache (
 ) ENGINE=InnoDB;
 
 #
-# Table structure for table 'tx_realurl_urlencodecache'
-#
-CREATE TABLE tx_realurl_urlencodecache (
-	url_hash char(32) DEFAULT '' NOT NULL,
-	origparams tinytext NOT NULL,
-	internalExtras tinytext NOT NULL,
-	content text NOT NULL,
-	page_id int(11) DEFAULT '0' NOT NULL,
-	tstamp int(11) DEFAULT '0' NOT NULL,
-
-	PRIMARY KEY (url_hash),
-	KEY page_id (page_id)
-) ENGINE=InnoDB;
-
-#
 # Table structure for table 'tx_realurl_errorlog'
 #
 CREATE TABLE tx_realurl_errorlog (

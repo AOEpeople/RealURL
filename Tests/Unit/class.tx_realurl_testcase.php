@@ -139,4 +139,132 @@ class tx_realurl_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCase
 
         $this->callInaccessibleMethod($subject, 'decodeSpURL_decodeCache', $speakingUrlPath, $cachedContent);
     }
+
+    /**
+     * @test
+     */
+    public function encodeCacheUsesCacheArrayFirst()
+    {
+        $encodedUrl = 'test/';
+        $urlData = '| id=12345';
+        $internalExtras = [];
+        $hash = sha1($urlData . '///' . serialize($internalExtras));
+        $extConf = [
+            'init' => [
+                'enableUrlEncodeCache' => 1
+            ]
+        ];
+
+        $GLOBALS['TSFE'] = new stdClass();
+        $GLOBALS['TSFE']->applicationData['tx_realurl']['_CACHE'][$hash] = $encodedUrl;
+
+        /** @var tx_realurl|PHPUnit_Framework_MockObject_MockObject $subject */
+        $subject = $this->getMockBuilder(tx_realurl::class)
+            ->setMethods(['getCacheManager'])
+            ->getMock();
+        $subject->expects($this->never())
+            ->method('getCacheManager');
+        $subject->extConf = $extConf;
+
+        $this->assertSame(
+            $encodedUrl,
+            $this->callInaccessibleMethod($subject, 'encodeSpURL_encodeCache', $urlData, $internalExtras)
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function encodeCacheReadsFromCache()
+    {
+        $encodedUrl = 'test/';
+        $urlData = '| id=12345';
+        $internalExtras = [];
+        $hash = sha1($urlData . '///' . serialize($internalExtras));
+        $extConf = [
+            'init' => [
+                'enableUrlEncodeCache' => 1
+            ]
+        ];
+
+        $cacheFrontendMock = $this->getMockBuilder(\TYPO3\CMS\Core\Cache\Frontend\VariableFrontend::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['get'])
+            ->getMock();
+        $cacheFrontendMock->expects($this->once())
+            ->method('get')
+            ->with($hash)
+            ->willReturn($encodedUrl);
+
+        $cacheManagerMock = $this->getMockBuilder(\TYPO3\CMS\Core\Cache\CacheManager::class)
+            ->setMethods(['getCache'])
+            ->getMock();
+        $cacheManagerMock->expects($this->once())
+            ->method('getCache')
+            ->with(tx_realurl::CACHE_ENCODE)
+            ->willReturn($cacheFrontendMock);
+
+        /** @var tx_realurl|PHPUnit_Framework_MockObject_MockObject $subject */
+        $subject = $this->getMockBuilder(tx_realurl::class)
+            ->setMethods(['getCacheManager'])
+            ->getMock();
+        $subject->expects($this->once())
+            ->method('getCacheManager')
+            ->willReturn($cacheManagerMock);
+        $subject->extConf = $extConf;
+
+        $this->assertSame(
+            $encodedUrl,
+            $this->callInaccessibleMethod($subject, 'encodeSpURL_encodeCache', $urlData, $internalExtras)
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function encodeCacheWritesToCache()
+    {
+        $encodePageId = 12345;
+        $encodedUrl = 'test/';
+        $urlData = '| id=12345';
+        $internalExtras = [];
+        $hash = sha1($urlData . '///' . serialize($internalExtras));
+        $extConf = [
+            'init' => [
+                'enableUrlEncodeCache' => 1
+            ]
+        ];
+
+        $cacheFrontendMock = $this->getMockBuilder(\TYPO3\CMS\Core\Cache\Frontend\VariableFrontend::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['set'])
+            ->getMock();
+        $cacheFrontendMock->expects($this->once())
+            ->method('set')
+            ->with($hash, $encodedUrl, ['pageId_' . $encodePageId], 86400);
+
+        $cacheManagerMock = $this->getMockBuilder(\TYPO3\CMS\Core\Cache\CacheManager::class)
+            ->setMethods(['getCache'])
+            ->getMock();
+        $cacheManagerMock->expects($this->once())
+            ->method('getCache')
+            ->with(tx_realurl::CACHE_ENCODE)
+            ->willReturn($cacheFrontendMock);
+
+        /** @var tx_realurl|PHPUnit_Framework_MockObject_MockObject $subject */
+        $subject = $this->getMockBuilder(tx_realurl::class)
+            ->setMethods(['canCachePageURL', 'getCacheManager'])
+            ->getMock();
+        $subject->expects($this->once())
+            ->method('canCachePageURL')
+            ->with($encodePageId)
+            ->willReturn(true);
+        $subject->expects($this->once())
+            ->method('getCacheManager')
+            ->willReturn($cacheManagerMock);
+        $subject->encodePageId = $encodePageId;
+        $subject->extConf = $extConf;
+
+        $this->callInaccessibleMethod($subject, 'encodeSpURL_encodeCache', $urlData, $internalExtras, $encodedUrl);
+    }
 }

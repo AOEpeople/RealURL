@@ -61,24 +61,8 @@ class tx_realurl_tcemain
                 } else {
                     $this->expirePathCacheForAllLanguages($pageId);
                 }
-                $this->clearOtherCaches($pageId);
             }
         }
-    }
-
-    /**
-     * Clears URL decode and encode caches for the given page
-     *
-     * @param $pageId
-     * @return void
-     */
-    protected function clearOtherCaches($pageId)
-    {
-        /** @noinspection PhpUndefinedMethodInspection */
-        $GLOBALS['TYPO3_DB']->exec_DELETEquery(
-            'tx_realurl_urlencodecache',
-            'page_id=' . intval($pageId)
-        );
     }
 
     /**
@@ -364,7 +348,6 @@ class tx_realurl_tcemain
                 } else {
                     $this->expirePathCache($pageId, $languageId);
                 }
-                $this->clearOtherCaches($pageId);
             }
         }
     }

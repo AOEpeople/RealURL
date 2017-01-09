@@ -38,6 +38,7 @@
 class tx_realurl
 {
     const CACHE_DECODE = 'realurl_decode';
+    const CACHE_ENCODE = 'realurl_encode';
 
     // External, static
     public $NA = '-'; // Substitute value for "blank" values
@@ -757,59 +758,42 @@ class tx_realurl
      */
     protected function encodeSpURL_encodeCache($urlData, $internalExtras, $setEncodedURL = '')
     {
+        if (!$this->extConf['init']['enableUrlEncodeCache']) {
+            return false;
+        }
 
         // Create hash string
-        $hash = md5($urlData . '///' . serialize($internalExtras));
+        $hash = sha1($urlData . '///' . serialize($internalExtras));
 
-        if (!$setEncodedURL) { // Asking for cached encoded URL:
-
-            // First, check memory, otherwise ask database
-            if (!isset($GLOBALS['TSFE']->applicationData['tx_realurl']['_CACHE'][$hash]) && $this->extConf['init']['enableUrlEncodeCache']) {
-                /** @noinspection PhpUndefinedMethodInspection */
-                $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('content', 'tx_realurl_urlencodecache',
-                                'url_hash=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($hash, 'tx_realurl_urlencodecache') .
-                                ' AND tstamp>' . strtotime('midnight', time() - 24 * 3600 * $this->encodeCacheTTL));
-                /** @noinspection PhpUndefinedMethodInspection */
-                if (false != ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
-                    $GLOBALS['TSFE']->applicationData['tx_realurl']['_CACHE'][$hash] = $row['content'];
-                }
-                /** @noinspection PhpUndefinedMethodInspection */
-                $GLOBALS['TYPO3_DB']->sql_free_result($res);
+        if (!$setEncodedURL) {
+            // Get encoded URL from cache:
+            if (isset($GLOBALS['TSFE']->applicationData['tx_realurl']['_CACHE'][$hash])) {
+                return $GLOBALS['TSFE']->applicationData['tx_realurl']['_CACHE'][$hash];
             }
-            return $GLOBALS['TSFE']->applicationData['tx_realurl']['_CACHE'][$hash];
-        } else { // Setting encoded URL in cache:
+
+            $content = $this->getCacheManager()->getCache(self::CACHE_ENCODE)->get($hash);
+            $GLOBALS['TSFE']->applicationData['tx_realurl']['_CACHE'][$hash] = $content;
+            return $content;
+        } else {
             // No caching if FE editing is enabled!
-            if (!$this->typoScriptFrontendController->beUserLogin) {
-                $GLOBALS['TSFE']->applicationData['tx_realurl']['_CACHE'][$hash] = $setEncodedURL;
+            if ($this->typoScriptFrontendController->beUserLogin) {
+                return false;
+            }
 
-                // If the page id is NOT an integer, it's an alias we have to look up
-                if (!\TYPO3\CMS\Core\Utility\MathUtility::canBeInterpretedAsInteger($this->encodePageId)) {
-                    $this->encodePageId = $this->pageAliasToID($this->encodePageId);
-                }
+            // Store encoded URL in cache:
+            $GLOBALS['TSFE']->applicationData['tx_realurl']['_CACHE'][$hash] = $setEncodedURL;
 
-                if ($this->extConf['init']['enableUrlEncodeCache'] && $this->canCachePageURL($this->encodePageId)) {
-                    $insertFields = array(
-                        'url_hash' => $hash,
-                        'origparams' => $urlData,
-                        'internalExtras' => count($internalExtras) ? serialize($internalExtras) : '',
-                        'content' => $setEncodedURL,
-                        'page_id' => $this->encodePageId,
-                        'tstamp' => time()
-                    );
+            // If the page id is NOT an integer, it's an alias we have to look up
+            if (!\TYPO3\CMS\Core\Utility\MathUtility::canBeInterpretedAsInteger($this->encodePageId)) {
+                $this->encodePageId = $this->pageAliasToID($this->encodePageId);
+            }
 
-                    /** @noinspection PhpUndefinedMethodInspection */
-                    $GLOBALS['TYPO3_DB']->sql_query('START TRANSACTION');
-                    /** @noinspection PhpUndefinedMethodInspection */
-                    $GLOBALS['TYPO3_DB']->exec_DELETEquery('tx_realurl_urlencodecache',
-                        'url_hash=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($hash, 'tx_realurl_urlencodecache'));
-                    /** @noinspection PhpUndefinedMethodInspection */
-                    $GLOBALS['TYPO3_DB']->exec_INSERTquery('tx_realurl_urlencodecache', $insertFields);
-                    /** @noinspection PhpUndefinedMethodInspection */
-                    $GLOBALS['TYPO3_DB']->sql_query('COMMIT');
-                }
+            if ($this->canCachePageURL($this->encodePageId)) {
+                $tags = ['pageId_' . $this->encodePageId];
+                $lifetime = 24 * 3600 * $this->encodeCacheTTL;
+                $this->getCacheManager()->getCache(self::CACHE_ENCODE)->set($hash, $setEncodedURL, $tags, $lifetime);
             }
         }
-        return '';
     }
 
     /**
@@ -2504,11 +2488,6 @@ class tx_realurl
         if (is_array($pageIdArray) && count($pageIdArray) > 0) {
             /** @noinspection PhpUndefinedMethodInspection */
             $pageIdList = implode(',', $GLOBALS['TYPO3_DB']->cleanIntArray($pageIdArray));
-            /** @noinspection PhpUndefinedMethodInspection */
-            $GLOBALS['TYPO3_DB']->exec_DELETEquery(
-                'tx_realurl_urlencodecache',
-                'page_id IN (' . $pageIdList . ')'
-            );
             /** @noinspection PhpUndefinedMethodInspection */
             $GLOBALS['TYPO3_DB']->exec_DELETEquery(
                 'tx_realurl_cache',
