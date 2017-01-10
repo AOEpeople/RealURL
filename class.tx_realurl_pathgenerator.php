@@ -322,7 +322,7 @@ class tx_realurl_pathgenerator
         $i = 0;
         foreach ($rootline as $page) {
             // Continue if page should be excluded from path (if not last)
-            if ($page['tx_realurl_exclude'] && ++$i !== count($rootline)) {
+            if (++$i !== count($rootline) && $page['tx_realurl_exclude']) {
                 continue;
             }
 
