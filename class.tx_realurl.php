@@ -2484,14 +2484,16 @@ class tx_realurl
      */
     public function clearPageCacheMgm($params)
     {
-        $pageIdArray = $params['table'] == 'pages' ? array(intval($params['uid'])) : $params['pageIdArray'];
+        $pageIdArray = $params['table'] == 'pages' ? [intval($params['uid'])] : $params['pageIdArray'];
+
         if (is_array($pageIdArray) && count($pageIdArray) > 0) {
             /** @noinspection PhpUndefinedMethodInspection */
             $pageIdList = implode(',', $GLOBALS['TYPO3_DB']->cleanIntArray($pageIdArray));
             /** @noinspection PhpUndefinedMethodInspection */
-            $GLOBALS['TYPO3_DB']->exec_DELETEquery(
+            $GLOBALS['TYPO3_DB']->exec_UPDATEquery(
                 'tx_realurl_cache',
-                'pageid IN (' . $pageIdList . ')'
+                'pageid IN (' . $pageIdList . ')',
+                ['dirty' => 1]
             );
         }
     }
