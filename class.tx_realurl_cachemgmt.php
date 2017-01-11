@@ -58,6 +58,11 @@ class tx_realurl_cachemgmt
     protected $dbObj;
 
     /**
+     * @var \TYPO3\CMS\Core\Cache\CacheManager
+     */
+    protected $cacheManager;
+
+    /**
      * @var array
      */
     private $cache = [];
@@ -406,6 +411,7 @@ class tx_realurl_cachemgmt
     public function _delCacheForPid($pid)
     {
         $this->cache[$this->getCacheKey($pid)] = false;
+        $this->flushCachingFrameworkCacheByPageId($pid);
         $where = 'pageid=' . intval($pid) . $this->_getAddCacheWhere();
         $this->dbObj->exec_DELETEquery('tx_realurl_cache', $where);
     }
@@ -417,6 +423,7 @@ class tx_realurl_cachemgmt
      */
     public function delCacheForCompletePid($pid)
     {
+        $this->flushCachingFrameworkCacheByPageId($pid);
         $where = 'pageid=' . intval($pid) . ' AND workspace=' . intval($this->getWorkspaceId());
         $this->dbObj->exec_DELETEquery('tx_realurl_cache', $where);
     }
@@ -428,8 +435,19 @@ class tx_realurl_cachemgmt
      */
     public function markAsDirtyCompletePid($pid)
     {
+        $this->flushCachingFrameworkCacheByPageId($pid);
         $where = 'pageid=' . intval($pid) . ' AND workspace=' . intval($this->getWorkspaceId());
         $this->dbObj->exec_UPDATEquery('tx_realurl_cache', $where, array('dirty' => 1));
+    }
+
+    /**
+     * @param integer $pageId
+     * @return void
+     */
+    public function flushCachingFrameworkCacheByPageId($pageId)
+    {
+        $this->getCacheManager()->getCache(tx_realurl::CACHE_DECODE)->flushByTag('pageId_' . intval($pageId));
+        $this->getCacheManager()->getCache(tx_realurl::CACHE_ENCODE)->flushByTag('pageId_' . intval($pageId));
     }
 
     /**
@@ -492,5 +510,18 @@ class tx_realurl_cachemgmt
     protected function getCacheKey($pid)
     {
         return implode('-', array($pid, $this->getRootPid(), $this->getWorkspaceId(), $this->getLanguageId()));
+    }
+
+    /**
+     * Gets the TYPO3 Cache Manager
+     *
+     * @return \TYPO3\CMS\Core\Cache\CacheManager
+     */
+    protected function getCacheManager()
+    {
+        if (null === $this->cacheManager) {
+            $this->cacheManager =  \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Cache\CacheManager::class);
+        }
+        return $this->cacheManager;
     }
 }
