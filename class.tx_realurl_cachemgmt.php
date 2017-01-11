@@ -185,9 +185,9 @@ class tx_realurl_cachemgmt
         $pageId = false;
         for ($i = $sizeOfPath; $i > 0; $i--) {
             if (!$inHistoryTable) {
-                $pageId = $this->_readCacheForPath(implode("/", $pagePathOrigin));
+                $pageId = $this->_readCacheForPath(implode('/', $pagePathOrigin));
             } else {
-                $pageId = $this->_readHistoryCacheForPath(implode("/", $pagePathOrigin));
+                $pageId = $this->_readHistoryCacheForPath(implode('/', $pagePathOrigin));
             }
             if ($pageId !== false) {
                 //found something => break;
@@ -230,13 +230,13 @@ class tx_realurl_cachemgmt
             //do insert
             $data['tstamp'] = $GLOBALS['EXEC_TIME'];
             $data['path'] = $buildedPath;
-            $data['mpvar'] = "";
+            $data['mpvar'] = '';
             $data['workspace'] = $this->getWorkspaceId();
             $data['languageid'] = $this->getLanguageId();
             $data['rootpid'] = $this->getRootPid();
             $data['pageid'] = $pid;
 
-            if ($this->dbObj->exec_INSERTquery("tx_realurl_cache", $data)) {
+            if ($this->dbObj->exec_INSERTquery('tx_realurl_cache', $data)) {
                 //TODO ... yeah we saved something in the database - any further problems?
             } else {
                 //TODO ... d'oh database didn't like us - what's next?
@@ -262,9 +262,9 @@ class tx_realurl_cachemgmt
         $where .= $this->_getAddCacheWhere(true);
         if (method_exists($this->dbObj, 'exec_SELECTquery_master')) {
             // Force select to use master server in t3p_scalable
-            $res = $this->dbObj->exec_SELECTquery_master("*", "tx_realurl_cache", $where);
+            $res = $this->dbObj->exec_SELECTquery_master('*', 'tx_realurl_cache', $where);
         } else {
-            $res = $this->dbObj->exec_SELECTquery("*", "tx_realurl_cache", $where);
+            $res = $this->dbObj->exec_SELECTquery('*', 'tx_realurl_cache', $where);
         }
         if ($res) {
             $result = $this->dbObj->sql_fetch_assoc($res);
@@ -285,7 +285,7 @@ class tx_realurl_cachemgmt
     public function _readHistoryCacheForPath($pagePath)
     {
         $where = 'path=' . $this->dbObj->fullQuoteStr($pagePath, 'tx_realurl_cachehistory') . $this->_getAddCacheWhere(true);
-        $res = $this->dbObj->exec_SELECTquery("*", "tx_realurl_cachehistory", $where);
+        $res = $this->dbObj->exec_SELECTquery('*', 'tx_realurl_cachehistory', $where);
         if ($res) {
             $result = $this->dbObj->sql_fetch_assoc($res);
         }
@@ -355,8 +355,8 @@ class tx_realurl_cachemgmt
     public function getCacheHistoryRowsForPid($pid)
     {
         $rows = array();
-        $where = "pageid=" . intval($pid) . $this->_getAddCacheWhere();
-        $query = $this->dbObj->exec_SELECTquery("*", "tx_realurl_cachehistory", $where);
+        $where = 'pageid=' . intval($pid) . $this->_getAddCacheWhere();
+        $query = $this->dbObj->exec_SELECTquery('*', 'tx_realurl_cachehistory', $where);
         while ($row = $this->dbObj->sql_fetch_assoc($query)) {
             $rows[] = $row;
         }
@@ -406,8 +406,8 @@ class tx_realurl_cachemgmt
     public function _delCacheForPid($pid)
     {
         $this->cache[$this->getCacheKey($pid)] = false;
-        $where = "pageid=" . intval($pid) . $this->_getAddCacheWhere();
-        $this->dbObj->exec_DELETEquery("tx_realurl_cache", $where);
+        $where = 'pageid=' . intval($pid) . $this->_getAddCacheWhere();
+        $this->dbObj->exec_DELETEquery('tx_realurl_cache', $where);
     }
 
     /**
@@ -417,8 +417,8 @@ class tx_realurl_cachemgmt
      */
     public function delCacheForCompletePid($pid)
     {
-        $where = "pageid=" . intval($pid) . ' AND workspace=' . intval($this->getWorkspaceId());
-        $this->dbObj->exec_DELETEquery("tx_realurl_cache", $where);
+        $where = 'pageid=' . intval($pid) . ' AND workspace=' . intval($this->getWorkspaceId());
+        $this->dbObj->exec_DELETEquery('tx_realurl_cache', $where);
     }
 
     /**
@@ -428,8 +428,8 @@ class tx_realurl_cachemgmt
      */
     public function markAsDirtyCompletePid($pid)
     {
-        $where = "pageid=" . intval($pid) . ' AND workspace=' . intval($this->getWorkspaceId());
-        $this->dbObj->exec_UPDATEquery("tx_realurl_cache", $where, array('dirty' => 1));
+        $where = 'pageid=' . intval($pid) . ' AND workspace=' . intval($this->getWorkspaceId());
+        $this->dbObj->exec_UPDATEquery('tx_realurl_cache', $where, array('dirty' => 1));
     }
 
     /**
@@ -441,7 +441,7 @@ class tx_realurl_cachemgmt
     {
         unset($row['dirty']);
         $row['tstamp'] = $GLOBALS['EXEC_TIME'];
-        $this->dbObj->exec_INSERTquery("tx_realurl_cachehistory", $row);
+        $this->dbObj->exec_INSERTquery('tx_realurl_cachehistory', $row);
     }
 
     /**
@@ -450,8 +450,8 @@ class tx_realurl_cachemgmt
      */
     public function clearAllCache()
     {
-        $this->dbObj->exec_DELETEquery("tx_realurl_cache", '1=1');
-        $this->dbObj->exec_DELETEquery("tx_realurl_cachehistory", '1=1');
+        $this->dbObj->exec_DELETEquery('tx_realurl_cache', '1=1');
+        $this->dbObj->exec_DELETEquery('tx_realurl_cachehistory', '1=1');
     }
 
     /**
@@ -460,7 +460,7 @@ class tx_realurl_cachemgmt
      */
     public function clearAllCacheHistory()
     {
-        $this->dbObj->exec_DELETEquery("tx_realurl_cachehistory", '1=1');
+        $this->dbObj->exec_DELETEquery('tx_realurl_cachehistory', '1=1');
     }
 
     /**
