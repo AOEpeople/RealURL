@@ -44,23 +44,23 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
      */
     public function modMenu()
     {
-        $modMenu = array(
-            'depth' => array(
+        $modMenu = [
+            'depth' => [
                 0 => $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xlf:labels.depth_0'),
                 1 => $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xlf:labels.depth_1'),
                 2 => $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xlf:labels.depth_2'),
                 3 => $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xlf:labels.depth_3'),
                 99 => $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xlf:labels.depth_infi'),
-            ),
-            'type' => array(
+            ],
+            'type' => [
                 'pathcache' => 'ID-to-path mapping',
                 'decode' => 'Decode cache',
                 'encode' => 'Encode cache',
                 'uniqalias' => 'Unique Aliases',
                 'config' => 'Configuration',
                 'log' => 'Error Log'
-            )
-        );
+            ]
+        ];
 
         $modMenu['type'] = \TYPO3\CMS\Backend\Utility\BackendUtility::unsetMenuItems(
             $this->pObj->modTSconfig['properties'],
@@ -195,10 +195,10 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
         \TYPO3\CMS\Backend\Utility\BackendUtility::workspaceOL('pages', $treeStartingRecord);
 
         // Creating top icon; the current page
-        $tree->tree[] = array(
+        $tree->tree[] = [
             'row' => $treeStartingRecord,
-            'HTML' => \TYPO3\CMS\Backend\Utility\IconUtility::getSpriteIconForRecord('pages', $treeStartingRecord, array())
-        );
+            'HTML' => \TYPO3\CMS\Backend\Utility\IconUtility::getSpriteIconForRecord('pages', $treeStartingRecord, [])
+        ];
 
         // Create the tree from starting point:
         if ($this->pObj->MOD_SETTINGS['depth'] > 0) {
@@ -207,8 +207,6 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
 
         return $tree;
     }
-
-
 
     /****************************
      *
@@ -229,7 +227,7 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
         if ($this->pObj->id) {
             $this->cachemgmt = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(tx_realurl_cachemgmt::class, $GLOBALS['BE_USER']->workspace, 0, 1);
             $this->pathgen = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(tx_realurl_pathgenerator::class);
-            $this->pathgen->init(array());
+            $this->pathgen->init([]);
 
             //Add action buttons:
             $theOutput .= '
@@ -311,12 +309,12 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
      */
     protected function getSystemLanguages()
     {
-        $languages = (array)\TYPO3\CMS\Backend\Utility\BackendUtility::getRecordsByField('sys_language', 'pid', 0, '', '', 'title');
+        $languages = (array) \TYPO3\CMS\Backend\Utility\BackendUtility::getRecordsByField('sys_language', 'pid', 0, '', '', 'title');
 
         $defaultLanguageLabel = $this->getDefaultLanguageName();
 
-        array_unshift($languages, array('uid' => 0, 'title' => $defaultLanguageLabel));
-        array_unshift($languages, array('uid' => '', 'title' => $GLOBALS['LANG']->getLL('all_languages')));
+        array_unshift($languages, ['uid' => 0, 'title' => $defaultLanguageLabel]);
+        array_unshift($languages, ['uid' => '', 'title' => $GLOBALS['LANG']->getLL('all_languages')]);
 
         return $languages;
     }
@@ -352,8 +350,6 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
 
         return $output;
     }
-
-
 
     /**************************
      *
@@ -447,8 +443,6 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
 
         return $output;
     }
-
-
 
     /**************************
      *
@@ -550,8 +544,6 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
         return $output;
     }
 
-
-
     /*****************************
      *
      * Unique Alias
@@ -614,13 +606,13 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
 
             $cc = 0;
             $field_id = $field_alias = $output = '';
-            $duplicates = array();
+            $duplicates = [];
             foreach ($tableContent as $aliasRecord) {
                 // Add data:
-                $tCells = array();
+                $tCells = [];
                 $tCells[] = '<td>' . htmlspecialchars($aliasRecord['value_id']) . '</td>';
 
-                if ((string)$cmd === 'edit' && ($entry === 'ALL' || !strcmp($entry, $aliasRecord['uid']))) {
+                if ((string) $cmd === 'edit' && ($entry === 'ALL' || !strcmp($entry, $aliasRecord['uid']))) {
                     $tCells[] = '<td>' .
                         '<input type="text" name="edit[' . $aliasRecord['uid'] . ']" value="' . htmlspecialchars($aliasRecord['value_alias']) . '" />' .
                         ($entry !== 'ALL' ? $this->saveCancelButtons('') : '') .
@@ -665,7 +657,7 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
             }
 
             // Create header:
-            $tCells = array();
+            $tCells = [];
             $tCells[] = '<td>ID (Field: ' . $field_id . ')</td>';
             $tCells[] = '<td>Alias (Field: ' . $field_alias . '):</td>';
             $tCells[] = '<td>Lang:</td>';
@@ -715,7 +707,7 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
                 foreach ($overviewRows as $aliasRecord) {
 
                     // Add data:
-                    $tCells = array();
+                    $tCells = [];
                     $tCells[] = '<td><a href="' . $this->linkSelf('&table=' . rawurlencode($aliasRecord['tablename'])) . '">' . $aliasRecord['tablename'] . '</a></td>';
                     $tCells[] = '<td>' . $aliasRecord['number_of_rows'] . '</td>';
 
@@ -729,7 +721,7 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
                 }
 
                 // Create header:
-                $tCells = array();
+                $tCells = [];
                 $tCells[] = '<td>Table:</td>';
                 $tCells[] = '<td>Aliases:</td>';
 
@@ -758,9 +750,9 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
      */
     public function editUniqAliasEntry($cache_id, $value)
     {
-        $field_values = array(
+        $field_values = [
             'value_alias' => $value
-        );
+        ];
         $GLOBALS['TYPO3_DB']->exec_UPDATEquery(
             'tx_realurl_uniqalias',
             'uid=' . intval($cache_id),
@@ -782,8 +774,6 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
             }
         }
     }
-
-
 
     /*****************************
      *
@@ -814,8 +804,6 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
 
         return $tree;
     }
-
-
 
     /*****************************
      *
@@ -862,7 +850,7 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
                 }
 
                 // Add data:
-                $tCells = array();
+                $tCells = [];
                 $tCells[] = '<td>' . $rec['counter'] . '</td>';
                 $tCells[] = '<td>' . \TYPO3\CMS\Backend\Utility\BackendUtility::dateTimeAge($rec['tstamp']) . '</td>';
                 $tCells[] = '<td><a href="' . htmlspecialchars($host . '/' . $rec['url']) . '" target="_blank">' . ($host ? $host . '/' : '') . htmlspecialchars($rec['url']) . '</a>' . '</td>';
@@ -881,7 +869,7 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
                 $cc++;
             }
             // Create header:
-            $tCells = array();
+            $tCells = [];
             $tCells[] = '<td>Counter:</td>';
             $tCells[] = '<td>Last time:</td>';
             $tCells[] = '<td>URL:</td>';
@@ -947,7 +935,7 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
         //traverse Tree:
         $rows = 0;
         foreach ($tree->tree as $data) {
-            $tCells = array();
+            $tCells = [];
             $editUid = $data['row']['uid'];
             //check actions:
             if (\TYPO3\CMS\Core\Utility\GeneralUtility::_GP('_action_clearvisible') != '') {

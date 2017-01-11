@@ -28,7 +28,7 @@ class tx_environment_testcase extends \TYPO3\CMS\Core\Tests\FunctionalTestCase
     /**
      * @var array
      */
-    protected $testExtensionsToLoad = array('typo3conf/ext/realurl');
+    protected $testExtensionsToLoad = ['typo3conf/ext/realurl'];
 
     /**
      * Just to have some confidence about the system settings ;)

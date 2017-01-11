@@ -73,7 +73,7 @@ class tx_realurl_pagepath
 
         $this->initGenerator();
 
-        switch (( string )$params ['mode']) {
+        switch ((string) $params ['mode']) {
             case 'encode':
                 $this->initCacheMgm($this->_getLanguageVarEncode());
                 $path = $this->_id2alias($params ['paramKeyValues']);
@@ -86,10 +86,10 @@ class tx_realurl_pagepath
                 $this->initCacheMgm($this->_getLanguageVarDecode());
                 $id = $this->_alias2id($params ['pathParts']);
 
-                return array(
+                return [
                     $id,
-                    array()
-                );
+                    []
+                ];
                 break;
         }
     }
@@ -131,7 +131,7 @@ class tx_realurl_pagepath
 
             return $pagePath_exploded;
         } else {
-            return array();
+            return [];
         }
     }
 
@@ -155,7 +155,7 @@ class tx_realurl_pagepath
                 '$pathSegment = mb_detect_encoding($pathSegment, "ASCII", TRUE) ? $pathSegment : rawurlencode($pathSegment);'));
         }
 
-        $keepPath = array();
+        $keepPath = [];
         //Check for redirect
         $this->_checkAndDoRedirect($pagePathOrigin);
         //read cache with the path you get, decrease path if nothing is found
@@ -167,23 +167,23 @@ class tx_realurl_pagepath
          */
         if (false === $pageId) {
             $this->cachemgmt->useUnstrictCacheWhere();
-            $keepPath = array();
+            $keepPath = [];
             $pageId = $this->cachemgmt->checkCacheWithDecreasingPath($pagePathOrigin, $keepPath);
             $this->cachemgmt->doNotUseUnstrictCacheWhere();
         }
         //fallback 2 - look in history
         if (false === $pageId) {
-            $keepPath = array();
+            $keepPath = [];
             $pageId = $this->cachemgmt->checkHistoryCacheWithDecreasingPath($pagePathOrigin, $keepPath);
         }
 
         // Fallback 3 - Reverse lookup (default language only)
-        if (false === $pageId && true === (bool)$this->generator->extconfArr['enablePagesReverseLookup']) {
+        if (false === $pageId && true === (bool) $this->generator->extconfArr['enablePagesReverseLookup']) {
             $lastPathSegment = end($pagePath);
             $possiblePageIds = $this->findPossiblePageIds($lastPathSegment);
             $pageId = $this->findFirstMatchingPageId($possiblePageIds, $pagePath);
             if (is_numeric($pageId)) {
-                $keepPath = array();
+                $keepPath = [];
             }
         }
 
@@ -206,11 +206,11 @@ class tx_realurl_pagepath
             $this->createWildcardWhereClause($pathSegment)
         );
 
-        $possiblePageIds = array();
+        $possiblePageIds = [];
         foreach ($possiblePageRecords as $possiblePageRecord) {
             // Prevent assigning a path segment to a shortcut, which would cause a redirect loop
             // if the shortcut has a lower page id and the target's page path is not available
-            if (\TYPO3\CMS\Frontend\Page\PageRepository::DOKTYPE_SHORTCUT === (integer)$possiblePageRecord['doktype']) {
+            if (\TYPO3\CMS\Frontend\Page\PageRepository::DOKTYPE_SHORTCUT === (integer) $possiblePageRecord['doktype']) {
                 continue;
             }
             $possiblePageIds[] = $possiblePageRecord['uid'];
@@ -231,7 +231,7 @@ class tx_realurl_pagepath
         $spaceCharacter = isset($this->conf['spaceCharacter']) ? $this->conf['spaceCharacter'] : '-';
         $titleFieldList = \TYPO3\CMS\Core\Utility\GeneralUtility::trimExplode(',', $this->conf['segTitleFieldList']);
 
-        $whereClause = array();
+        $whereClause = [];
         foreach ($titleFieldList as $titleField) {
             $whereClause[] = $titleField . ' LIKE ' . $GLOBALS['TYPO3_DB']->fullQuotestr('%' . str_replace($spaceCharacter,
                         '%', $pathSegment) . '%', 'pages)');
@@ -248,11 +248,11 @@ class tx_realurl_pagepath
      */
     private function filterByConfiguredRootPageId(array $pageIds)
     {
-        $filteredPageIds = array();
+        $filteredPageIds = [];
         foreach ($pageIds as $pageId) {
             $rootLine = \TYPO3\CMS\Backend\Utility\BackendUtility::BEgetRootLine($pageId);
             foreach ($rootLine as $pageInRootLine) {
-                if ((int)$pageInRootLine['uid'] === (int)$this->conf['rootpage_id']) {
+                if ((int) $pageInRootLine['uid'] === (int) $this->conf['rootpage_id']) {
                     $filteredPageIds[] = $pageId;
                     break;
                 }
@@ -273,7 +273,7 @@ class tx_realurl_pagepath
     private function findFirstMatchingPageId(array $possiblePageIds, $pagePath)
     {
         foreach ($possiblePageIds as $possiblePageId) {
-            $possiblePagePath = $this->_id2alias(array('id' => $possiblePageId));
+            $possiblePagePath = $this->_id2alias(['id' => $possiblePageId]);
             if ($possiblePagePath === $pagePath) {
                 return $possiblePageId;
             }
@@ -289,7 +289,7 @@ class tx_realurl_pagepath
      */
     protected function _checkAndDoRedirect($path)
     {
-        $_params = array();
+        $_params = [];
         if (is_array($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['EXT:realurl/class.tx_realurl_pagepath.php']['checkAndDoRedirect'])) {
             foreach ($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['EXT:realurl/class.tx_realurl_pagepath.php']['checkAndDoRedirect'] as $_funcRef) {
                 \TYPO3\CMS\Core\Utility\GeneralUtility::callUserFunction($_funcRef, $_params, $this);
@@ -335,7 +335,7 @@ class tx_realurl_pagepath
             $lang = \TYPO3\CMS\Core\Utility\GeneralUtility::callUserFunction($this->conf['languageGetVarPostFunc'], $lang, $this);
         }
 
-        return (int)$lang;
+        return (int) $lang;
     }
 
     /**
@@ -369,7 +369,7 @@ class tx_realurl_pagepath
             $lang = \TYPO3\CMS\Core\Utility\GeneralUtility::callUserFunction($this->conf['languageGetVarPostFunc'], $lang, $this);
         }
 
-        return (int)$lang;
+        return (int) $lang;
     }
 
     /**

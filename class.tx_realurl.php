@@ -53,7 +53,7 @@ class tx_realurl
     public $fe_user_prefix_set = false; // Is set true (->encodeSpURL) if there is a frontend user logged in
     public $filePart; // Contains the filename when a Speaking URL is decoded.
     public $dirParts; // All directory parts of the string
-    public $orig_paramKeyValues = array(); // Contains the index of GETvars that the URL had when the encoding began.
+    public $orig_paramKeyValues = []; // Contains the index of GETvars that the URL had when the encoding began.
     public $appendedSlash = false; // Set true if slash is appended
     public $encodePageId = 0; // Set with the page id during encoding. for internal use only.
     public $speakingURIpath_procValue = ''; // For decoding, the path we are processing.
@@ -82,7 +82,7 @@ class tx_realurl
     protected $hostConfigured = '';
 
     public $multidomain = false;
-    public $urlPrepend = array();
+    public $urlPrepend = [];
 
     /**
      * Holds a uid of the detected language during decoding to limit search of
@@ -147,7 +147,6 @@ class tx_realurl
      */
     private $configurationService;
 
-
     private $pre_GET_VARS; //function decodeSpURL_doDecode stores the calculated pre_GET_VARS, so clients of this class can access this information
 
     /**
@@ -174,7 +173,6 @@ class tx_realurl
      */
     protected $typoScriptFrontendController;
 
-
     /************************************
      *
      * Translate parameters to a Speaking URL (t3lib_tstemplate::linkData)
@@ -186,9 +184,9 @@ class tx_realurl
      */
     public function __construct()
     {
-        $sysconf = (array)unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['realurl']);
-        $this->enableStrictMode = (bool)$sysconf['enableStrictMode'];
-        $this->enableChashUrlDebug = (bool)$sysconf['enableChashUrlDebug'];
+        $sysconf = (array) unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['realurl']);
+        $this->enableStrictMode = (bool) $sysconf['enableStrictMode'];
+        $this->enableChashUrlDebug = (bool) $sysconf['enableChashUrlDebug'];
         $this->configurationService = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('tx_realurl_configurationService');
 
         $this->initDevLog($sysconf);
@@ -202,7 +200,7 @@ class tx_realurl
      */
     protected function initDevLog(array $sysconf)
     {
-        $this->enableDevLog = (boolean)$sysconf['enableDevLog'];
+        $this->enableDevLog = (boolean) $sysconf['enableDevLog'];
         if ($this->enableDevLog) {
             $this->devLogId = (isset($_SERVER['UNIQUE_ID']) ? $_SERVER['UNIQUE_ID'] : uniqid(''));
         }
@@ -255,7 +253,7 @@ class tx_realurl
             $this->typoScriptFrontendController->pageNotFoundAndExit($e->getMessage());
         }
         $adjustedConfiguration = $this->adjustConfigurationByHost('encode', $params);
-        $internalExtras = array();
+        $internalExtras = [];
         //add workspace to internal vars for caching purposes
         if ($GLOBALS['BE_USER']->workspace) {
             $internalExtras['workspace'] = $GLOBALS['BE_USER']->workspace;
@@ -321,11 +319,11 @@ class tx_realurl
         // Call hooks
         if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['realurl']['encodeSpURL_postProc'])) {
             foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['realurl']['encodeSpURL_postProc'] as $userFunc) {
-                $hookParams = array(
+                $hookParams = [
                     'pObj' => &$this,
                     'params' => $params,
                     'URL' => &$newUrl,
-                );
+                ];
                 \TYPO3\CMS\Core\Utility\GeneralUtility::callUserFunction($userFunc, $hookParams, $this);
             }
         }
@@ -389,11 +387,11 @@ class tx_realurl
      */
     protected function encodeSpURL_doEncode($inputQuery, $origUrl = '')
     {
-        $this->cHashParameters = array();
+        $this->cHashParameters = [];
         $this->rebuildCHash = false;
 
         // Extract all GET parameters into an ARRAY
-        $paramKeyValues = array();
+        $paramKeyValues = [];
         $GETparams = explode('&', $inputQuery);
         foreach ($GETparams as $paramAndValue) {
             list($p, $v) = explode('=', $paramAndValue, 2);
@@ -405,7 +403,7 @@ class tx_realurl
         $this->orig_paramKeyValues = $paramKeyValues;
 
         // Init array in which to collect the "directories" of the URL
-        $pathParts = array();
+        $pathParts = [];
 
         // Pre-vars
         $this->encodeSpURL_setSequence($this->extConf['preVars'], $paramKeyValues, $pathParts);
@@ -460,7 +458,7 @@ class tx_realurl
 
         // Manage remaining GET parameters
         if (count($paramKeyValues)) {
-            $q = array();
+            $q = [];
             foreach ($paramKeyValues as $k => $v) {
                 $q[] = $this->rawurlencodeParam($k) . '=' . rawurlencode($v);
             }
@@ -491,9 +489,9 @@ class tx_realurl
         }
 
         // Creating page path
-        switch ((string)$this->extConf['pagePath']['type']) {
+        switch ((string) $this->extConf['pagePath']['type']) {
             case 'user':
-                $params = array('paramKeyValues' => &$paramKeyValues, 'pathParts' => &$pathParts, 'pObj' => &$this, 'conf' => $this->extConf['pagePath'], 'mode' => 'encode');
+                $params = ['paramKeyValues' => &$paramKeyValues, 'pathParts' => &$pathParts, 'pObj' => &$this, 'conf' => $this->extConf['pagePath'], 'mode' => 'encode'];
                 \TYPO3\CMS\Core\Utility\GeneralUtility::callUserFunction($this->extConf['pagePath']['userFunc'], $params, $this);
                 break;
             default: // Default: Just passing through the ID/alias of the page:
@@ -518,7 +516,7 @@ class tx_realurl
         // Traverse setup for postVarSets. If any of those matches
         if (is_array($postVarSetCfg)) {
             foreach ($postVarSetCfg as $keyWord => $cfg) {
-                switch ((string)$cfg['type']) {
+                switch ((string) $cfg['type']) {
                     case 'admin':
                         if ($this->adminJumpSet) {
                             $pathParts[] = rawurlencode($keyWord);
@@ -575,7 +573,7 @@ class tx_realurl
         // Look if any filename matches the remaining variables
         if (is_array($this->extConf['fileName']['index'])) {
             foreach ($this->extConf['fileName']['index'] as $keyWord => $cfg) {
-                $pathParts = array();
+                $pathParts = [];
                 if ($this->encodeSpURL_setSingle($keyWord, $cfg['keyValues'], $paramKeyValues, $pathParts)) {
                     return $keyWord != '_DEFAULT' ? $keyWord : '';
                 }
@@ -607,7 +605,7 @@ class tx_realurl
                         // Look for admin jump
                         if ($this->adminJumpSet) {
                             foreach ($setup['index'] as $pKey => $pCfg) {
-                                if ((string)$pCfg['type'] == 'admin') {
+                                if ((string) $pCfg['type'] == 'admin') {
                                     $pathPartVal = $pKey;
                                     $this->adminJumpSet = false;
                                     break;
@@ -618,7 +616,7 @@ class tx_realurl
                         // Look for frontend user login
                         if ($this->fe_user_prefix_set) {
                             foreach ($setup['index'] as $pKey => $pCfg) {
-                                if ((string)$pCfg['type'] == 'feLogin') {
+                                if ((string) $pCfg['type'] == 'feLogin') {
                                     $pathPartVal = $pKey;
                                     $this->fe_user_prefix_set = false;
                                     break;
@@ -656,7 +654,7 @@ class tx_realurl
                             $GETvarVal = $parameterSet ? $paramKeyValues[$GETvar] : '';
 
                             // Set reverse map
-                            $revMap = is_array($setup['valueMap']) ? array_flip($setup['valueMap']) : array();
+                            $revMap = is_array($setup['valueMap']) ? array_flip($setup['valueMap']) : [];
 
                             if (isset($revMap[$GETvarVal])) {
                                 $prevVal = $GETvarVal;
@@ -673,13 +671,13 @@ class tx_realurl
                                 $pathParts[] = '';
                                 $this->rebuildCHash |= $parameterSet;
                             } elseif ($setup['userFunc']) {
-                                $params = array(
+                                $params = [
                                     'pObj' => &$this,
                                     'value' => $GETvarVal,
                                     'decodeAlias' => false,
                                     'pathParts' => &$pathParts,
                                     'setup' => $setup
-                                );
+                                ];
                                 $prevVal = $GETvarVal;
                                 $GETvarVal = \TYPO3\CMS\Core\Utility\GeneralUtility::callUserFunction($setup['userFunc'], $params, $this);
                                 $pathParts[] = rawurlencode($GETvarVal);
@@ -858,11 +856,11 @@ class tx_realurl
 
                 if (!is_array($row)) {
                     // Nothing found, insert to the cache
-                    $data = array(
+                    $data = [
                         'spurl_hash' => $spUrlHash,
                         'spurl_string' => $this->enableChashUrlDebug ? $stringForHash : null,
                         'chash_string' => $paramKeyValues['cHash']
-                    );
+                    ];
                     /** @noinspection PhpUndefinedMethodInspection */
                     $GLOBALS['TYPO3_DB']->exec_INSERTquery('tx_realurl_chashcache', $data);
                 } else {
@@ -872,9 +870,9 @@ class tx_realurl
                         // insert, that might be a bug or mean that encryptionKey was
                         // changed so cHash values will be different now
                         // In any case we will just silently update the value
-                        $data = array(
+                        $data = [
                             'chash_string' => $paramKeyValues['cHash']
-                        );
+                        ];
                         /** @noinspection PhpUndefinedMethodInspection */
                         $GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_realurl_chashcache',
                             'spurl_hash=' . $spUrlHashQuoted, $data);
@@ -934,18 +932,18 @@ class tx_realurl
             == '/' ? substr($this->typoScriptFrontendController->siteScript, 1) : $this->typoScriptFrontendController->siteScript;
 
             if ($this->isURIpathContainingAnProtocolWrapper($speakingURIpath)) {
-                header('Location:'.$this->getURIpathWithoutProtocolWrapper($speakingURIpath), true, 301);
+                header('Location:' . $this->getURIpathWithoutProtocolWrapper($speakingURIpath), true, 301);
                 exit();
             }
 
             // Call hooks
             if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['realurl']['decodeSpURL_preProc'])) {
                 foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['realurl']['decodeSpURL_preProc'] as $userFunc) {
-                    $hookParams = array(
+                    $hookParams = [
                         'pObj' => &$this,
                         'params' => $params,
                         'URL' => &$speakingURIpath,
-                    );
+                    ];
                     \TYPO3\CMS\Core\Utility\GeneralUtility::callUserFunction($userFunc, $hookParams, $this);
                 }
             }
@@ -969,7 +967,7 @@ class tx_realurl
                     }
                     if ($this->appendedSlash && count($options) > 0) {
                         foreach ($options as $option) {
-                            $matches = array();
+                            $matches = [];
                             if (preg_match('/^redirect(\[(30[1237])\])?$/', $option, $matches)) {
                                 $code = count($matches) > 1 ? $matches[2] : 301;
                                 $status = 'HTTP/1.1 ' . $code . ' TYPO3 RealURL redirect M' . __LINE__;
@@ -1123,7 +1121,7 @@ class tx_realurl
     {
 
         // Cached info
-        $cachedInfo = array();
+        $cachedInfo = [];
 
         // Convert URL to segments
         $pathParts = explode('/', $speakingURIpath);
@@ -1182,7 +1180,7 @@ class tx_realurl
         }
 
         // Merge Get vars together
-        $cachedInfo['GET_VARS'] = array();
+        $cachedInfo['GET_VARS'] = [];
         if (is_array($pre_GET_VARS)) {
             \TYPO3\CMS\Core\Utility\ArrayUtility::mergeRecursiveWithOverrule($cachedInfo['GET_VARS'], $pre_GET_VARS);
         }
@@ -1232,14 +1230,14 @@ class tx_realurl
     protected function decodeSpURL_createQueryStringParam($paramArr, $prependString = '')
     {
         if (!is_array($paramArr)) {
-            return array($prependString . '=' . $paramArr);
+            return [$prependString . '=' . $paramArr];
         }
 
         if (count($paramArr) == 0) {
-            return array();
+            return [];
         }
 
-        $paramList = array();
+        $paramList = [];
         foreach ($paramArr as $var => $value) {
             $paramList = array_merge($paramList, $this->decodeSpURL_createQueryStringParam($value, $prependString . '[' . $var . ']'));
         }
@@ -1259,7 +1257,7 @@ class tx_realurl
             return $_SERVER['QUERY_STRING'];
         }
 
-        $parameters = array();
+        $parameters = [];
         foreach ($getVars as $var => $value) {
             $parameters = array_merge($parameters, $this->decodeSpURL_createQueryStringParam($value, $var));
         }
@@ -1288,15 +1286,15 @@ class tx_realurl
     protected function decodeSpURL_idFromPath(&$pathParts)
     {
         // Creating page path
-        switch ((string)$this->extConf['pagePath']['type']) {
+        switch ((string) $this->extConf['pagePath']['type']) {
             case 'user':
-                $params = array('pathParts' => &$pathParts, 'pObj' => &$this, 'conf' => $this->extConf['pagePath'], 'mode' => 'decode');
+                $params = ['pathParts' => &$pathParts, 'pObj' => &$this, 'conf' => $this->extConf['pagePath'], 'mode' => 'decode'];
 
                 $result = \TYPO3\CMS\Core\Utility\GeneralUtility::callUserFunction($this->extConf['pagePath']['userFunc'], $params, $this);
                 break;
             default: // Default: Just passing through the ID/alias of the page:
                 $value = array_shift($pathParts);
-                $result = array($value);
+                $result = [$value];
                 break;
         }
 
@@ -1352,7 +1350,7 @@ class tx_realurl
             while (false != ($key = array_shift($pathParts))) {
                 $key = urldecode($key);
                 if (is_array($postVarSetCfg[$key])) {
-                    switch ((string)$postVarSetCfg[$key]['type']) {
+                    switch ((string) $postVarSetCfg[$key]['type']) {
                         case 'admin':
                             $this->decodeSpURL_jumpAdmin();
                             break;
@@ -1426,7 +1424,7 @@ class tx_realurl
      */
     protected function decodeSpURL_fixBrackets(&$arr)
     {
-        $bad_keys = array();
+        $bad_keys = [];
         foreach ($arr as $k => $v) {
             if (is_array($v)) {
                 $this->decodeSpURL_fixBrackets($arr[$k]);
@@ -1452,7 +1450,7 @@ class tx_realurl
      */
     protected function decodeSpURL_decodeFileName(array &$pathParts)
     {
-        $getVars = array();
+        $getVars = [];
         $fileName = array_pop($pathParts);
         $fileParts = \TYPO3\CMS\Core\Utility\GeneralUtility::revExplode('.', $fileName, 2);
         if (count($fileParts) == 2 && !$fileParts[1]) {
@@ -1460,7 +1458,7 @@ class tx_realurl
         }
         list($segment, $extension) = $fileParts;
         if ($extension) {
-            $getVars = array();
+            $getVars = [];
             if (!$this->decodeSpURL_decodeFileName_lookupInIndex($fileName, $segment, $extension, $pathParts, $getVars)) {
                 if (!$this->decodeSpURL_decodeFileName_checkHtmlSuffix($fileName, $segment, $extension, $pathParts)) {
                     $this->decodeSpURL_throw404('File "' . $fileName . '" was not found (1)!');
@@ -1591,9 +1589,9 @@ class tx_realurl
                         $idx = isset($setup['index'][$value]) ? $value : '_DEFAULT';
 
                         // Look up type
-                        switch ((string)$setup['index'][$idx]['type']) {
+                        switch ((string) $setup['index'][$idx]['type']) {
                             case 'redirect':
-                                $url = (string)$setup['index'][$idx]['url'];
+                                $url = (string) $setup['index'][$idx]['url'];
                                 $url = str_replace('###INDEX###', rawurlencode($value), $url);
                                 $this->appendFilePart($pathParts);
                                 $remainPath = implode('/', $pathParts);
@@ -1633,14 +1631,14 @@ class tx_realurl
                             } elseif ($setup['noMatch'] == 'null') { // If no match and "null" is set, then break (without setting any value!)
                                 break;
                             } elseif ($setup['userFunc']) {
-                                $params = array(
+                                $params = [
                                     'decodeAlias' => true,
                                     'origValue' => $origValue,
                                     'pathParts' => &$pathParts,
                                     'pObj' => &$this,
                                     'value' => $value,
                                     'setup' => $setup
-                                );
+                                ];
                                 $value = \TYPO3\CMS\Core\Utility\GeneralUtility::callUserFunction($setup['userFunc'], $params, $this);
                             } elseif (is_array($setup['lookUpTable']) && $value != '') {
                                 $temp = $value;
@@ -1715,7 +1713,7 @@ class tx_realurl
             $hash = \TYPO3\CMS\Core\Utility\GeneralUtility::md5int($this->speakingURIpath_procValue);
             $rootpage_id = intval($this->extConf['pagePath']['rootpage_id']);
             $cond = 'url_hash=' . intval($hash) . ' AND rootpage_id=' . $rootpage_id;
-            $fields_values = array(
+            $fields_values = [
                 'url_hash' => $hash,
                 'url' => $this->speakingURIpath_procValue,
                 'error' => $msg,
@@ -1724,7 +1722,7 @@ class tx_realurl
                 'cr_date' => time(),
                 'rootpage_id' => $rootpage_id,
                 'last_referer' => \TYPO3\CMS\Core\Utility\GeneralUtility::getIndpEnv('HTTP_REFERER')
-            );
+            ];
 
             /** @noinspection PhpUndefinedMethodInspection */
             $GLOBALS['TYPO3_DB']->sql_query('START TRANSACTION');
@@ -1732,12 +1730,12 @@ class tx_realurl
             list($error_row) = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('counter', 'tx_realurl_errorlog', $cond);
             if (count($error_row)) {
                 /** @noinspection PhpUndefinedMethodInspection */
-                $fields_values = array(
+                $fields_values = [
                     'error' => $msg,
                     'counter' => $error_row['counter'] + 1,
                     'tstamp' => time(),
                     'last_referer' => \TYPO3\CMS\Core\Utility\GeneralUtility::getIndpEnv('HTTP_REFERER')
-                );
+                ];
                 /** @noinspection PhpUndefinedMethodInspection */
                 $GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_realurl_errorlog', $cond, $fields_values);
             } else {
@@ -1898,7 +1896,7 @@ class tx_realurl
     {
         // Assemble list of fields to look up. This includes localization related fields
         $langEnabled = false;
-        $fieldList = array();
+        $fieldList = [];
         if ($cfg['languageGetVar'] && $cfg['transOrigPointerField'] && $cfg['languageField']) {
             $fieldList[] = 'uid';
             $fieldList[] = $cfg['transOrigPointerField'];
@@ -1949,7 +1947,6 @@ class tx_realurl
             if ($cfg['useUniqueCache'] && !$cfg['autoUpdate'] && $returnAlias = $this->lookUp_idToUniqAlias($cfg, $value, $lang)) {
                 return $returnAlias;
             } else { // If no cached entry, look up alias directly in the table (and possibly store cache value)
-
 
                 $fieldList[] = $cfg['alias_field'];
                 /** @noinspection PhpUndefinedMethodInspection */
@@ -2013,8 +2010,8 @@ class tx_realurl
      */
     protected function lookUp_uniqAliasToId($cfg, $aliasValue, $onlyNonExpired = false)
     {
-        static $cache = array();
-        $paramhash = md5(serialize($cfg).serialize($aliasValue).serialize($onlyNonExpired));
+        static $cache = [];
+        $paramhash = md5(serialize($cfg) . serialize($aliasValue) . serialize($onlyNonExpired));
 
         if (isset($cache[$paramhash])) {
             return $cache[$paramhash];
@@ -2052,8 +2049,8 @@ class tx_realurl
      */
     protected function lookUp_idToUniqAlias($cfg, $idValue, $lang, $aliasValue = '')
     {
-        static $cache = array();
-        $paramhash = md5(serialize($cfg).serialize($idValue).serialize($lang).serialize($aliasValue));
+        static $cache = [];
+        $paramhash = md5(serialize($cfg) . serialize($idValue) . serialize($lang) . serialize($aliasValue));
 
         if (isset($cache[$paramhash])) {
             return $cache[$paramhash];
@@ -2133,7 +2130,7 @@ class tx_realurl
         }
         $rootpageId = isset($cfg['useUniqueCache_conf']['rootpage_id']) ? intval($cfg['useUniqueCache_conf']['rootpage_id']) : 0;
         // Insert the new id<->alias relation
-        $insertArray = array('tstamp' => time(), 'tablename' => $cfg['table'], 'field_alias' => $cfg['alias_field'], 'field_id' => $cfg['id_field'], 'value_alias' => $uniqueAlias, 'value_id' => $idValue, 'lang' => $lang, 'rootpage_id' => $rootpageId);
+        $insertArray = ['tstamp' => time(), 'tablename' => $cfg['table'], 'field_alias' => $cfg['alias_field'], 'field_id' => $cfg['id_field'], 'value_alias' => $uniqueAlias, 'value_id' => $idValue, 'lang' => $lang, 'rootpage_id' => $rootpageId];
 
         // Checking that this alias hasn't been stored since we looked last time
         $returnAlias = $this->lookUp_idToUniqAlias($cfg, $idValue, $lang, $uniqueAlias);
@@ -2150,7 +2147,7 @@ class tx_realurl
 					AND field_id=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($cfg['id_field'], 'tx_realurl_uniqalias') . '
 					AND tablename=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($cfg['table'], 'tx_realurl_uniqalias') . '
 					AND lang=' . intval($lang) . '
-					AND expire=0', array('expire' => time() + 24 * 3600 * ($cfg['expireDays'] ? $cfg['expireDays'] : 60)));
+					AND expire=0', ['expire' => time() + 24 * 3600 * ($cfg['expireDays'] ? $cfg['expireDays'] : 60)]);
 
             // Store new alias
             /** @noinspection PhpUndefinedMethodInspection */
@@ -2200,8 +2197,8 @@ class tx_realurl
         $processedTitle = trim($processedTitle, $space);
 
         if ($cfg['useUniqueCache_conf']['encodeTitle_userProc']) {
-            $encodingConfiguration = array('strtolower' => $cfg['useUniqueCache_conf']['strtolower'], 'spaceCharacter' => $cfg['useUniqueCache_conf']['spaceCharacter']);
-            $params = array('pObj' => &$this, 'title' => $newAliasValue, 'processedTitle' => $processedTitle, 'encodingConfiguration' => $encodingConfiguration);
+            $encodingConfiguration = ['strtolower' => $cfg['useUniqueCache_conf']['strtolower'], 'spaceCharacter' => $cfg['useUniqueCache_conf']['spaceCharacter']];
+            $params = ['pObj' => &$this, 'title' => $newAliasValue, 'processedTitle' => $processedTitle, 'encodingConfiguration' => $encodingConfiguration];
             $processedTitle = \TYPO3\CMS\Core\Utility\GeneralUtility::callUserFunction($cfg['useUniqueCache_conf']['encodeTitle_userProc'], $params, $this);
         }
 
@@ -2224,13 +2221,13 @@ class tx_realurl
      */
     protected function getHost()
     {
-        $host = strtolower((string)\TYPO3\CMS\Core\Utility\GeneralUtility::getIndpEnv('HTTP_HOST'));
+        $host = strtolower((string) \TYPO3\CMS\Core\Utility\GeneralUtility::getIndpEnv('HTTP_HOST'));
 
         if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['realurl']['getHost'])) {
             foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['realurl']['getHost'] as $userFunc) {
-                $hookParams = array(
+                $hookParams = [
                     'host' => $host,
-                );
+                ];
                 $newHost = \TYPO3\CMS\Core\Utility\GeneralUtility::callUserFunction($userFunc, $hookParams, $this);
                 if (!empty($newHost) && is_string($newHost)) {
                     $host = $newHost;
@@ -2264,7 +2261,7 @@ class tx_realurl
         }
 
         $cfg = is_array($this->extConf[$mainCat][$pageId]) ? $this->extConf[$mainCat][$pageId] :
-            (is_array($this->extConf[$mainCat]['_DEFAULT']) ? $this->extConf[$mainCat]['_DEFAULT'] : array());
+            (is_array($this->extConf[$mainCat]['_DEFAULT']) ? $this->extConf[$mainCat]['_DEFAULT'] : []);
         return $cfg;
     }
 
@@ -2342,7 +2339,7 @@ class tx_realurl
     {
         $result = false;
 
-        $this->additionalParametersForChash = array();
+        $this->additionalParametersForChash = [];
 
         if (isset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['realurl']['_DOMAINS'])) {
             $configuration = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['realurl']['_DOMAINS'];
@@ -2371,7 +2368,7 @@ class tx_realurl
         $this->ignoreGETvar = '';
         if (is_array($params) && isset($params['LD']['totalURL']) && is_array($configuration)) {
             $urlParts = parse_url($params['LD']['totalURL']);
-            $urlParams = array();
+            $urlParams = [];
             parse_str($urlParts['query'], $urlParams);
 
             foreach ($configuration as $disposal) {
@@ -2453,7 +2450,7 @@ class tx_realurl
     protected function setConfigurationByReference($useConfiguration)
     {
         $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['realurl'];
-        $resolved = array();
+        $resolved = [];
         $result = false;
 
         // Resolve configurations references and avoid endless loops
@@ -2539,7 +2536,7 @@ class tx_realurl
         if (!$this->enableStrictMode) {
             // Search by host
 
-            $testedDomains = array($host => 1);
+            $testedDomains = [$host => 1];
             do {
                 /** @noinspection PhpUndefinedMethodInspection */
                 $domain = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('pid,redirectTo,domainName', 'sys_domain',
@@ -2548,7 +2545,7 @@ class tx_realurl
                 if (count($domain) > 0) {
                     if (!$domain[0]['redirectTo']) {
                         $rootpage_id = intval($domain[0]['pid']);
-                        $this->devLog('Found rootpage_id by domain lookup', array('domain' => $domain[0]['domainName'], 'rootpage_id' => $rootpage_id));
+                        $this->devLog('Found rootpage_id by domain lookup', ['domain' => $domain[0]['domainName'], 'rootpage_id' => $rootpage_id]);
                         break;
                     } else {
                         $parts = @parse_url($domain[0]['redirectTo']);
@@ -2576,7 +2573,7 @@ class tx_realurl
                             'sys_template', 'root=1 AND hidden=0 AND deleted=0');
                 if (count($rows) == 1) {
                     $rootpage_id = $rows[0]['pid'];
-                    $this->devLog('Found rootpage_id by searching sys_template', array('rootpage_id' => $rootpage_id));
+                    $this->devLog('Found rootpage_id by searching sys_template', ['rootpage_id' => $rootpage_id]);
                 }
             }
         }
@@ -2814,10 +2811,10 @@ class tx_realurl
             $where = 'alias="' . trim($id) . '"';
         }
 
-        $query = $GLOBALS['TYPO3_DB']->exec_SELECTquery("uid,pid,url,doktype,urltype", "pages", $where);
+        $query = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid,pid,url,doktype,urltype', 'pages', $where);
         if ($query) {
             $result = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($query);
-            $GLOBALS['TSFE']->sys_page->versionOL("pages", $result);
+            $GLOBALS['TSFE']->sys_page->versionOL('pages', $result);
         }
         $result = $GLOBALS['TSFE']->sys_page->getPageOverlay($result);
         if (count($result)) {

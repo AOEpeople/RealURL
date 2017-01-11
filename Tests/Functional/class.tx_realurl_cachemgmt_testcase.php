@@ -40,12 +40,12 @@ class tx_realurl_cachemgmt_testcase extends \TYPO3\CMS\Core\Tests\FunctionalTest
     /**
      * @var array
      */
-    protected $coreExtensionsToLoad = array('version', 'workspaces');
+    protected $coreExtensionsToLoad = ['version', 'workspaces'];
 
     /**
      * @var array
      */
-    protected $testExtensionsToLoad = array('typo3conf/ext/realurl');
+    protected $testExtensionsToLoad = ['typo3conf/ext/realurl'];
 
     /**
      * setUp test-database
@@ -108,7 +108,7 @@ class tx_realurl_cachemgmt_testcase extends \TYPO3\CMS\Core\Tests\FunctionalTest
         $cache->setCacheTimeOut(200);
         $cache->setRootPid(1);
         $cache->storeUniqueInCache('9995', '');
-        $pidOrFalse = $cache->checkCacheWithDecreasingPath(array(''), $dummy);
+        $pidOrFalse = $cache->checkCacheWithDecreasingPath([''], $dummy);
         $this->assertEquals($pidOrFalse, 9995, 'should be in cache');
     }
 
@@ -236,14 +236,14 @@ class tx_realurl_cachemgmt_testcase extends \TYPO3\CMS\Core\Tests\FunctionalTest
         $cache->storeUniqueInCache('9990', 'sample/path1');
         $cache->storeUniqueInCache('9991', 'sample/path1/path2');
         $cache->storeUniqueInCache('9992', 'sample/newpath1/path3');
-        $dummy = array();
-        $pidOrFalse = $cache->checkCacheWithDecreasingPath(array('sample', 'path1'), $dummy);
+        $dummy = [];
+        $pidOrFalse = $cache->checkCacheWithDecreasingPath(['sample', 'path1'], $dummy);
         $this->assertEquals($pidOrFalse, '9990', '9990 should be fould for path');
-        $dummy = array();
-        $pidOrFalse = $cache->checkCacheWithDecreasingPath(array('sample', 'path1', 'nothing'), $dummy);
+        $dummy = [];
+        $pidOrFalse = $cache->checkCacheWithDecreasingPath(['sample', 'path1', 'nothing'], $dummy);
         $this->assertEquals($pidOrFalse, '9990', '9990 should be fould for path');
-        $dummy = array();
-        $pidOrFalse = $cache->checkCacheWithDecreasingPath(array('sample', 'path2'), $dummy);
+        $dummy = [];
+        $pidOrFalse = $cache->checkCacheWithDecreasingPath(['sample', 'path2'], $dummy);
         $this->assertEquals($pidOrFalse, false, ' should not be fould for path');
     }
 
@@ -256,8 +256,8 @@ class tx_realurl_cachemgmt_testcase extends \TYPO3\CMS\Core\Tests\FunctionalTest
     {
         $cache = new tx_realurl_cachemgmt(0, 0);
         $cache->setCacheTimeOut(1);
-        $this->assertFalse($cache->_isCacheRowStillValid(array('dirty' => '1')), 'should return false');
-        $this->assertFalse($cache->_isCacheRowStillValid(array('tstamp' => ($GLOBALS['EXEC_TIME'] - 2))), 'should return false');
+        $this->assertFalse($cache->_isCacheRowStillValid(['dirty' => '1']), 'should return false');
+        $this->assertFalse($cache->_isCacheRowStillValid(['tstamp' => ($GLOBALS['EXEC_TIME'] - 2)]), 'should return false');
     }
 
     /**
@@ -273,25 +273,25 @@ class tx_realurl_cachemgmt_testcase extends \TYPO3\CMS\Core\Tests\FunctionalTest
         $cache->setRootPid(1);
         $cache->storeUniqueInCache('9990', 'sample/path1');
 
-        $dummy = array();
-        $pidOrFalse = $cache->checkCacheWithDecreasingPath(array('sample', 'path1'), $dummy);
+        $dummy = [];
+        $pidOrFalse = $cache->checkCacheWithDecreasingPath(['sample', 'path1'], $dummy);
         $this->assertEquals($pidOrFalse, '9990', '9990 should be fould for path');
 
         //sleep ( 2 );
         // back to the future ;)
         $GLOBALS['EXEC_TIME'] = $GLOBALS['EXEC_TIME'] + 2;
 
-        $dummy = array();
-        $pidOrFalse = $cache->checkCacheWithDecreasingPath(array('sample', 'path1'), $dummy);
+        $dummy = [];
+        $pidOrFalse = $cache->checkCacheWithDecreasingPath(['sample', 'path1'], $dummy);
         $this->assertEquals($cache->isInCache(9990), false, 'cache should be expired');
 
         $cache->storeUniqueInCache('9990', 'sample/path1new');
-        $dummy = array();
-        $pidOrFalse = $cache->checkCacheWithDecreasingPath(array('sample', 'path1new'), $dummy);
+        $dummy = [];
+        $pidOrFalse = $cache->checkCacheWithDecreasingPath(['sample', 'path1new'], $dummy);
         $this->assertEquals($pidOrFalse, '9990', ' 9990 should be the path');
 
         //now check history
-        $pidOrFalse = $cache->checkHistoryCacheWithDecreasingPath(array('sample', 'path1'), $dummy);
+        $pidOrFalse = $cache->checkHistoryCacheWithDecreasingPath(['sample', 'path1'], $dummy);
         $this->assertEquals($pidOrFalse, '9990', ' 9990 should be the pid in history');
     }
 }

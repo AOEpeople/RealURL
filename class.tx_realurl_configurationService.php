@@ -27,7 +27,7 @@
 
 class tx_realurl_configurationService
 {
-    private $confArray = array();
+    private $confArray = [];
     private $useAutoAdjustRootPid = false;
 
     public function __construct()
@@ -68,7 +68,7 @@ class tx_realurl_configurationService
             if ($this->enableStrictMode && $this->multidomain) {
                 throw new tx_realurl_configurationService_exception('RealURL strict mode error: ' . 'multidomain configuration detected and domain \'' . $this->host . '\' is not configured for RealURL. Please, fix your RealURL configuration!');
             }
-            $extConf = (array)$this->confArray['_DEFAULT'];
+            $extConf = (array) $this->confArray['_DEFAULT'];
             if ($this->multidomain && isset($extConf['pagePath']['rootpage_id']) && $this->enableStrictMode) {
                 throw new tx_realurl_configurationService_exception('Rootpid configured for _DEFAULT namespace, tis can cause wron cache entries and should be avoided');
             }
@@ -114,7 +114,7 @@ class tx_realurl_configurationService
                 if (!$domain[0]['redirectTo']) {
                     $rootpage_id = intval($domain[0]['pid']);
                     if ($this->enableDevLog) {
-                        \TYPO3\CMS\Core\Utility\GeneralUtility::devLog('Found rootpage_id by domain lookup', 'realurl', 0, array('domain' => $domain[0]['domainName'], 'rootpage_id' => $rootpage_id));
+                        \TYPO3\CMS\Core\Utility\GeneralUtility::devLog('Found rootpage_id by domain lookup', 'realurl', 0, ['domain' => $domain[0]['domainName'], 'rootpage_id' => $rootpage_id]);
                     }
                     break;
                 } else {
@@ -133,7 +133,7 @@ class tx_realurl_configurationService
             if (count($rows) == 1) {
                 $rootpage_id = $rows[0]['pid'];
                 if ($this->enableDevLog) {
-                    \TYPO3\CMS\Core\Utility\GeneralUtility::devLog('Found rootpage_id by searching sys_template', 'realurl', 0, array('rootpage_id' => $rootpage_id));
+                    \TYPO3\CMS\Core\Utility\GeneralUtility::devLog('Found rootpage_id by searching sys_template', 'realurl', 0, ['rootpage_id' => $rootpage_id]);
                 }
             }
         }

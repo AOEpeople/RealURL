@@ -80,7 +80,7 @@ class tx_realurl_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCase
             ->willReturn($cacheManagerMock);
         $subject->extConf = $extConf;
 
-       $this->assertSame(
+        $this->assertSame(
            $cachedContent,
            $this->callInaccessibleMethod($subject, 'decodeSpURL_decodeCache', $speakingUrlPath)
        );

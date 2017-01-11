@@ -31,12 +31,12 @@ class tx_realurl_pathgenerator_testcase extends \TYPO3\CMS\Core\Tests\Functional
     /**
      * @var array
      */
-    protected $coreExtensionsToLoad = array('version', 'workspaces');
+    protected $coreExtensionsToLoad = ['version', 'workspaces'];
 
     /**
      * @var array
      */
-    protected $testExtensionsToLoad = array('typo3conf/ext/realurl');
+    protected $testExtensionsToLoad = ['typo3conf/ext/realurl'];
 
     /**
      * @var tx_realurl_pathgenerator

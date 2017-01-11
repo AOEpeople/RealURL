@@ -359,7 +359,7 @@ class tx_realurl_cachemgmt
      */
     public function getCacheHistoryRowsForPid($pid)
     {
-        $rows = array();
+        $rows = [];
         $where = 'pageid=' . intval($pid) . $this->_getAddCacheWhere();
         $query = $this->dbObj->exec_SELECTquery('*', 'tx_realurl_cachehistory', $where);
         while ($row = $this->dbObj->sql_fetch_assoc($query)) {
@@ -437,7 +437,7 @@ class tx_realurl_cachemgmt
     {
         $this->flushCachingFrameworkCacheByPageId($pid);
         $where = 'pageid=' . intval($pid) . ' AND workspace=' . intval($this->getWorkspaceId());
-        $this->dbObj->exec_UPDATEquery('tx_realurl_cache', $where, array('dirty' => 1));
+        $this->dbObj->exec_UPDATEquery('tx_realurl_cache', $where, ['dirty' => 1]);
     }
 
     /**
@@ -509,7 +509,7 @@ class tx_realurl_cachemgmt
      */
     protected function getCacheKey($pid)
     {
-        return implode('-', array($pid, $this->getRootPid(), $this->getWorkspaceId(), $this->getLanguageId()));
+        return implode('-', [$pid, $this->getRootPid(), $this->getWorkspaceId(), $this->getLanguageId()]);
     }
 
     /**

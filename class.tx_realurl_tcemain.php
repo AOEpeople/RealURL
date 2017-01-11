@@ -114,9 +114,9 @@ class tx_realurl_tcemain
         $GLOBALS['TYPO3_DB']->exec_UPDATEquery(
             'tx_realurl_cache',
             'pageid IN (' . implode(',', $pageIds) . ') AND languageid=' . intval($languageId),
-            array(
+            [
                 'dirty' => '1'
-            ));
+            ]);
     }
 
     /**
@@ -134,9 +134,9 @@ class tx_realurl_tcemain
         $GLOBALS['TYPO3_DB']->exec_UPDATEquery(
             'tx_realurl_cache',
             'pageid IN (' . implode(',', $pageIds) . ')',
-            array(
+            [
                 'dirty' => '1'
-            ));
+            ]);
     }
 
     /**
@@ -149,7 +149,7 @@ class tx_realurl_tcemain
     {
         $rootLine = \TYPO3\CMS\Backend\Utility\BackendUtility::BEgetRootLine($pageId);
         $rootPageId = $rootLine[1]['uid'];
-        $this->config = array();
+        $this->config = [];
         if (isset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['realurl'])) {
             foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['realurl'] as $config) {
                 if (is_array($config) && $config['pagePath']['rootpage_id'] == $rootPageId) {
@@ -173,7 +173,7 @@ class tx_realurl_tcemain
      */
     protected function getChildPages($pageId)
     {
-        $children  = array();
+        $children  = [];
 
         $tree = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Backend\Tree\View\PageTreeView::class);
         $tree->init('AND ' . $GLOBALS['BE_USER']->getPagePermsClause(1));
@@ -211,7 +211,7 @@ class tx_realurl_tcemain
         if ($tableName == 'pages_language_overlay') {
             $result = self::getInfoFromOverlayPid($id);
         } else {
-            $result = array($id, 0);
+            $result = [$id, 0];
         }
         return $result;
     }
@@ -248,7 +248,7 @@ class tx_realurl_tcemain
         /** @noinspection PhpUndefinedMethodInspection */
         list($rec) = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('pid,sys_language_uid',
             'pages_language_overlay', 'uid=' . intval($pid));
-        return array($rec['pid'], $rec['sys_language_uid']);
+        return [$rec['pid'], $rec['sys_language_uid']];
     }
 
     /**
@@ -293,7 +293,6 @@ class tx_realurl_tcemain
         $this->processContentUpdates($status, $tableName, $recordId, $databaseData);
         $this->markCachesDirty($tableName, $recordId, $reference);
     }
-
 
     /**
      * In case an page-overlay is created automatically the excludeFromMiddle value needs to be copied

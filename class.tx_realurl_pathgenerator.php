@@ -38,7 +38,7 @@ class tx_realurl_pathgenerator
 {
     public $pidForCache;
     public $extconfArr; //ext_conf_template vars
-    public $doktypeCache = array();
+    public $doktypeCache = [];
 
         /**
          * @var array $conf ReaulUrl configuration (segTitleFieldList, ...)
@@ -90,10 +90,10 @@ class tx_realurl_pathgenerator
             $external = true;
         } elseif ($lastPage ['tx_realurl_pathoverride'] && $overridePath = $this->_stripSlashes($lastPage ['tx_realurl_pathsegment'])) {
             $parts = explode('/', $overridePath);
-            $cleanParts = array_map(array(
+            $cleanParts = array_map([
                 $this,
                 'encodeTitle'
-            ), $parts);
+            ], $parts);
             $nonEmptyParts = array_filter($cleanParts);
             $pathString = implode('/', $nonEmptyParts);
         }
@@ -109,12 +109,11 @@ class tx_realurl_pathgenerator
             }
         }
 
-
-        return array(
+        return [
             'path' => $pathString,
             'rootPid' => $rootPid,
             'external' => $external
-        );
+        ];
     }
 
     /**
@@ -160,8 +159,8 @@ class tx_realurl_pathgenerator
         if ($this->conf ['renderShortcuts']) {
             return false;
         } else {
-            static $cache = array();
-            $paramhash = intval($id).'_'.intval($langid).'_'.intval($workspace).'_'.intval($reclevel);
+            static $cache = [];
+            $paramhash = intval($id) . '_' . intval($langid) . '_' . intval($workspace) . '_' . intval($reclevel);
 
             if (isset($cache[$paramhash])) {
                 return $cache[$paramhash];
@@ -178,8 +177,8 @@ class tx_realurl_pathgenerator
                 // if overlay for the of shortcuts is requested
             if ($this->extconfArr ['localizeShortcuts'] && \TYPO3\CMS\Core\Utility\GeneralUtility::inList($GLOBALS ['TYPO3_CONF_VARS'] ['FE'] ['pageOverlayFields'], 'shortcut') && $langid) {
                 $resultOverlay = $this->_getPageOverlay($id, $langid);
-                if ($resultOverlay ["shortcut"]) {
-                    $result ["shortcut"] = $resultOverlay ["shortcut"];
+                if ($resultOverlay ['shortcut']) {
+                    $result ['shortcut'] = $resultOverlay ['shortcut'];
                 }
             }
 
@@ -189,8 +188,8 @@ class tx_realurl_pathgenerator
                         if ($reclevel > 10) {
                             $returnValue = false;
                         }
-                        $where = "pid=\"" . $id . "\"";
-                        $query = $GLOBALS ['TYPO3_DB']->exec_SELECTquery("uid", "pages", $where, '', 'sorting', '0,1');
+                        $where = 'pid="' . $id . '"';
+                        $query = $GLOBALS ['TYPO3_DB']->exec_SELECTquery('uid', 'pages', $where, '', 'sorting', '0,1');
                         if ($query) {
                             $resultfirstpage = $GLOBALS ['TYPO3_DB']->sql_fetch_assoc($query);
                         }
@@ -292,7 +291,7 @@ class tx_realurl_pathgenerator
             return $rootLine;
         }
 
-        $siteRootLine = array();
+        $siteRootLine = [];
         $c = count($rootLine);
         foreach ($rootLine as $val) {
             $c --;
@@ -466,11 +465,11 @@ class tx_realurl_pathgenerator
         $processedTitle = preg_replace('/\\' . $space . '+/', $space, $processedTitle);
         $processedTitle = trim($processedTitle, $space);
         if ($this->conf ['encodeTitle_userProc']) {
-            $params = array(
+            $params = [
                 'pObj' => &$this,
                 'title' => $title,
                 'processedTitle' => $processedTitle
-            );
+            ];
             $processedTitle = \TYPO3\CMS\Core\Utility\GeneralUtility::callUserFunction($this->conf ['encodeTitle_userProc'], $params, $this);
         }
             // Return encoded URL:

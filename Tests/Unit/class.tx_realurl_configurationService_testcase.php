@@ -59,19 +59,19 @@ class tx_realurl_configurationService_testcase extends \TYPO3\CMS\Core\Tests\Uni
 
     private function getMultiDomainConfigurationFixture()
     {
-        $conf = array(
-            '_DEFAULT' => array(
-                'init' => array(
+        $conf = [
+            '_DEFAULT' => [
+                'init' => [
                     'enableCHashCache' => 1,
                     'appendMissingSlash' => 'ifNotFile',
                     'enableUrlDecodeCache' => 1,
                     'enableUrlEncodeCache' => 1,
                     'respectSimulateStaticURLs' => 0,
                     'postVarSet_failureMode' => 'redirect_goodUpperDir',
-                ),
-                'redirects_regex' => array(),
-                'preVars' => array(),
-                'pagePath' => array(
+                ],
+                'redirects_regex' => [],
+                'preVars' => [],
+                'pagePath' => [
                     'type' => 'user',
                     'userFunc' => 'EXT:realurl/class.tx_realurl_pagepath.php:&tx_realurl_pagepath->main',
                     'spaceCharacter' => '-',
@@ -80,9 +80,9 @@ class tx_realurl_configurationService_testcase extends \TYPO3\CMS\Core\Tests\Uni
                     'rootpage_id' => '1',
                     'segTitleFieldList' => 'alias,tx_realurl_pathsegment,nav_title,title,subtitle',
 
-                ),
-            )
-        );
+                ],
+            ]
+        ];
         $conf['www.domain1.com'] = $conf['_DEFAULT'];
         $conf['www.domain1.com']['pagePath']['rootpage_id'] = 19;
 
