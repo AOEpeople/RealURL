@@ -26,6 +26,20 @@
     "replace": {
         "realurl":  "self.version"
     },
+    "autoload": {
+        "classmap": [
+            "modfunc1",
+            "Tests",
+            "class.tx_realurl.php",
+            "class.tx_realurl_cachemgmt.php",
+            "class.tx_realurl_configurationService.php",
+            "class.tx_realurl_configurationService_exception.php",
+            "class.tx_realurl_crawler.php",
+            "class.tx_realurl_pagepath.php",
+            "class.tx_realurl_pathgenerator.php",
+            "class.tx_realurl_tcemain.php"
+        ]
+    },
     "config": {
         "vendor-dir": ".Build/vendor",
         "bin-dir": ".Build/bin"
