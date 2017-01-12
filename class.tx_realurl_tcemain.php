@@ -28,7 +28,7 @@
 /**
  * TCEmain hook to update various caches when data is modified in TYPO3 Backend
  *
- * @author	Dmitry Dulepov <dmitry@typo3.org>
+ * @author Dmitry Dulepov <dmitry@typo3.org>
  */
 class tx_realurl_tcemain
 {
@@ -92,9 +92,11 @@ class tx_realurl_tcemain
     {
         if ($command == 'delete') {
             /** @noinspection PhpUndefinedMethodInspection */
-            $GLOBALS['TYPO3_DB']->exec_DELETEquery('tx_realurl_uniqalias',
-                'tablename=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($tableName, 'tx_realurl_uniqalias') .
-                ' AND value_id=' . intval($recordId));
+            $GLOBALS['TYPO3_DB']->exec_DELETEquery(
+                'tx_realurl_uniqalias',
+                'tablename=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($tableName, 'tx_realurl_uniqalias')
+                    . ' AND value_id=' . intval($recordId)
+            );
         }
     }
 
@@ -220,7 +222,7 @@ class tx_realurl_tcemain
      * Retrieves field list to check for modification
      *
      * @param string $tableName
-     * @return	array
+     * @return array
      */
     protected function getFieldList($tableName)
     {
@@ -240,14 +242,17 @@ class tx_realurl_tcemain
     /**
      * Retrieves real page id given its overlay id
      *
-     * @param	int		$pid	Page id
-     * @return	array		Array with two members: real page uid and sys_language_uid
+     * @param integer $pid Page id
+     * @return array Array with two members: real page uid and sys_language_uid
      */
     protected static function getInfoFromOverlayPid($pid)
     {
         /** @noinspection PhpUndefinedMethodInspection */
-        list($rec) = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('pid,sys_language_uid',
-            'pages_language_overlay', 'uid=' . intval($pid));
+        list($rec) = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
+            'pid,sys_language_uid',
+            'pages_language_overlay',
+            'uid=' . intval($pid)
+        );
         return [$rec['pid'], $rec['sys_language_uid']];
     }
 
@@ -298,9 +303,6 @@ class tx_realurl_tcemain
      * In case an page-overlay is created automatically the excludeFromMiddle value needs to be copied
      * See issue #12007
      *
-     * @author	Tolleiv Nietsch
-     * @package realurl
-     * @subpackage aoe_realurlpath
      * @param array $incomingFieldArray
      * @param string $table
      * @param string $id

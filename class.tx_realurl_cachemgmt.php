@@ -24,11 +24,6 @@
  *
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-/**
- *
- * @author	Daniel Poetzinger
- * @author	Tolleiv Nietsch
- */
 
 /**
  * TODO:
@@ -37,7 +32,7 @@
 
 /**
  *
- * @author	Daniel Poetzinger
+ * @author Daniel Poetzinger
  * @package realurl
  * @subpackage realurl
  */
@@ -168,7 +163,7 @@ class tx_realurl_cachemgmt
      * important function: checks the path in the cache: if not found the check against cache is repeated without the last pathpart
      *
      * @param array  $pagePathOrigin  the path which should be searched in cache
-     * @param &$keepPath  -> passed by reference -> array with the n last pathparts which could not retrieved from cache -> they are propably preVars from translated parameters (like tt_news is etc...)	 *
+     * @param &$keepPath -> passed by reference -> array with the n last pathparts which could not retrieved from cache -> they are propably preVars from translated parameters (like tt_news is etc...)
      * @return integer|boolean
      **/
     public function checkHistoryCacheWithDecreasingPath($pagePathOrigin, &$keepPath)
@@ -208,7 +203,9 @@ class tx_realurl_cachemgmt
      * Stores the path in cache and checks if that path is unique, if not this function makes the path unique by adding some numbers
      * (throws error if caching fails)
      *
+     * @param integer $pid
      * @param string $buildedPath
+     * @param boolean $disableCollisionDetection
      * @return string unique path in cache
      */
     public function storeUniqueInCache($pid, $buildedPath, $disableCollisionDetection = false)
@@ -255,8 +252,9 @@ class tx_realurl_cachemgmt
      * checks cache and looks if a path exist (in workspace, rootpid, language)
      *
      * @param string $pagePath
+     * @param integer $ignoreUid
      * @return string unique path in cache
-     **/
+     */
     public function _readCacheForPath($pagePath, $ignoreUid = null)
     {
         if (is_numeric($ignoreUid)) {

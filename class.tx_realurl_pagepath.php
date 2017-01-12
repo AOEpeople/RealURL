@@ -99,7 +99,6 @@ class tx_realurl_pagepath
      * (should be aware of workspace)
      *
      * @param array $paramKeyValues from real_url
-     * @param array $pathParts from real_url ??
      * @return string with path
      */
     protected function _id2alias($paramKeyValues)
@@ -117,11 +116,13 @@ class tx_realurl_pagepath
         $buildedPath = $this->cachemgmt->isInCache($pageId);
 
         if (!$buildedPath) {
-            $buildPageArray = $this->generator->build($pageId, $this->_getLanguageVarEncode(),
-                $this->_getWorkspaceId());
+            $buildPageArray = $this->generator->build($pageId, $this->_getLanguageVarEncode(), $this->_getWorkspaceId());
             $buildedPath = $buildPageArray['path'];
-            $buildedPath = $this->cachemgmt->storeUniqueInCache($this->generator->getPidForCache(), $buildedPath,
-                $buildPageArray['external']);
+            $buildedPath = $this->cachemgmt->storeUniqueInCache(
+                $this->generator->getPidForCache(),
+                $buildedPath,
+                $buildPageArray['external']
+            );
             if ($this->_isCrawlerRun() && $GLOBALS['TSFE']->id == $pageId) {
                 $GLOBALS['TSFE']->applicationData['tx_crawler']['log'][] = 'created: ' . $buildedPath . ' pid:' . $pageId . '/' . $this->generator->getPidForCache();
             }
@@ -151,8 +152,10 @@ class tx_realurl_pagepath
 
         // Page path is urlencoded in cache tables, so make sure path segments are encoded the same way, otherwise cache will miss
         if ($this->pObj->extConf['init']['enableAllUnicodeLetters']) {
-            array_walk($pagePathOrigin, create_function('&$pathSegment',
-                '$pathSegment = mb_detect_encoding($pathSegment, "ASCII", TRUE) ? $pathSegment : rawurlencode($pathSegment);'));
+            array_walk(
+                $pagePathOrigin,
+                create_function('&$pathSegment', '$pathSegment = mb_detect_encoding($pathSegment, "ASCII", TRUE) ? $pathSegment : rawurlencode($pathSegment);')
+            );
         }
 
         $keepPath = [];
@@ -455,7 +458,7 @@ class tx_realurl_pagepath
     public function initCacheMgm($lang)
     {
         $this->cachemgmt = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('tx_realurl_cachemgmt', $this->_getWorkspaceId(), $lang);
-        $this->cachemgmt->setCacheTimeout($this->conf ['cacheTimeOut']);
+        $this->cachemgmt->setCacheTimeOut($this->conf['cacheTimeOut']);
         $this->cachemgmt->setRootPid($this->_getRootPid());
     }
 }

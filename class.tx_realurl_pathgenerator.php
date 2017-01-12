@@ -32,7 +32,7 @@
  * @package realurl
  * @subpackage realurl
  *
- * @todo	check if internal cache array makes sense
+ * @todo check if internal cache array makes sense
  */
 class tx_realurl_pathgenerator
 {
@@ -66,7 +66,7 @@ class tx_realurl_pathgenerator
      * @param int $pid
      * @param int $langid
      * @param int $workspace
-     * @return array	buildPageArray
+     * @return array buildPageArray
      */
     public function build($pid, $langid, $workspace)
     {
@@ -77,7 +77,7 @@ class tx_realurl_pathgenerator
             $pid = $shortCutPid;
         }
         $this->pidForCache = $pid;
-        $rootline = $this->_getRootline($pid, $langid, $workspace);
+        $rootline = $this->_getRootLine($pid, $langid, $workspace);
         $firstPage = $rootline [0];
         $rootPid = $firstPage ['uid'];
         $lastPage = $rootline [count($rootline) - 1];
@@ -260,11 +260,12 @@ class tx_realurl_pathgenerator
 
     /**
      *
-     * @param int $pid	Pageid of the page where the rootline should be retrieved
+     * @param int $pid Pageid of the page where the rootline should be retrieved
      * @param int $langID
      * @param int $wsId
      * @param mixed $mpvar
-     * @return mixed	array with rootline for pid
+     * @return mixed array with rootline for pid
+     * @throws Exception
      */
     public function _getRootLine($pid, $langID, $wsId, $mpvar = '')
     {
@@ -440,8 +441,8 @@ class tx_realurl_pathgenerator
      * - Strip off all other symbols
      * Works with the character set defined as "forceCharset"
      *
-     * @param	string		Input title to clean
-     * @return	string		Encoded title, passed through rawurlencode() = ready to put in the URL.
+     * @param string $title Input title to clean
+     * @return string Encoded title, passed through rawurlencode() = ready to put in the URL.
      * @see rootLineToPath()
      */
     public function encodeTitle($title)
@@ -487,13 +488,13 @@ class tx_realurl_pathgenerator
     {
         if (! is_object($this->sys_page)) {
             /**
-             *	Initialize the page-select functions.
-             * 	don't use $GLOBALS['TSFE']->sys_page here this might
-             *	lead to strange side-effects due to the fact that some
-             *	members of sys_page are modified.
+             * Initialize the page-select functions.
+             * don't use $GLOBALS['TSFE']->sys_page here this might
+             * lead to strange side-effects due to the fact that some
+             * members of sys_page are modified.
              *
-             *	I also opted against "clone $GLOBALS['TSFE']->sys_page"
-             *	since this might still cause race conditions on the object
+             * I also opted against "clone $GLOBALS['TSFE']->sys_page"
+             * since this might still cause race conditions on the object
              **/
             $this->sys_page = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\Page\PageRepository::class);
         }

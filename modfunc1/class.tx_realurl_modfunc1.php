@@ -136,7 +136,8 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
         return $GLOBALS['LANG']->getLL('function')
             . ' '
             . \TYPO3\CMS\Backend\Utility\BackendUtility::getFuncMenu(
-                $this->pObj->id, 'SET[type]',
+                $this->pObj->id,
+                'SET[type]',
                 $this->pObj->MOD_SETTINGS['type'],
                 $this->pObj->MOD_MENU['type'],
                 'index.php'
@@ -378,7 +379,6 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
 
             // Add at least one empty element:
             if (!count($displayRows)) {
-
                 // Add title:
                 $tCells = [];
                 $tCells[] = '<td nowrap="nowrap">' . $rowTitle . '</td>';
@@ -473,7 +473,6 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
 
             // Add at least one empty element:
             if (!count($displayRows)) {
-
                 // Add title:
                 $tCells = [];
                 $tCells[] = '<td nowrap="nowrap">' . $rowTitle . '</td>';
@@ -578,28 +577,36 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
             // Some Commands:
             if ($cmd === 'delete') {
                 if ($entry === 'ALL') {
-                    $GLOBALS['TYPO3_DB']->exec_DELETEquery('tx_realurl_uniqalias',
-                        'tablename=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($tableName, 'tx_realurl_uniqalias'));
+                    $GLOBALS['TYPO3_DB']->exec_DELETEquery(
+                        'tx_realurl_uniqalias',
+                        'tablename=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($tableName, 'tx_realurl_uniqalias')
+                    );
                 } else {
-                    $GLOBALS['TYPO3_DB']->exec_DELETEquery('tx_realurl_uniqalias',
-                        'tablename=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($tableName,
-                            'tx_realurl_uniqalias') . ' AND uid=' . intval($entry));
+                    $GLOBALS['TYPO3_DB']->exec_DELETEquery(
+                        'tx_realurl_uniqalias',
+                        'tablename=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($tableName, 'tx_realurl_uniqalias')
+                            . ' AND uid=' . intval($entry)
+                    );
                 }
             }
             if ($cmd === 'flushExpired') {
-                $GLOBALS['TYPO3_DB']->exec_DELETEquery('tx_realurl_uniqalias',
-                    'tablename=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($tableName,
-                        'tx_realurl_uniqalias') . ' AND expire>0 AND expire<' . intval(time()));
+                $GLOBALS['TYPO3_DB']->exec_DELETEquery(
+                    'tx_realurl_uniqalias',
+                    'tablename=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($tableName, 'tx_realurl_uniqalias')
+                        . ' AND expire>0 AND expire<' . intval(time())
+                );
             }
 
             // Select rows:
             $tableContent = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
                 '*',
                 'tx_realurl_uniqalias',
-                'tablename=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($tableName, 'tx_realurl_uniqalias') .
-                ($search ? ' AND (value_id=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($search,
-                        $tableName) . ' OR value_alias LIKE \'%' . $GLOBALS['TYPO3_DB']->quoteStr($search,
-                        $tableName) . '%\')' : ''),
+                'tablename=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($tableName, 'tx_realurl_uniqalias')
+                    . ($search ? ' AND (value_id='
+                    . $GLOBALS['TYPO3_DB']->fullQuoteStr($search, $tableName)
+                    . ' OR value_alias LIKE \'%'
+                    . $GLOBALS['TYPO3_DB']->quoteStr($search, $tableName)
+                    . '%\')' : ''),
                 '',
                 'value_id, lang, expire'
             );

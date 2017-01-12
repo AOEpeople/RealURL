@@ -30,8 +30,8 @@
  * Class for creating and parsing Speaking Urls
  * This class interfaces with hooks in TYPO3 inside tslib_fe (for parsing speaking URLs to GET parameters) and in t3lib_tstemplate (for parsing GET parameters into a speaking URL)
  *
- * @author	Kasper Skaarhoj <kasper@typo3.com>
- * @author	Dmitry Dulepov <dmitry@typo3.org>
+ * @author Kasper Skaarhoj <kasper@typo3.com>
+ * @author Dmitry Dulepov <dmitry@typo3.org>
  * @package TYPO3
  * @subpackage tx_realurl
  */
@@ -127,7 +127,7 @@ class tx_realurl
      *
      * @see tx_realurl::adjustConfigurationByHostEncode()
      * @see tx_realurl::encodeSpURL_doEncode()
-     * @var	string
+     * @var string
      */
     protected $ignoreGETvar;
 
@@ -343,7 +343,6 @@ class tx_realurl
     public function encodeSpURL_urlPrepend(&$parameters, &$pObj)
     {
         if (isset($parameters['finalTagParts']['url'])) {
-
             // We must check for absolute URLs here because typolink can force
             // absolute URLs for pages with restricted access. It prepends
             // current host always. See http://bugs.typo3.org/view.php?id=18200
@@ -507,7 +506,7 @@ class tx_realurl
      * @param array $paramKeyValues Current URLs GETvar => value pairs in array, being translated into pathParts, continuously shortend. Passed by reference.
      * @param array $pathParts Numerical array of path-parts, continuously being filled. Passed by reference.
      * @param array $postVarSetCfg config
-     * @return void	Removing values from $paramKeyValues / Setting values in $pathParts
+     * @return void Removing values from $paramKeyValues / Setting values in $pathParts
      * @see encodeSpURL_doEncode(), decodeSpURL_settingPostVarSets()
      */
     protected function encodeSpURL_gettingPostVarSets(&$paramKeyValues, &$pathParts, $postVarSetCfg)
@@ -626,7 +625,6 @@ class tx_realurl
 
                         // If either pathPartVal has been set OR if _DEFAULT type is not bypass, set a value
                         if (strlen($pathPartVal) || $setup['index']['_DEFAULT']['type'] != 'bypass') {
-
                             // If admin jump did not set $pathPartVal, look for first pass-through (no "type" set)
                             if (!strlen($pathPartVal)) {
                                 foreach ($setup['index'] as $pKey => $pCfg) {
@@ -643,7 +641,6 @@ class tx_realurl
                         break;
                     default:
                         if (!is_array($setup['cond']) || $this->checkCondition($setup['cond'], $prevVal)) {
-
                             // Looking if the GET var is found in parameter index
                             $GETvar = $setup['GETvar'];
                             if ($GETvar == $this->ignoreGETvar) {
@@ -851,8 +848,11 @@ class tx_realurl
 
                 // first, look if a cHash is already there for this SpURL
                 /** @noinspection PhpUndefinedMethodInspection */
-                list($row) = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('chash_string',
-                    'tx_realurl_chashcache', 'spurl_hash=' . $spUrlHashQuoted);
+                list($row) = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
+                    'chash_string',
+                    'tx_realurl_chashcache',
+                    'spurl_hash=' . $spUrlHashQuoted
+                );
 
                 if (!is_array($row)) {
                     // Nothing found, insert to the cache
@@ -874,8 +874,11 @@ class tx_realurl
                             'chash_string' => $paramKeyValues['cHash']
                         ];
                         /** @noinspection PhpUndefinedMethodInspection */
-                        $GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_realurl_chashcache',
-                            'spurl_hash=' . $spUrlHashQuoted, $data);
+                        $GLOBALS['TYPO3_DB']->exec_UPDATEquery(
+                            'tx_realurl_chashcache',
+                            'spurl_hash=' . $spUrlHashQuoted,
+                            $data
+                        );
                     }
                 }
 
@@ -2690,6 +2693,9 @@ class tx_realurl
 
     /**
      * Fixes empty URL
+     *
+     * @param string $newUrl
+     * @return string
      */
     protected function fixEmptyUrl($newUrl)
     {
@@ -2792,6 +2798,9 @@ class tx_realurl
     /**
      * used by other realurl classes - in order to have access to the decoded pre get vars
      * (like language etc...)
+     *
+     * @param string $key
+     * @return
      */
     public function getRetrievedPreGetVar($key)
     {
@@ -2801,7 +2810,8 @@ class tx_realurl
     /**
      * checks if the page-id is an external url - and then returns the absolute url
      *
-     * @return mixed    string with url or false
+     * @param integer $id
+     * @return mixed string with url or false
      */
     private function checkForExternalPageAndGetTarget($id)
     {
