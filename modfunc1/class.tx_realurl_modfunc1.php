@@ -184,6 +184,7 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
      */
     protected function initializeTree()
     {
+        /** @var \TYPO3\CMS\Backend\Tree\View\PageTreeView $tree */
         $tree = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Backend\Tree\View\PageTreeView::class);
         $tree->addField('nav_title', true);
         $tree->addField('alias', true);
@@ -375,7 +376,7 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
             $displayRows = $cacheManager->getCache(tx_realurl::CACHE_DECODE)->getByTag('pageId_' . intval($row['row']['uid']));
 
             // Row title:
-            $rowTitle = $row['HTML'] . \TYPO3\CMS\Backend\Utility\BackendUtility::getRecordTitle('pages', $row['row'], true);
+            $rowTitle = $row['depthData'] . $row['HTML'] . \TYPO3\CMS\Backend\Utility\BackendUtility::getRecordTitle('pages', $row['row'], true);
 
             // Add at least one empty element:
             if (!count($displayRows)) {
@@ -469,7 +470,7 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
             $displayRows = $cacheManager->getCache(tx_realurl::CACHE_ENCODE)->getByTag('pageId_' . intval($row['row']['uid']));
 
             // Row title:
-            $rowTitle = $row['HTML'] . \TYPO3\CMS\Backend\Utility\BackendUtility::getRecordTitle('pages', $row['row'], true);
+            $rowTitle = $row['depthData'] . $row['HTML'] . \TYPO3\CMS\Backend\Utility\BackendUtility::getRecordTitle('pages', $row['row'], true);
 
             // Add at least one empty element:
             if (!count($displayRows)) {
@@ -945,10 +946,14 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
 
             //first cell (tree):
             // Page icons / titles etc.
-            $tCells[] = '<td' . ($data['row']['_CSSCLASS'] ? ' class="' . $data['row']['_CSSCLASS'] . '"' : '') . '>' . $data['HTML'] . htmlspecialchars(\TYPO3\CMS\Core\Utility\GeneralUtility::fixed_lgd_cs($data['row']['title'],
-                    $titleLen)) . (strcmp($data['row']['nav_title'],
-                    '') ? ' [Nav: <em>' . htmlspecialchars(\TYPO3\CMS\Core\Utility\GeneralUtility::fixed_lgd_cs($data['row']['nav_title'],
-                        $titleLen)) . '</em>]' : '') . '</td>';
+            $tCells[] = '<td' . ($data['row']['_CSSCLASS'] ? ' class="' . $data['row']['_CSSCLASS'] . '"' : '') . '>'
+                . $data['depthData']
+                . $data['HTML']
+                . htmlspecialchars(\TYPO3\CMS\Core\Utility\GeneralUtility::fixed_lgd_cs($data['row']['title'], $titleLen))
+                . (strcmp($data['row']['nav_title'], '') ? ' [Nav: <em>'
+                    . htmlspecialchars(\TYPO3\CMS\Core\Utility\GeneralUtility::fixed_lgd_cs($data['row']['nav_title'], $titleLen))
+                    . '</em>]' : '')
+                . '</td>';
             //language cells:
             foreach ($languageList as $language) {
                 if ($language['uid'] === '') {
