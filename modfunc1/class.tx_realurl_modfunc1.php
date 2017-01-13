@@ -283,7 +283,7 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
             } else {
                 $this->pObj->content = str_replace($marker, $css_content . chr(10) . $marker, $this->pObj->content);
             }
-            $theOutput .= '<hr />AOE realurl path cache for workspace: ' . $GLOBALS['BE_USER']->workspace;
+            $theOutput .= 'AOE realurl path cache for workspace: ' . $GLOBALS['BE_USER']->workspace;
 
             // Render information table:
             $theOutput .= $this->renderTable($tree);
@@ -631,18 +631,16 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
                 $tCells[] = '<td>' . htmlspecialchars($aliasRecord['lang']) . '</td>';
                 $tCells[] = '<td' . ($aliasRecord['expire'] && $aliasRecord['expire'] < time() ? ' style="color: red;"' : '') . '>' . htmlspecialchars(\TYPO3\CMS\Backend\Utility\BackendUtility::dateTimeAge($aliasRecord['expire'])) . '</td>';
 
-                $tCells[] = '<td>' .
+                $tCells[] = '<td>'
                     // Edit link:
-                    '<a href="' . $this->linkSelf('&table=' . rawurlencode($tableName) . '&cmd=edit&entry=' . $aliasRecord['uid']) . '">' .
-                    '<img' . \TYPO3\CMS\Backend\Utility\IconUtility::skinImg($this->pObj->doc->backPath, 'gfx/edit2.gif',
-                        'width="11" height="12"') . ' title="" alt="" />' .
-                    '</a>' .
+                    . '<a href="' . $this->linkSelf('&table=' . rawurlencode($tableName) . '&cmd=edit&entry=' . $aliasRecord['uid']) . '">'
+                    . \TYPO3\CMS\Backend\Utility\IconUtility::getSpriteIcon('actions-edit-rename', ['title' => 'Rename'])
+                    . '</a>'
                     // Delete link:
-                    '<a href="' . $this->linkSelf('&table=' . rawurlencode($tableName) . '&cmd=delete&entry=' . $aliasRecord['uid']) . '">' .
-                    '<img' . \TYPO3\CMS\Backend\Utility\IconUtility::skinImg($this->pObj->doc->backPath, 'gfx/garbage.gif',
-                        'width="11" height="12"') . ' title="" alt="" />' .
-                    '</a>' .
-                    '</td>';
+                    . '<a href="' . $this->linkSelf('&table=' . rawurlencode($tableName) . '&cmd=delete&entry=' . $aliasRecord['uid']) . '">'
+                    . \TYPO3\CMS\Backend\Utility\IconUtility::getSpriteIcon('actions-edit-delete', ['title' => 'Delete'])
+                    . '</a>'
+                    . '</td>';
 
                 $keyForDuplicates = $aliasRecord['value_alias'] . ':::' . $aliasRecord['lang'];
                 $tCells[] = '<td>' .
@@ -668,22 +666,19 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
             $tCells[] = '<td>ID (Field: ' . $field_id . ')</td>';
             $tCells[] = '<td>Alias (Field: ' . $field_alias . '):</td>';
             $tCells[] = '<td>Lang:</td>';
-            $tCells[] = '<td>Expire:' .
-                (!$search ? '<a href="' . $this->linkSelf('&table=' . rawurlencode($tableName) . '&cmd=flushExpired') . '">' .
-                    '<img' . \TYPO3\CMS\Backend\Utility\IconUtility::skinImg($this->pObj->doc->backPath, 'gfx/garbage.gif',
-                        'width="11" height="12"') . ' title="Flush expired" alt="" />' .
-                    '</a>' : '') .
-                '</td>';
-            $tCells[] = '<td>' .
-                (!$search ? '<a href="' . $this->linkSelf('&table=' . rawurlencode($tableName) . '&cmd=edit&entry=ALL') . '">' .
-                    '<img' . \TYPO3\CMS\Backend\Utility\IconUtility::skinImg($this->pObj->doc->backPath, 'gfx/edit2.gif',
-                        'width="11" height="12"') . ' title="Edit all" alt="" />' .
-                    '</a>' .
-                    '<a href="' . $this->linkSelf('&table=' . rawurlencode($tableName) . '&cmd=delete&entry=ALL') . '" onclick="return confirm(\'Delete all?\');">' .
-                    '<img' . \TYPO3\CMS\Backend\Utility\IconUtility::skinImg($this->pObj->doc->backPath, 'gfx/garbage.gif',
-                        'width="11" height="12"') . ' title="Delete all" alt="" />' .
-                    '</a>' : '') .
-                '</td>';
+            $tCells[] = '<td>Expire:'
+                . (!$search ? '<a href="' . $this->linkSelf('&table=' . rawurlencode($tableName) . '&cmd=flushExpired') . '">'
+                    . \TYPO3\CMS\Backend\Utility\IconUtility::getSpriteIcon('actions-edit-delete', ['title' => 'Flush expired'])
+                    . '</a>' : '')
+                . '</td>';
+            $tCells[] = '<td>'
+                . (!$search ? '<a href="' . $this->linkSelf('&table=' . rawurlencode($tableName) . '&cmd=edit&entry=ALL') . '">'
+                    . \TYPO3\CMS\Backend\Utility\IconUtility::getSpriteIcon('actions-edit-rename', ['title' => 'Rename all'])
+                    . '</a>'
+                    . '<a href="' . $this->linkSelf('&table=' . rawurlencode($tableName) . '&cmd=delete&entry=ALL') . '" onclick="return confirm(\'Delete all?\');">'
+                    . \TYPO3\CMS\Backend\Utility\IconUtility::getSpriteIcon('actions-edit-delete', ['title' => 'Delete all'])
+                    . '</a>' : '')
+                . '</td>';
             $tCells[] = '<td>Error:</td>';
 
             $output = '
@@ -893,10 +888,9 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
             // Compile final table and return:
             $output = '
             <br/>
-                <a href="' . $this->linkSelf('&cmd=deleteAll') . '">' .
-                '<img' . \TYPO3\CMS\Backend\Utility\IconUtility::skinImg($this->pObj->doc->backPath, 'gfx/garbage.gif',
-                    'width="11" height="12"') . ' title="Delete All" alt="" />' .
-                ' Flush log</a>
+                <a href="' . $this->linkSelf('&cmd=deleteAll') . '">'
+                . \TYPO3\CMS\Backend\Utility\IconUtility::getSpriteIcon('actions-edit-delete')
+                . 'Flush log</a>
                 <br/>
             <table border="0" cellspacing="1" cellpadding="0" id="tx-realurl-pathcacheTable" class="lrPadding c-list">' . $output . '
             </table>';
@@ -931,15 +925,12 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
      */
     protected function renderTable(&$tree)
     {
-        global $LANG;
-        // Title length:
         $titleLen = $GLOBALS['BE_USER']->uc['titleLen'];
 
-        // Put together the TREE:
         $output = '';
         $languageList = $this->getSystemLanguages();
 
-        //traverse Tree:
+        // Traverse tree
         $rows = 0;
         foreach ($tree->tree as $data) {
             $tCells = [];
@@ -996,34 +987,7 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
                 } else {
                     $status = 'c-nok';
                 }
-                $viewPageLink = '<a href="#" onclick="' . htmlspecialchars(\TYPO3\CMS\Backend\Utility\BackendUtility::viewOnClick($data['row']['uid'],
-                        $GLOBALS['BACK_PATH'], '', '', '',
-                        '&L=###LANG_UID###')) . '">' . '<img' . \TYPO3\CMS\Backend\Utility\IconUtility::skinImg($GLOBALS['BACK_PATH'],
-                        'gfx/zoom.gif', 'width="12" height="12"') . ' title="' . $LANG->getLL('lang_viewPage',
-                        '1') . '" border="0" alt="" />' . '</a>';
-                $viewPageLink = str_replace('###LANG_UID###', $langId, $viewPageLink);
-                if ($langId == 0) {
-                    //Default
-                    //"View page" link is created:
-                    $viewPageLink = '<a href="#" onclick="' . htmlspecialchars(\TYPO3\CMS\Backend\Utility\BackendUtility::viewOnClick($data['row']['uid'],
-                            $GLOBALS['BACK_PATH'], '', '', '',
-                            '&L=###LANG_UID###')) . '">' . '<img' . \TYPO3\CMS\Backend\Utility\IconUtility::skinImg($GLOBALS['BACK_PATH'],
-                            'gfx/zoom.gif', 'width="12" height="12"') . ' title="' . $LANG->getLL('lang_viewPage',
-                            '1') . '" border="0" alt="" />' . '</a>';
-                    $info .= '<a href="#" onclick="' . htmlspecialchars(\TYPO3\CMS\Backend\Utility\BackendUtility::editOnClick($params,
-                            $GLOBALS['BACK_PATH'])) . '">' . '<img' . \TYPO3\CMS\Backend\Utility\IconUtility::skinImg($GLOBALS['BACK_PATH'],
-                            'gfx/edit2.gif',
-                            'width="11" height="12"') . ' title="' . $LANG->getLL('lang_editDefaultLanguagePage',
-                            '1') . '" border="0" alt="" />' . '</a>';
-                    $info .= str_replace('###LANG_UID###', '0', $viewPageLink);
-                    $info .= $path;
-                    // Put into cell:
-                    $tCells[] = '<td class="' . $status . ' c-leftLine">' . $info . '</td>';
-                } else {
-
-                    //Normal Languages:
-                    $tCells[] = '<td class="' . $status . ' c-leftLine">' . $viewPageLink . $path . '</td>';
-                }
+                $tCells[] = '<td class="' . $status . ' c-leftLine">' .  $path . '</td>';
             }
             $rows++;
             $output .= '
@@ -1034,7 +998,7 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
         }
         //first ROW:
         //****************
-        $firstRowCells[] = '<td style="min-width:300px">' . $LANG->getLL('page_title', '1') . ':</td>';
+        $firstRowCells[] = '<td style="min-width:300px">' . $GLOBALS['LANG']->getLL('page_title', '1') . ':</td>';
         foreach ($languageList as $language) {
             if ($language['uid'] !== '') {
                 $firstRowCells[] = '<td class="c-leftLine">' . $language['title'] . ' [' . $language['uid'] . ']</td>';
