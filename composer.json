@@ -24,7 +24,8 @@
         "mikey179/vfsStream": "1.3.*@dev"
     },
     "replace": {
-        "realurl":  "self.version"
+        "realurl":  "self.version",
+        "typo3-ter/realurl":  "self.version"
     },
     "autoload": {
         "classmap": [
