@@ -70,7 +70,7 @@ class tx_realurl_crawler
      * @see TypoScriptFrontendController::headerNoCache
      *
      * @param array $params Frontend parameter data
-     * @param tslib_fe $tsfe Current TSFE
+     * @param \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController $tsfe
      * @return void
      */
     public function headerNoCache(&$params, $tsfe)
