@@ -204,7 +204,7 @@ class tx_realurl_pagepath
     private function findPossiblePageIds($pathSegment)
     {
         $possiblePageRecords = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
-            'uid,doktype',
+            'uid,pid,doktype',
             'pages',
             $this->createWildcardWhereClause($pathSegment)
         );
@@ -216,6 +216,12 @@ class tx_realurl_pagepath
             if (\TYPO3\CMS\Frontend\Page\PageRepository::DOKTYPE_SHORTCUT === (integer) $possiblePageRecord['doktype']) {
                 continue;
             }
+
+            // Exclude workspace records as these are neither accessible nor connected to any root line
+            if (0 > (integer) $possiblePageRecord['pid']) {
+                continue;
+            }
+
             $possiblePageIds[] = $possiblePageRecord['uid'];
         }
         $possiblePageIds = $this->filterByConfiguredRootPageId($possiblePageIds);
