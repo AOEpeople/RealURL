@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<dataset>
+	<pages>
+		<uid>123</uid>
+		<pid>88</pid>
+		<doktype>1</doktype>
+		<title>First Page</title>
+	</pages>
+	<pages>
+		<uid>234</uid>
+		<pid>123</pid>
+		<doktype>1</doktype>
+		<title>Second Page</title>
+	</pages>
+	<pages>
+		<uid>345</uid>
+		<pid>234</pid>
+		<doktype>1</doktype>
+		<title>Third Page</title>
+	</pages>
+	<pages>
+		<uid>456</uid>
+		<pid>345</pid>
+		<doktype>1</doktype>
+		<title>Testpage</title>
+	</pages>
+	<pages>
+		<uid>567</uid>
+		<pid>-1</pid>
+		<doktype>1</doktype>
+		<title>Versioned Testpage</title>
+	</pages>
+	<pages>
+		<uid>678</uid>
+		<pid>88</pid>
+		<doktype>4</doktype>
+		<title>Shortcut Testpage</title>
+	</pages>
+	<pages>
+		<uid>789</uid>
+		<pid>999</pid>
+		<doktype>1</doktype>
+		<title>Testpage Outside Rootline</title>
+	</pages>
+</dataset>
