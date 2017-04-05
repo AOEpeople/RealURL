@@ -38,6 +38,7 @@
             "class.tx_realurl_crawler.php",
             "class.tx_realurl_pagepath.php",
             "class.tx_realurl_pathgenerator.php",
+            "class.tx_realurl_rootlineException.php",
             "class.tx_realurl_tcemain.php"
         ]
     },

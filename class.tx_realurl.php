@@ -39,6 +39,7 @@ class tx_realurl
 {
     const CACHE_DECODE = 'realurl_decode';
     const CACHE_ENCODE = 'realurl_encode';
+    const ENABLE_LOGGING = true;
 
     // External, static
     public $NA = '-'; // Substitute value for "blank" values
@@ -281,13 +282,20 @@ class tx_realurl
         // Look in memory cache first
         $urlData = $this->hostConfigured . ' | ' . $uParts['query'];
         $newUrl = $this->encodeSpURL_encodeCache($urlData, $internalExtras);
+
+        // Encode URL
         if (!$newUrl) {
-            // Encode URL
-            $newUrl = $this->encodeSpURL_doEncode($uParts['query'], $params['LD']['totalURL']);
+            try {
+                $newUrl = $this->encodeSpURL_doEncode($uParts['query'], $params['LD']['totalURL']);
+            } catch (tx_realurl_rootlineException $e) {
+                $this->errorLog($e->getMessage());
+                return;
+            }
 
             // Set new URL in cache
             $this->encodeSpURL_encodeCache($urlData, $internalExtras, $newUrl);
         }
+
         unset($urlData);
 
         // Adding any anchor there might be
@@ -2736,6 +2744,20 @@ class tx_realurl
     {
         if ($this->enableDevLog) {
             \TYPO3\CMS\Core\Utility\GeneralUtility::devLog('[' . $this->devLogId . '] ' . $message, 'realurl', $severity, $dataVar);
+        }
+    }
+
+    /**
+     * Writes a log message to the PHP error log
+     *
+     * @param string $message
+     * @return void
+     */
+    protected function errorLog($message)
+    {
+        if (true === self::ENABLE_LOGGING) {
+            $logger = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Log\LogManager::class)->getLogger(__CLASS__);
+            $logger->error($message, ['TYPO3_REQUEST_URL' => \TYPO3\CMS\Core\Utility\GeneralUtility::getIndpEnv('TYPO3_REQUEST_URL')]);
         }
     }
 

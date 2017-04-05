@@ -8,6 +8,7 @@ return [
     'tx_realurl_configurationservice_exception' => $extensionPath . 'class.tx_realurl_configurationService_exception.php',
     'tx_realurl_pagepath' => $extensionPath . 'class.tx_realurl_pagepath.php',
     'tx_realurl_pathgenerator' => $extensionPath . 'class.tx_realurl_pathgenerator.php',
+    'tx_realurl_rootlineException' => $extensionPath . 'class.tx_realurl_rootlineException.php',
     'tx_realurl_tcemain' => $extensionPath . 'class.tx_realurl_tcemain.php',
 
     'tx_realurl_modfunc1' => $extensionPath . 'modfunc1/class.tx_realurl_modfunc1.php',

@@ -267,4 +267,40 @@ class tx_realurl_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCase
 
         $this->callInaccessibleMethod($subject, 'encodeSpURL_encodeCache', $urlData, $internalExtras, $encodedUrl);
     }
+
+    ////////////////////////////////////////////////////////////////////////
+    //  Tests concerning tx_realurl::encodeSpURL()
+    ////////////////////////////////////////////////////////////////////////
+
+    /**
+     * @test
+     */
+    public function shouldExitOnRootlineException()
+    {
+        $GLOBALS['TSFE'] = new stdClass();
+        $GLOBALS['TSFE']->absRefPrefix = '/';
+        $GLOBALS['TSFE']->config = [
+            'config' => [
+                'tx_realurl_enable' => true
+            ]
+        ];
+
+        $parameters = [
+            'LD' => [
+                'totalURL' => '/index.php'
+            ]
+        ];
+
+        $subject = $this->getAccessibleMock(tx_realurl::class, ['encodeSpURL_doEncode', 'errorLog']);
+        $subject
+            ->expects(self::once())
+            ->method('encodeSpURL_doEncode')
+            ->willThrowException(new tx_realurl_rootlineException('Exception Test'));
+        $subject
+            ->expects(self::once())
+            ->method('errorLog')
+            ->with('Exception Test');
+
+        self::assertEmpty($subject->encodeSpURL($parameters));
+    }
 }

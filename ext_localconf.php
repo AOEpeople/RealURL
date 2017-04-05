@@ -43,6 +43,13 @@ if (!is_array($GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations
     ];
 }
 
+// TYPO3 Log API configuration
+$GLOBALS['TYPO3_CONF_VARS']['LOG']['tx']['realurl']['writerConfiguration'] = [
+    \TYPO3\CMS\Core\Log\LogLevel::ERROR => [
+        \TYPO3\CMS\Core\Log\Writer\PhpErrorLogWriter::class => []
+    ]
+];
+
 // Include configuration file
 $_realurl_conf = @unserialize($_EXTCONF);
 if (is_array($_realurl_conf)) {

@@ -275,7 +275,7 @@ class tx_realurl_pathgenerator
      * @param integer $wsId
      * @param string $mpvar Comma separated list of mount point parameters
      * @return array array with rootline for pid
-     * @throws Exception
+     * @throws tx_realurl_rootlineException
      */
     public function getRootLine($pid, $langID, $wsId, $mpvar = '')
     {
@@ -293,13 +293,11 @@ class tx_realurl_pathgenerator
                 break;
             }
         }
-        if (! $rootPidFound) {
-            if ($this->conf ['strictMode'] == 1) {
-                throw new Exception(
-                    'The configured root pid ' . $this->rootPid . ' could not be found in the rootline of page ' . $pid,
-                    1481273270
-                );
-            }
+        if (!$rootPidFound) {
+            throw new tx_realurl_rootlineException(
+                'The configured root pid ' . $this->rootPid . ' could not be found in the rootline of page ' . $pid,
+                1481273270
+            );
             return $rootLine;
         }
 
