@@ -40,15 +40,25 @@ class tx_realurl_pathgenerator
     public $extconfArr; //ext_conf_template vars
     public $doktypeCache = [];
 
-        /**
-         * @var array $conf ReaulUrl configuration (segTitleFieldList, ...)
-         */
+    /**
+     * @var array ReaulUrl configuration (segTitleFieldList, ...)
+     */
     protected $conf;
 
-        /**
-         * @var tx_realurl $pObj
-         */
+    /**
+     * @var tx_realurl
+     */
     protected $pObj;
+
+    /**
+     * @var integer
+     */
+    protected $rootPid;
+
+    /**
+     * @var \TYPO3\CMS\Frontend\Page\PageRepository
+     */
+    protected $sys_page;
 
         /**
          *
@@ -77,7 +87,7 @@ class tx_realurl_pathgenerator
             $pid = $shortCutPid;
         }
         $this->pidForCache = $pid;
-        $rootline = $this->_getRootLine($pid, $langid, $workspace);
+        $rootline = $this->getRootLine($pid, $langid, $workspace);
         $firstPage = $rootline [0];
         $rootPid = $firstPage ['uid'];
         $lastPage = $rootline [count($rootline) - 1];
@@ -260,25 +270,26 @@ class tx_realurl_pathgenerator
 
     /**
      *
-     * @param int $pid Pageid of the page where the rootline should be retrieved
-     * @param int $langID
-     * @param int $wsId
-     * @param mixed $mpvar
-     * @return mixed array with rootline for pid
+     * @param integer $pid UID of the page where the rootline should be retrieved
+     * @param integer $langID
+     * @param integer $wsId
+     * @param string $mpvar Comma separated list of mount point parameters
+     * @return array array with rootline for pid
      * @throws Exception
      */
-    public function _getRootLine($pid, $langID, $wsId, $mpvar = '')
+    public function getRootLine($pid, $langID, $wsId, $mpvar = '')
     {
         // Get rootLine for current site (overlaid with any language overlay records).
         $this->_initSysPage($langID, $wsId);
         $rootLine = $this->sys_page->getRootLine($pid, $mpvar);
-            //only return rootline to the given rootpid
+
+        // Only return rootline to the given rootpid
         $rootPidFound = false;
-        while (! $rootPidFound && count($rootLine) > 0) {
+        while (!$rootPidFound && count($rootLine) > 0) {
             $last = array_pop($rootLine);
-            if ($last ['uid'] == $this->rootPid) {
+            if ($last['uid'] == $this->rootPid) {
                 $rootPidFound = true;
-                $rootLine [] = $last;
+                $rootLine[] = $last;
                 break;
             }
         }
@@ -295,9 +306,10 @@ class tx_realurl_pathgenerator
         $siteRootLine = [];
         $c = count($rootLine);
         foreach ($rootLine as $val) {
-            $c --;
-            $siteRootLine [$c] = $val;
+            $c--;
+            $siteRootLine[$c] = $val;
         }
+
         return $siteRootLine;
     }
 

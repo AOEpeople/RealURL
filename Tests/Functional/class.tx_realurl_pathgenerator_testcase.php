@@ -67,7 +67,7 @@ class tx_realurl_pathgenerator_testcase extends \TYPO3\CMS\Core\Tests\Functional
      */
     public function canGetCorrectRootline()
     {
-        $result = $this->pathgenerator->_getRootLine(87, 0, 0);
+        $result = $this->pathgenerator->getRootLine(87, 0, 0);
 
         $this->assertCount(4, $result, 'rootline should be 4 long');
         $this->assertArrayHasKey('tx_realurl_pathsegment', $result[0], 'tx_realurl_pathsegment should be set');
