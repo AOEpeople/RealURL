@@ -282,7 +282,12 @@ class tx_realurl_pagepath
     private function findFirstMatchingPageId(array $possiblePageIds, $pagePath)
     {
         foreach ($possiblePageIds as $possiblePageId) {
-            $possiblePagePath = $this->_id2alias(['id' => $possiblePageId]);
+            try {
+                $possiblePagePath = $this->_id2alias(['id' => $possiblePageId]);
+            } catch (tx_realurl_rootlineException $e) {
+                continue;
+            }
+
             if ($possiblePagePath === $pagePath) {
                 return $possiblePageId;
             }
