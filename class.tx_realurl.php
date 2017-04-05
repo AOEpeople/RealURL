@@ -39,7 +39,6 @@ class tx_realurl
 {
     const CACHE_DECODE = 'realurl_decode';
     const CACHE_ENCODE = 'realurl_encode';
-    const ENABLE_LOGGING = true;
 
     // External, static
     public $NA = '-'; // Substitute value for "blank" values
@@ -110,6 +109,11 @@ class tx_realurl
      * @var string
      */
     protected $devLogId;
+
+    /**
+     * @var bool
+     */
+    protected $enableRootlineExceptionLog = false;
 
     /**
      * Mime type that can be set according to the file extension (decoding only).
@@ -188,6 +192,7 @@ class tx_realurl
         $sysconf = (array) unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['realurl']);
         $this->enableStrictMode = (bool) $sysconf['enableStrictMode'];
         $this->enableChashUrlDebug = (bool) $sysconf['enableChashUrlDebug'];
+        $this->enableRootlineExceptionLog = (bool) $sysconf['enableRootlineExceptionLog'];
         $this->configurationService = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('tx_realurl_configurationService');
 
         $this->initDevLog($sysconf);
@@ -2755,7 +2760,7 @@ class tx_realurl
      */
     protected function errorLog($message)
     {
-        if (true === self::ENABLE_LOGGING) {
+        if ($this->enableRootlineExceptionLog) {
             $logger = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Log\LogManager::class)->getLogger(__CLASS__);
             $logger->error($message, ['TYPO3_REQUEST_URL' => \TYPO3\CMS\Core\Utility\GeneralUtility::getIndpEnv('TYPO3_REQUEST_URL')]);
         }

@@ -18,3 +18,6 @@ enableDevLog = 0
 
   # cat=advanced/enable; type=boolean; label=URL reverse lookup for pages:EXPERIMENTAL: Perform a reverse lookup for page paths not present in the RealURL cache (default language only)
 enablePagesReverseLookup = 0
+
+# cat=advanced/enable; type=boolean; label=Enable Rootline Exception Log:DEBUGGING ONLY: Log request URLs causing a rootlineException to the PHP error log
+enableRootlineExceptionLog = 0
