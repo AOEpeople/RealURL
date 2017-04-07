@@ -298,7 +298,6 @@ class tx_realurl_pathgenerator
                 'The configured root pid ' . $this->rootPid . ' could not be found in the rootline of page ' . $pid,
                 1481273270
             );
-            return $rootLine;
         }
 
         $siteRootLine = [];
