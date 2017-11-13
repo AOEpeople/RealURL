@@ -294,14 +294,20 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
     }
 
     /**
-     * Links to the module script and sets necessary parameters (only for pathcache display)
+     * returns link to the module script and sets necessary parameters (only for pathcache display)
      *
-     * @param    string        Additional GET vars
-     * @return    string        script + query
+     * @param string
+     * @return string
      */
-    public function linkSelf($addParams)
+    public function linkSelf($additionalGetParams)
     {
-        return htmlspecialchars('index.php?id=' . $this->pObj->id . '&showLanguage=' . rawurlencode(\TYPO3\CMS\Core\Utility\GeneralUtility::_GP('showLanguage')) . $addParams);
+        $urlParameters = array(
+            'id' => $this->pObj->id,
+            'showLanguage' => rawurlencode(\TYPO3\CMS\Core\Utility\GeneralUtility::_GP('showLanguage'))
+        );
+        $aHref = \TYPO3\CMS\Backend\Utility\BackendUtility::getModuleUrl('web_info', $urlParameters);
+
+        return htmlspecialchars($aHref . $additionalGetParams);
     }
 
     /**
