@@ -45,7 +45,7 @@
 		<is_siteroot>0</is_siteroot>
 		<shortcut>0</shortcut>
 		<shortcut_mode>0</shortcut_mode>
-		<tx_realurl_pathsegment>specialpath/withspecial/おはようございます/chars</tx_realurl_pathsegment>
+		<tx_realurl_pathsegment>specialpath/withspecial/ãäåæ/chars</tx_realurl_pathsegment>
 		<tx_realurl_pathoverride>1</tx_realurl_pathoverride>
 		<tx_realurl_exclude>1</tx_realurl_exclude>
 		<urltype>1</urltype>
@@ -61,7 +61,7 @@
 		<is_siteroot>0</is_siteroot>
 		<shortcut>0</shortcut>
 		<shortcut_mode>0</shortcut_mode>
-		<tx_realurl_pathsegment>おはようございます/北方话/广东话</tx_realurl_pathsegment>
+		<tx_realurl_pathsegment>ãäåæ</tx_realurl_pathsegment>
 		<tx_realurl_pathoverride>1</tx_realurl_pathoverride>
 		<tx_realurl_exclude>1</tx_realurl_exclude>
 		<urltype>1</urltype>
