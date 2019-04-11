@@ -7,12 +7,12 @@ php:
   - 7.0
 
 env:
-  - TYPO3_BRANCH=TYPO3_7-6
-  - TYPO3_BRANCH=TYPO3_8-7
+  - TYPO3_VERSION=^7.6
+  - TYPO3_VERSION=^8.7
 
 matrix:
   allow_failures:
-    - env: TYPO3_BRANCH=TYPO3_8-7
+    - env: TYPO3_VERSION=^8.7
 
 notifications:
   email:
@@ -32,13 +32,14 @@ before_install:
   - composer self-update
 
 before_script:
- - phpenv config-rm xdebug.ini
- - cd ..
- - git clone --single-branch --branch ${TYPO3_BRANCH} --depth 1 https://github.com/TYPO3/TYPO3.CMS.git typo3_core
- - mv typo3_core/* .
- - composer install
- - mkdir -p uploads typo3temp typo3conf/ext
- - mv realurl typo3conf/ext/
+  # Enables us to test dev-master
+  - composer config minimum-stability dev
+  - composer config prefer-stable true
+  # Installs nimut/typo3-complete
+  - travis_wait 30 composer require --dev nimut/typo3-complete=$TYPO3_VERSION
+  - export "TYPO3_PATH_WEB"=$PWD/.Build/Web;
+  # Symlink TYPO3-Core
+  - ln -nfs .Build/vendor/typo3/cms/typo3 typo3
 
 script:
   - >
