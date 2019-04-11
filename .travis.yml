@@ -45,10 +45,10 @@ script:
   - >
     echo;
     echo "Running unit tests";
-    ./bin/phpunit \
+    .Build/bin/phpunit \
       --colors \
-      --bootstrap typo3/sysext/core/Build/UnitTestsBootstrap.php \
-      --configuration typo3conf/ext/realurl/Tests/Build/UnitTests.xml
+      --bootstrap .Build/Web/typo3/sysext/core/Build/UnitTestsBootstrap.php
+      --configuration .Build/Web/typo3conf/ext/realurl/Tests/Build/UnitTests.xml
   - >
     echo;
     echo "Running functional tests";
@@ -56,8 +56,8 @@ script:
     export typo3DatabaseHost="localhost";
     export typo3DatabaseUsername="root";
     export typo3DatabasePassword="";
-    ./bin/phpunit \
+    .Build/bin/phpunit \
       --colors \
       --process-isolation \
-      --bootstrap typo3/sysext/core/Build/FunctionalTestsBootstrap.php \
-      --configuration typo3conf/ext/realurl/Tests/Build/FunctionalTests.xml
+      --bootstrap .Build/Web/typo3/sysext/core/Build/FunctionalTestsBootstrap.php \
+      --configuration .Build/Web/typo3conf/ext/realurl/Tests/Build/FunctionalTests.xml
