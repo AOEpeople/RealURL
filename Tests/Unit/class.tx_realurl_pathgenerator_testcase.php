@@ -46,7 +46,7 @@ class tx_realurl_pathgenerator_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCa
         ];
         $rootPid = 1;
 
-        $pageRepository = $this->getMock(\TYPO3\CMS\Frontend\Page\PageRepository::class, ['getRootLine']);
+        $pageRepository = $this->getMockBuilder(\TYPO3\CMS\Frontend\Page\PageRepository::class)->setMethods(['getRootLine'])->getMock();
         $pageRepository->expects(self::once())->method('getRootLine')->willReturn($rootLine);
 
         $subject = $this->getMock(tx_realurl_pathgenerator::class, ['_initSysPage']);
@@ -69,7 +69,7 @@ class tx_realurl_pathgenerator_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCa
         ];
         $rootPid = 5;
 
-        $pageRepository = $this->getMock(\TYPO3\CMS\Frontend\Page\PageRepository::class, ['getRootLine']);
+        $pageRepository = $this->getMockBuilder(\TYPO3\CMS\Frontend\Page\PageRepository::class)->setMethods(['getRootLine'])->getMock();
         $pageRepository->expects(self::once())->method('getRootLine')->willReturn($rootLine);
 
         $subject = $this->getMock(tx_realurl_pathgenerator::class, ['_initSysPage']);
@@ -86,7 +86,7 @@ class tx_realurl_pathgenerator_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCa
      */
     public function shouldThrowExceptionOnEmptyRootLine()
     {
-        $pageRepository = $this->getMock(\TYPO3\CMS\Frontend\Page\PageRepository::class, ['getRootLine']);
+        $pageRepository = $this->getMockBuilder(\TYPO3\CMS\Frontend\Page\PageRepository::class)->setMethods(['getRootLine'])->getMock();
         $pageRepository->expects(self::once())->method('getRootLine')->willReturn([]);
 
         $subject = $this->getMock(tx_realurl_pathgenerator::class, ['_initSysPage']);
@@ -110,7 +110,7 @@ class tx_realurl_pathgenerator_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCa
         ];
         $rootPid = 99;
 
-        $pageRepository = $this->getMock(\TYPO3\CMS\Frontend\Page\PageRepository::class, ['getRootLine']);
+        $pageRepository = $this->getMockBuilder(\TYPO3\CMS\Frontend\Page\PageRepository::class)->setMethods(['getRootLine'])->getMock();
         $pageRepository->expects(self::once())->method('getRootLine')->willReturn($rootLine);
 
         $subject = $this->getMock(tx_realurl_pathgenerator::class, ['_initSysPage']);

@@ -4,25 +4,15 @@
 language: php
 
 php:
-  - 5.5
-  - 5.6
   - 7.0
 
 env:
-  - TYPO3_BRANCH=TYPO3_6-2
   - TYPO3_BRANCH=TYPO3_7-6
-  - TYPO3_BRANCH=TYPO3_8-4
+  - TYPO3_BRANCH=TYPO3_8-7
 
 matrix:
-  exclude:
-    - env: TYPO3_BRANCH=TYPO3_6-2
-      php: 7.0
-    - env: TYPO3_BRANCH=TYPO3_8-4
-      php: 5.5
-    - env: TYPO3_BRANCH=TYPO3_8-4
-      php: 5.6
   allow_failures:
-    - env: TYPO3_BRANCH=TYPO3_8-4
+    - env: TYPO3_BRANCH=TYPO3_8-7
 
 notifications:
   email:
