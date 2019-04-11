@@ -35,7 +35,7 @@
 /**
  * Class tx_realurl_cachemgmt_testcase
  */
-class tx_realurl_cachemgmt_testcase extends \TYPO3\CMS\Core\Tests\FunctionalTestCase
+class tx_realurl_cachemgmt_testcase extends \Nimut\TestingFramework\TestCase\FunctionalTestCase
 {
     /**
      * @var array
