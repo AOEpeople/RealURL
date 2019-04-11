@@ -49,7 +49,7 @@ class tx_realurl_pathgenerator_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCa
         $pageRepository = $this->getMockBuilder(\TYPO3\CMS\Frontend\Page\PageRepository::class)->setMethods(['getRootLine'])->getMock();
         $pageRepository->expects(self::once())->method('getRootLine')->willReturn($rootLine);
 
-        $subject = $this->getMock(tx_realurl_pathgenerator::class, ['_initSysPage']);
+        $subject = $this->getMockBuilder(tx_realurl_pathgenerator::class)->setMethods(['_initSysPage'])->getMock();
         $this->inject($subject, 'rootPid', $rootPid);
         $this->inject($subject, 'sys_page', $pageRepository);
 
@@ -72,7 +72,7 @@ class tx_realurl_pathgenerator_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCa
         $pageRepository = $this->getMockBuilder(\TYPO3\CMS\Frontend\Page\PageRepository::class)->setMethods(['getRootLine'])->getMock();
         $pageRepository->expects(self::once())->method('getRootLine')->willReturn($rootLine);
 
-        $subject = $this->getMock(tx_realurl_pathgenerator::class, ['_initSysPage']);
+        $subject = $this->getMockBuilder(tx_realurl_pathgenerator::class)->setMethods(['_initSysPage'])->getMock();
         $this->inject($subject, 'rootPid', $rootPid);
         $this->inject($subject, 'sys_page', $pageRepository);
 
@@ -89,7 +89,7 @@ class tx_realurl_pathgenerator_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCa
         $pageRepository = $this->getMockBuilder(\TYPO3\CMS\Frontend\Page\PageRepository::class)->setMethods(['getRootLine'])->getMock();
         $pageRepository->expects(self::once())->method('getRootLine')->willReturn([]);
 
-        $subject = $this->getMock(tx_realurl_pathgenerator::class, ['_initSysPage']);
+        $subject = $this->getMockBuilder(tx_realurl_pathgenerator::class)->setMethods(['_initSysPage'])->getMock();
         $this->inject($subject, 'sys_page', $pageRepository);
 
         $subject->getRootLine(1, 0, 0);
@@ -113,7 +113,7 @@ class tx_realurl_pathgenerator_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCa
         $pageRepository = $this->getMockBuilder(\TYPO3\CMS\Frontend\Page\PageRepository::class)->setMethods(['getRootLine'])->getMock();
         $pageRepository->expects(self::once())->method('getRootLine')->willReturn($rootLine);
 
-        $subject = $this->getMock(tx_realurl_pathgenerator::class, ['_initSysPage']);
+        $subject = $this->getMockBuilder(tx_realurl_pathgenerator::class)->setMethods(['_initSysPage'])->getMock();
         $this->inject($subject, 'rootPid', $rootPid);
         $this->inject($subject, 'sys_page', $pageRepository);
 
