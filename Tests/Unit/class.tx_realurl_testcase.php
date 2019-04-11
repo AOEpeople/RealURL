@@ -291,7 +291,7 @@ class tx_realurl_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCase
             ]
         ];
 
-        $subject = $this->getAccessibleMock(tx_realurl::class, ['encodeSpURL_doEncode', 'errorLog']);
+        $subject = $this->getMockBuilder(tx_realurl::class)->setMethods(['encodeSpURL_doEncode', 'errorLog'])->getMock();
         $subject
             ->expects(self::once())
             ->method('encodeSpURL_doEncode')
