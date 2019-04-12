@@ -45,7 +45,7 @@ script:
     echo "Running unit tests";
     .Build/bin/phpunit \
       --colors \
-      --configuration .Build/Web/typo3conf/ext/realurl/Tests/Build/UnitTests.xml
+      --configuration .Build/vendor/typo3/testing-framework/Resources/Core/Build/UnitTests.xml
   - >
     echo;
     echo "Running functional tests";
@@ -56,4 +56,4 @@ script:
     .Build/bin/phpunit \
       --colors \
       --process-isolation \
-      --configuration .Build/Web/typo3conf/ext/realurl/Tests/Build/FunctionalTests.xml
+      --configuration .Build/vendor/typo3/testing-framework/Resources/Core/Build/FunctionalTests.xml
