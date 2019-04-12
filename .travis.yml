@@ -10,10 +10,6 @@ env:
   - TYPO3_VERSION=^7.6
   - TYPO3_VERSION=^8.7
 
-matrix:
-  allow_failures:
-    - env: TYPO3_VERSION=^8.7
-
 notifications:
   email:
     recipients:
@@ -49,7 +45,6 @@ script:
     echo "Running unit tests";
     .Build/bin/phpunit \
       --colors \
-      --bootstrap .Build/Web/typo3/sysext/core/Build/UnitTestsBootstrap.php \
       --configuration .Build/Web/typo3conf/ext/realurl/Tests/Build/UnitTests.xml
   - >
     echo;
@@ -61,5 +56,4 @@ script:
     .Build/bin/phpunit \
       --colors \
       --process-isolation \
-      --bootstrap .Build/Web/typo3/sysext/core/Build/FunctionalTestsBootstrap.php \
       --configuration .Build/Web/typo3conf/ext/realurl/Tests/Build/FunctionalTests.xml
