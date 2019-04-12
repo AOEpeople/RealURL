@@ -47,7 +47,6 @@ script:
     echo "Running unit tests";
     .Build/bin/phpunit \
       --colors \
-      --bootstrap .Build/Web/typo3/sysext/core/Build/UnitTestsBootstrap.php \
       --configuration .Build/Web/typo3conf/ext/realurl/Tests/Build/UnitTests.xml
   - >
     echo;
@@ -59,5 +58,4 @@ script:
     .Build/bin/phpunit \
       --colors \
       --process-isolation \
-      --bootstrap .Build/Web/typo3/sysext/core/Build/FunctionalTestsBootstrap.php \
       --configuration .Build/Web/typo3conf/ext/realurl/Tests/Build/FunctionalTests.xml
