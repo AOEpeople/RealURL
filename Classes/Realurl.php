@@ -1,4 +1,6 @@
 <?php
+namespace AOE\Realurl;
+
 /***************************************************************
  *  Copyright notice
  *
@@ -26,16 +28,20 @@
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use AOE\Realurl\Exception\RootlineException;
+use AOE\Realurl\Service\ConfigurationService;
+
 /**
+ * Class Realurl
+ *
  * Class for creating and parsing Speaking Urls
  * This class interfaces with hooks in TYPO3 inside tslib_fe (for parsing speaking URLs to GET parameters) and in t3lib_tstemplate (for parsing GET parameters into a speaking URL)
  *
  * @author Kasper Skaarhoj <kasper@typo3.com>
  * @author Dmitry Dulepov <dmitry@typo3.org>
  * @package TYPO3
- * @subpackage tx_realurl
  */
-class tx_realurl
+class Realurl
 {
     const CACHE_DECODE = 'realurl_decode';
     const CACHE_ENCODE = 'realurl_encode';
@@ -148,7 +154,7 @@ class tx_realurl
     private $cacheManager;
 
     /**
-     * @var tx_realurl_configurationService
+     * @var ConfigurationService
      */
     private $configurationService;
 
@@ -193,7 +199,7 @@ class tx_realurl
         $this->enableStrictMode = (bool) $sysconf['enableStrictMode'];
         $this->enableChashUrlDebug = (bool) $sysconf['enableChashUrlDebug'];
         $this->enableRootlineExceptionLog = (bool) $sysconf['enableRootlineExceptionLog'];
-        $this->configurationService = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('tx_realurl_configurationService');
+        $this->configurationService = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(ConfigurationService::class);
 
         $this->initDevLog($sysconf);
     }
@@ -292,7 +298,7 @@ class tx_realurl
         if (!$newUrl) {
             try {
                 $newUrl = $this->encodeSpURL_doEncode($uParts['query'], $params['LD']['totalURL']);
-            } catch (tx_realurl_rootlineException $e) {
+            } catch (RootlineException $e) {
                 $this->errorLog($e->getMessage());
                 return;
             }

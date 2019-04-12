@@ -1,4 +1,6 @@
 <?php
+namespace AOE\Realurl;
+
 /***************************************************************
 *  Copyright notice
 *
@@ -26,11 +28,13 @@
 ***************************************************************/
 
 /**
+ * Class Tcemain
+ *
  * TCEmain hook to update various caches when data is modified in TYPO3 Backend
  *
  * @author Dmitry Dulepov <dmitry@typo3.org>
  */
-class tx_realurl_tcemain
+class Tcemain
 {
     const SEGTITLEFIELDLIST_DEFAULT = 'tx_realurl_pathsegment,alias,nav_title,title,uid';
     const SEGTITLEFIELDLIST_PLO = 'tx_realurl_pathsegment,nav_title,title,uid';

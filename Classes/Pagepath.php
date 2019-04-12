@@ -1,4 +1,6 @@
 <?php
+namespace AOE\Realurl;
+
 /***************************************************************
  * Copyright notice
  *
@@ -26,6 +28,7 @@
  ***************************************************************/
 
 /**
+ * Class Pagepath
  *
  * @author    Daniel Pötzinger
  * @package realurl
@@ -34,7 +37,7 @@
  * @todo    check if internal cache array can improve speed
  * @todo    check last updatetime of pages
  */
-class tx_realurl_pagepath
+class Pagepath
 {
     /**
      * @var array $conf

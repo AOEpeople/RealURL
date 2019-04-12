@@ -1,4 +1,6 @@
 <?php
+namespace AOE\Realurl;
+
 /***************************************************************
  *  Copyright notice
  *
@@ -26,9 +28,9 @@
  ***************************************************************/
 
 /**
- * Class tx_realurl_crawler
+ * Class Crawler
  */
-class tx_realurl_crawler
+class Crawler
 {
     /**
      * Flushes the RealURL decode/encode caches if a page is being crawled
@@ -37,6 +39,7 @@ class tx_realurl_crawler
      * @param \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController $pObj
      * @param integer $timeOutTime
      * @return void
+     * @throws \TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException
      */
     public function insertPageIncache(&$pObj, $timeOutTime)
     {
@@ -50,8 +53,8 @@ class tx_realurl_crawler
 
         /** @var \TYPO3\CMS\Core\Cache\CacheManager $cacheManager */
         $cacheManager = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Cache\CacheManager::class);
-        $cacheManager->getCache(tx_realurl::CACHE_DECODE)->flushByTag('pageId_' . intval($GLOBALS['TSFE']->id));
-        $cacheManager->getCache(tx_realurl::CACHE_ENCODE)->flushByTag('pageId_' . intval($GLOBALS['TSFE']->id));
+        $cacheManager->getCache(Realurl::CACHE_DECODE)->flushByTag('pageId_' . intval($GLOBALS['TSFE']->id));
+        $cacheManager->getCache(Realurl::CACHE_ENCODE)->flushByTag('pageId_' . intval($GLOBALS['TSFE']->id));
 
         $lconf = [];
         $lconf['parameter'] = $GLOBALS['TSFE']->id;

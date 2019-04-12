@@ -1,4 +1,6 @@
 <?php
+namespace AOE\Realurl\Tests\Functional;
+
 /***************************************************************
  *  Copyright notice
  *
@@ -22,20 +24,13 @@
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-/**
- * Test case for checking the PHPUnit 3.1.9
- *
- * WARNING: Never ever run a unit test like this on a live site!
- *
- *
- * @author    Daniel Pötzinger
- * @author    Tolleiv Nietsch
- */
+use AOE\Realurl\Cachemgmt;
+use Nimut\TestingFramework\TestCase\FunctionalTestCase;
 
 /**
- * Class tx_realurl_cachemgmt_testcase
+ * Class CachemgmtTest
  */
-class tx_realurl_cachemgmt_testcase extends \Nimut\TestingFramework\TestCase\FunctionalTestCase
+class CachemgmtTest extends FunctionalTestCase
 {
     /**
      * @var array
@@ -66,7 +61,7 @@ class tx_realurl_cachemgmt_testcase extends \Nimut\TestingFramework\TestCase\Fun
      */
     public function storeInCache()
     {
-        $cache = new tx_realurl_cachemgmt(0, 0);
+        $cache = new Cachemgmt(0, 0);
         $cache->setCacheTimeOut(200);
         $cache->setRootPid(1);
         $cache->storeUniqueInCache('9999', 'test9999');
@@ -82,7 +77,7 @@ class tx_realurl_cachemgmt_testcase extends \Nimut\TestingFramework\TestCase\Fun
      */
     public function storeEmptyInCache()
     {
-        $cache = new tx_realurl_cachemgmt(0, 0);
+        $cache = new Cachemgmt(0, 0);
         $cache->clearAllCache();
         $cache->setCacheTimeOut(200);
         $cache->setRootPid(1);
@@ -103,7 +98,7 @@ class tx_realurl_cachemgmt_testcase extends \Nimut\TestingFramework\TestCase\Fun
      */
     public function getEmptyFromCache()
     {
-        $cache = new tx_realurl_cachemgmt(0, 0);
+        $cache = new Cachemgmt(0, 0);
         $cache->clearAllCache();
         $cache->setCacheTimeOut(200);
         $cache->setRootPid(1);
@@ -119,7 +114,7 @@ class tx_realurl_cachemgmt_testcase extends \Nimut\TestingFramework\TestCase\Fun
      */
     public function storeInCacheCollision()
     {
-        $cache = new tx_realurl_cachemgmt(0, 0);
+        $cache = new Cachemgmt(0, 0);
         $cache->setCacheTimeOut(200);
         $cache->setRootPid(1);
         $cache->storeUniqueInCache('9999', 'test9999');
@@ -137,7 +132,7 @@ class tx_realurl_cachemgmt_testcase extends \Nimut\TestingFramework\TestCase\Fun
     {
 
         // new cachemgm for live workspace
-        $liveCache = new tx_realurl_cachemgmt(0, 0);
+        $liveCache = new Cachemgmt(0, 0);
         $liveCache->setCacheTimeOut(200);
         $liveCache->setRootPid(1);
         $liveCache->storeUniqueInCache('1000', 'test1000');
@@ -145,7 +140,7 @@ class tx_realurl_cachemgmt_testcase extends \Nimut\TestingFramework\TestCase\Fun
         unset($liveCache);
 
         // new cachemgm with workspace setting
-        $workspaceCache = new tx_realurl_cachemgmt(1, 0);
+        $workspaceCache = new Cachemgmt(1, 0);
         $workspaceCache->setCacheTimeOut(200);
         $workspaceCache->setRootPid(1);
         // assuming that 1001 is a different page
@@ -162,7 +157,7 @@ class tx_realurl_cachemgmt_testcase extends \Nimut\TestingFramework\TestCase\Fun
         unset($workspaceCache);
 
         // new cachemgm without workspace setting
-        $liveCache = new tx_realurl_cachemgmt(0, 0);
+        $liveCache = new Cachemgmt(0, 0);
         $liveCache->setCacheTimeOut(200);
         $liveCache->setRootPid(1);
         // now try to add the live record to cache
@@ -181,14 +176,14 @@ class tx_realurl_cachemgmt_testcase extends \Nimut\TestingFramework\TestCase\Fun
     {
 
         // new cachemgm for live workspace
-        $cache = new tx_realurl_cachemgmt(1, 0);
+        $cache = new Cachemgmt(1, 0);
         $cache->setCacheTimeOut(200);
         $cache->setRootPid(1);
         $cache->storeUniqueInCache('1001', 'test1000');
         $this->assertEquals('test1000', $cache->isInCache(1001), 'should be in cache');
         unset($cache);
 
-        $cache = new tx_realurl_cachemgmt(0, 0);
+        $cache = new Cachemgmt(0, 0);
         $cache->setCacheTimeOut(200);
         $cache->setRootPid(1);
         $cache->storeUniqueInCache('1000', 'test1000');
@@ -202,7 +197,7 @@ class tx_realurl_cachemgmt_testcase extends \Nimut\TestingFramework\TestCase\Fun
      */
     public function storeInCacheWithoutCollision()
     {
-        $cache = new tx_realurl_cachemgmt(0, 0);
+        $cache = new Cachemgmt(0, 0);
         $cache->clearAllCache();
         $cache->setCacheTimeOut(200);
         $cache->setRootPid(1);
@@ -229,7 +224,7 @@ class tx_realurl_cachemgmt_testcase extends \Nimut\TestingFramework\TestCase\Fun
      */
     public function pathRetrieval()
     {
-        $cache = new tx_realurl_cachemgmt(0, 0);
+        $cache = new Cachemgmt(0, 0);
         $cache->clearAllCache();
         $cache->setCacheTimeOut(200);
         $cache->setRootPid(1);
@@ -267,7 +262,7 @@ class tx_realurl_cachemgmt_testcase extends \Nimut\TestingFramework\TestCase\Fun
      */
     public function canStoreAndGetFromHistory()
     {
-        $cache = new tx_realurl_cachemgmt(0, 0);
+        $cache = new Cachemgmt(0, 0);
         $cache->clearAllCache();
         $cache->setCacheTimeOut(1);
         $cache->setRootPid(1);

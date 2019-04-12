@@ -1,4 +1,6 @@
 <?php
+namespace AOE\Realurl\Tests\Functional;
+
 /***************************************************************
  *  Copyright notice
  *
@@ -22,7 +24,12 @@
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-class tx_environment_testcase extends \TYPO3\CMS\Core\Tests\FunctionalTestCase
+use Nimut\TestingFramework\TestCase\FunctionalTestCase;
+
+/**
+ * Class EnvironmentTest
+ */
+class EnvironmentTest extends FunctionalTestCase
 {
 
     /**

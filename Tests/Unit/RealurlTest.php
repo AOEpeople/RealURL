@@ -1,4 +1,6 @@
 <?php
+namespace AOE\Realurl\Tests\Unit;
+
 /***************************************************************
  *  Copyright notice
  *
@@ -23,10 +25,18 @@
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use AOE\Realurl\Exception\RootlineException;
+use AOE\Realurl\Realurl;
+use Nimut\TestingFramework\TestCase\UnitTestCase;
+use PHPUnit\Framework\MockObject\MockObject;
+use stdClass;
+use TYPO3\CMS\Core\Cache\CacheManager;
+use TYPO3\CMS\Core\Cache\Frontend\VariableFrontend;
+
 /**
  * Class tx_realurl_testcase
  */
-class tx_realurl_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCase
+class RealurlTest extends UnitTestCase
 {
     /**
      * @test
@@ -50,7 +60,7 @@ class tx_realurl_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCase
             ]
         ];
 
-        $cacheFrontendMock = $this->getMockBuilder(\TYPO3\CMS\Core\Cache\Frontend\VariableFrontend::class)
+        $cacheFrontendMock = $this->getMockBuilder(VariableFrontend::class)
             ->disableOriginalConstructor()
             ->setMethods(['has', 'get'])
             ->getMock();
@@ -63,16 +73,16 @@ class tx_realurl_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCase
             ->with(sha1($speakingUrlPath . $rootPageId))
             ->willReturn($cachedContent);
 
-        $cacheManagerMock = $this->getMockBuilder(\TYPO3\CMS\Core\Cache\CacheManager::class)
+        $cacheManagerMock = $this->getMockBuilder(CacheManager::class)
             ->setMethods(['getCache'])
             ->getMock();
         $cacheManagerMock->expects($this->exactly(2))
             ->method('getCache')
-            ->with(tx_realurl::CACHE_DECODE)
+            ->with(Realurl::CACHE_DECODE)
             ->willReturn($cacheFrontendMock);
 
-        /** @var tx_realurl|PHPUnit_Framework_MockObject_MockObject $subject */
-        $subject = $this->getMockBuilder(tx_realurl::class)
+        /** @var Realurl|MockObject $subject */
+        $subject = $this->getMockBuilder(Realurl::class)
             ->setMethods(['getCacheManager'])
             ->getMock();
         $subject->expects($this->exactly(2))
@@ -108,7 +118,7 @@ class tx_realurl_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCase
             ]
         ];
 
-        $cacheFrontendMock = $this->getMockBuilder(\TYPO3\CMS\Core\Cache\Frontend\VariableFrontend::class)
+        $cacheFrontendMock = $this->getMockBuilder(VariableFrontend::class)
             ->disableOriginalConstructor()
             ->setMethods(['set'])
             ->getMock();
@@ -116,16 +126,16 @@ class tx_realurl_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCase
             ->method('set')
             ->with(sha1($speakingUrlPath . $rootPageId), $cachedContent, ['pageId_' . $pageId], 86400);
 
-        $cacheManagerMock = $this->getMockBuilder(\TYPO3\CMS\Core\Cache\CacheManager::class)
+        $cacheManagerMock = $this->getMockBuilder(CacheManager::class)
             ->setMethods(['getCache'])
             ->getMock();
         $cacheManagerMock->expects($this->once())
             ->method('getCache')
-            ->with(tx_realurl::CACHE_DECODE)
+            ->with(Realurl::CACHE_DECODE)
             ->willReturn($cacheFrontendMock);
 
-        /** @var tx_realurl|PHPUnit_Framework_MockObject_MockObject $subject */
-        $subject = $this->getMockBuilder(tx_realurl::class)
+        /** @var Realurl|MockObject $subject */
+        $subject = $this->getMockBuilder(Realurl::class)
             ->setMethods(['canCachePageURL', 'getCacheManager'])
             ->getMock();
         $subject->expects($this->once())
@@ -158,8 +168,8 @@ class tx_realurl_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCase
         $GLOBALS['TSFE'] = new stdClass();
         $GLOBALS['TSFE']->applicationData['tx_realurl']['_CACHE'][$hash] = $encodedUrl;
 
-        /** @var tx_realurl|PHPUnit_Framework_MockObject_MockObject $subject */
-        $subject = $this->getMockBuilder(tx_realurl::class)
+        /** @var Realurl|MockObject $subject */
+        $subject = $this->getMockBuilder(Realurl::class)
             ->setMethods(['getCacheManager'])
             ->getMock();
         $subject->expects($this->never())
@@ -187,7 +197,7 @@ class tx_realurl_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCase
             ]
         ];
 
-        $cacheFrontendMock = $this->getMockBuilder(\TYPO3\CMS\Core\Cache\Frontend\VariableFrontend::class)
+        $cacheFrontendMock = $this->getMockBuilder(VariableFrontend::class)
             ->disableOriginalConstructor()
             ->setMethods(['get'])
             ->getMock();
@@ -196,16 +206,16 @@ class tx_realurl_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCase
             ->with($hash)
             ->willReturn($encodedUrl);
 
-        $cacheManagerMock = $this->getMockBuilder(\TYPO3\CMS\Core\Cache\CacheManager::class)
+        $cacheManagerMock = $this->getMockBuilder(CacheManager::class)
             ->setMethods(['getCache'])
             ->getMock();
         $cacheManagerMock->expects($this->once())
             ->method('getCache')
-            ->with(tx_realurl::CACHE_ENCODE)
+            ->with(Realurl::CACHE_ENCODE)
             ->willReturn($cacheFrontendMock);
 
-        /** @var tx_realurl|PHPUnit_Framework_MockObject_MockObject $subject */
-        $subject = $this->getMockBuilder(tx_realurl::class)
+        /** @var Realurl|MockObject $subject */
+        $subject = $this->getMockBuilder(Realurl::class)
             ->setMethods(['getCacheManager'])
             ->getMock();
         $subject->expects($this->once())
@@ -235,7 +245,7 @@ class tx_realurl_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCase
             ]
         ];
 
-        $cacheFrontendMock = $this->getMockBuilder(\TYPO3\CMS\Core\Cache\Frontend\VariableFrontend::class)
+        $cacheFrontendMock = $this->getMockBuilder(VariableFrontend::class)
             ->disableOriginalConstructor()
             ->setMethods(['set'])
             ->getMock();
@@ -248,11 +258,11 @@ class tx_realurl_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCase
             ->getMock();
         $cacheManagerMock->expects($this->once())
             ->method('getCache')
-            ->with(tx_realurl::CACHE_ENCODE)
+            ->with(Realurl::CACHE_ENCODE)
             ->willReturn($cacheFrontendMock);
 
-        /** @var tx_realurl|PHPUnit_Framework_MockObject_MockObject $subject */
-        $subject = $this->getMockBuilder(tx_realurl::class)
+        /** @var Realurl|MockObject $subject */
+        $subject = $this->getMockBuilder(Realurl::class)
             ->setMethods(['canCachePageURL', 'getCacheManager'])
             ->getMock();
         $subject->expects($this->once())
@@ -291,11 +301,12 @@ class tx_realurl_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCase
             ]
         ];
 
-        $subject = $this->getMockBuilder(tx_realurl::class)->setMethods(['encodeSpURL_doEncode', 'errorLog'])->getMock();
+        /** @var Realurl|MockObject $subject */
+        $subject = $this->getMockBuilder(Realurl::class)->setMethods(['encodeSpURL_doEncode', 'errorLog'])->getMock();
         $subject
             ->expects(self::once())
             ->method('encodeSpURL_doEncode')
-            ->willThrowException(new tx_realurl_rootlineException('Exception Test'));
+            ->willThrowException(new RootlineException('Exception Test'));
         $subject
             ->expects(self::once())
             ->method('errorLog')

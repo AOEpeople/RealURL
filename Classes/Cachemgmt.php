@@ -1,4 +1,6 @@
 <?php
+namespace AOE\Realurl;
+
 /***************************************************************
  * Copyright notice
  *
@@ -31,12 +33,13 @@
  **/
 
 /**
+ * Class Cachemgmt
  *
  * @author Daniel Poetzinger
  * @package realurl
  * @subpackage realurl
  */
-class tx_realurl_cachemgmt
+class Cachemgmt
 {
 
     //cache key values

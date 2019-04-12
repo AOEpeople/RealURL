@@ -1,4 +1,5 @@
 <?php
+namespace AOE\Realurl\Tests\Functional;
 
 /***************************************************************
  *  Copyright notice
@@ -23,10 +24,14 @@
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use AOE\Realurl\Pathgenerator;
+use Nimut\TestingFramework\TestCase\FunctionalTestCase;
+use stdClass;
+
 /**
- * Class tx_realurl_pathgenerator_testcase
+ * Class PathgeneratorTest
  */
-class tx_realurl_pathgenerator_testcase extends \TYPO3\CMS\Core\Tests\FunctionalTestCase
+class PathgeneratorTest extends FunctionalTestCase
 {
     /**
      * @var array
@@ -39,7 +44,7 @@ class tx_realurl_pathgenerator_testcase extends \TYPO3\CMS\Core\Tests\Functional
     protected $testExtensionsToLoad = ['typo3conf/ext/realurl'];
 
     /**
-     * @var tx_realurl_pathgenerator
+     * @var Pathgenerator
      */
     private $pathgenerator;
 
@@ -57,7 +62,7 @@ class tx_realurl_pathgenerator_testcase extends \TYPO3\CMS\Core\Tests\Functional
 
         $this->initializeTsfeCharsetConverter();
 
-        $this->pathgenerator = new tx_realurl_pathgenerator();
+        $this->pathgenerator = new Pathgenerator();
         $this->pathgenerator->init($this->fixture_defaultconfig());
         $this->pathgenerator->setRootPid(1);
     }

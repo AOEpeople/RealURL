@@ -38,6 +38,8 @@ before_script:
   # Installs nimut/typo3-complete
   - travis_wait 30 composer require --dev nimut/typo3-complete=$TYPO3_VERSION
   - export "TYPO3_PATH_WEB"=$PWD/.Build/Web;
+  # Locating UnitTests.xml
+  - export "UNIT_XML"='.Build/vendor/nimut/testing-framework/res/Configuration/UnitTests.xml'
   # Symlink TYPO3-Core
   - ln -nfs .Build/vendor/typo3/cms/typo3 typo3
 

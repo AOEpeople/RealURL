@@ -1,4 +1,5 @@
 <?php
+namespace AOE\Realurl\Tests\Unit;
 
 /***************************************************************
  *  Copyright notice
@@ -24,10 +25,16 @@
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use AOE\Realurl\Exception\RootlineException;
+use AOE\Realurl\Pathgenerator;
+use Nimut\TestingFramework\TestCase\UnitTestCase;
+use PHPUnit\Framework\MockObject\MockObject;
+use TYPO3\CMS\Frontend\Page\PageRepository;
+
 /**
- * Class tx_realurl_pathgenerator_testcase
+ * Class PathgeneratorTest
  */
-class tx_realurl_pathgenerator_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCase
+class PathgeneratorTest extends UnitTestCase
 {
     ////////////////////////////////////////////////////////////////////////
     //  Tests concerning tx_realurl_pathgenerator::getRootLine()
@@ -46,10 +53,12 @@ class tx_realurl_pathgenerator_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCa
         ];
         $rootPid = 1;
 
-        $pageRepository = $this->getMockBuilder(\TYPO3\CMS\Frontend\Page\PageRepository::class)->setMethods(['getRootLine'])->getMock();
+        /** @var PageRepository|MockObject $pageRepository */
+        $pageRepository = $this->getMockBuilder(PageRepository::class)->setMethods(['getRootLine'])->getMock();
         $pageRepository->expects(self::once())->method('getRootLine')->willReturn($rootLine);
 
-        $subject = $this->getMockBuilder(tx_realurl_pathgenerator::class)->setMethods(['_initSysPage'])->getMock();
+        /** @var Pathgenerator|MockObject $subject */
+        $subject = $this->getMockBuilder(Pathgenerator::class)->setMethods(['_initSysPage'])->getMock();
         $this->inject($subject, 'rootPid', $rootPid);
         $this->inject($subject, 'sys_page', $pageRepository);
 
@@ -69,10 +78,12 @@ class tx_realurl_pathgenerator_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCa
         ];
         $rootPid = 5;
 
-        $pageRepository = $this->getMockBuilder(\TYPO3\CMS\Frontend\Page\PageRepository::class)->setMethods(['getRootLine'])->getMock();
+        /** @var PageRepository|MockObject $pageRepository */
+        $pageRepository = $this->getMockBuilder(PageRepository::class)->setMethods(['getRootLine'])->getMock();
         $pageRepository->expects(self::once())->method('getRootLine')->willReturn($rootLine);
 
-        $subject = $this->getMockBuilder(tx_realurl_pathgenerator::class)->setMethods(['_initSysPage'])->getMock();
+        /** @var Pathgenerator|MockObject $subject */
+        $subject = $this->getMockBuilder(Pathgenerator::class)->setMethods(['_initSysPage'])->getMock();
         $this->inject($subject, 'rootPid', $rootPid);
         $this->inject($subject, 'sys_page', $pageRepository);
 
@@ -81,15 +92,18 @@ class tx_realurl_pathgenerator_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCa
 
     /**
      * @test
-     * @expectedException tx_realurl_rootlineException
+     * @expectedException RootlineException
      * @expectedExceptionCode 1481273270
+     * @throws \Exception
      */
     public function shouldThrowExceptionOnEmptyRootLine()
     {
-        $pageRepository = $this->getMockBuilder(\TYPO3\CMS\Frontend\Page\PageRepository::class)->setMethods(['getRootLine'])->getMock();
+        /** @var PageRepository|MockObject $pageRepository */
+        $pageRepository = $this->getMockBuilder(PageRepository::class)->setMethods(['getRootLine'])->getMock();
         $pageRepository->expects(self::once())->method('getRootLine')->willReturn([]);
 
-        $subject = $this->getMockBuilder(tx_realurl_pathgenerator::class)->setMethods(['_initSysPage'])->getMock();
+        /** @var Pathgenerator|MockObject $subject */
+        $subject = $this->getMockBuilder(Pathgenerator::class)->setMethods(['_initSysPage'])->getMock();
         $this->inject($subject, 'sys_page', $pageRepository);
 
         $subject->getRootLine(1, 0, 0);
@@ -97,8 +111,9 @@ class tx_realurl_pathgenerator_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCa
 
     /**
      * @test
-     * @expectedException tx_realurl_rootlineException
+     * @expectedException RootlineException
      * @expectedExceptionCode 1481273270
+     * @throws \Exception
      */
     public function shouldThrowExceptionIfConfiguredRootPidIsNotInRootLine()
     {
@@ -110,10 +125,12 @@ class tx_realurl_pathgenerator_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCa
         ];
         $rootPid = 99;
 
-        $pageRepository = $this->getMockBuilder(\TYPO3\CMS\Frontend\Page\PageRepository::class)->setMethods(['getRootLine'])->getMock();
+        /** @var PageRepository|MockObject $pageRepository */
+        $pageRepository = $this->getMockBuilder(PageRepository::class)->setMethods(['getRootLine'])->getMock();
         $pageRepository->expects(self::once())->method('getRootLine')->willReturn($rootLine);
 
-        $subject = $this->getMockBuilder(tx_realurl_pathgenerator::class)->setMethods(['_initSysPage'])->getMock();
+        /** @var Pathgenerator|MockObject $subject */
+        $subject = $this->getMockBuilder(Pathgenerator::class)->setMethods(['_initSysPage'])->getMock();
         $this->inject($subject, 'rootPid', $rootPid);
         $this->inject($subject, 'sys_page', $pageRepository);
 
