@@ -447,8 +447,8 @@ class Cachemgmt
      */
     public function flushCachingFrameworkCacheByPageId($pageId)
     {
-        $this->getCacheManager()->getCache(tx_realurl::CACHE_DECODE)->flushByTag('pageId_' . intval($pageId));
-        $this->getCacheManager()->getCache(tx_realurl::CACHE_ENCODE)->flushByTag('pageId_' . intval($pageId));
+        $this->getCacheManager()->getCache(Realurl::CACHE_DECODE)->flushByTag('pageId_' . intval($pageId));
+        $this->getCacheManager()->getCache(Realurl::CACHE_ENCODE)->flushByTag('pageId_' . intval($pageId));
     }
 
     /**
