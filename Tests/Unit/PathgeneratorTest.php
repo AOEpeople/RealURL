@@ -25,7 +25,6 @@ namespace AOE\Realurl\Tests\Unit;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use AOE\Realurl\Exception\RootlineException;
 use AOE\Realurl\Pathgenerator;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -92,7 +91,7 @@ class PathgeneratorTest extends UnitTestCase
 
     /**
      * @test
-     * @expectedException RootlineException
+     * @expectedException \AOE\Realurl\Exception\RootlineException
      * @expectedExceptionCode 1481273270
      * @throws \Exception
      */
@@ -111,7 +110,7 @@ class PathgeneratorTest extends UnitTestCase
 
     /**
      * @test
-     * @expectedException RootlineException
+     * @expectedException \AOE\Realurl\Exception\RootlineException
      * @expectedExceptionCode 1481273270
      * @throws \Exception
      */

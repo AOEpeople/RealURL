@@ -249,7 +249,7 @@ class CachemgmtTest extends FunctionalTestCase
      */
     public function canDetectRowAsInvalid()
     {
-        $cache = new tx_realurl_cachemgmt(0, 0);
+        $cache = new Cachemgmt(0, 0);
         $cache->setCacheTimeOut(1);
         $this->assertFalse($cache->_isCacheRowStillValid(['dirty' => '1']), 'should return false');
         $this->assertFalse($cache->_isCacheRowStillValid(['tstamp' => ($GLOBALS['EXEC_TIME'] - 2)]), 'should return false');
