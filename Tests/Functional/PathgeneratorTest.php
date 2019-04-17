@@ -26,7 +26,11 @@ namespace AOE\Realurl\Tests\Functional;
 
 use AOE\Realurl\Pathgenerator;
 use Nimut\TestingFramework\TestCase\FunctionalTestCase;
-use stdClass;
+use TYPO3\CMS\Core\TypoScript\TemplateService;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
+use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
+use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
+use TYPO3\CMS\Frontend\Page\PageRepository;
 
 /**
  * Class PathgeneratorTest
@@ -49,16 +53,22 @@ class PathgeneratorTest extends FunctionalTestCase
     private $pathgenerator;
 
     /**
+     * @var ObjectManagerInterface
+     */
+    private $objectManager;
+
+    /**
      * Creates a test instance and sets up the test database
      */
     public function setUp()
     {
         parent::setUp();
+        $this->objectManager = new ObjectManager();
 
-        $this->importDataSet(dirname(__FILE__) . '/fixtures/page-livews.xml');
-        $this->importDataSet(dirname(__FILE__) . '/fixtures/overlay-livews.xml');
-        $this->importDataSet(dirname(__FILE__) . '/fixtures/page-ws.xml');
-        $this->importDataSet(dirname(__FILE__) . '/fixtures/overlay-ws.xml');
+        $this->importDataSet(__DIR__ . '/fixtures/page-livews.xml');
+        $this->importDataSet(__DIR__ . '/fixtures/overlay-livews.xml');
+        $this->importDataSet(__DIR__ . '/fixtures/page-ws.xml');
+        $this->importDataSet(__DIR__ . '/fixtures/overlay-ws.xml');
 
         $this->initializeTsfeCharsetConverter();
 
@@ -304,16 +314,24 @@ class PathgeneratorTest extends FunctionalTestCase
      */
     private function initializeTsfeCharsetConverter()
     {
-        if (!$GLOBALS['TSFE']) {
-            $GLOBALS['TSFE'] = new stdClass();
+        if (isset($GLOBALS['TSFE']) && is_object($GLOBALS['TFSE'])) {
+            return;
         }
 
-        if (!$GLOBALS['TSFE']->csConvObj) {
-            $GLOBALS['TSFE']->csConvObj = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(
-                \TYPO3\CMS\Core\Charset\CharsetConverter::class
-            );
-        }
+        $GLOBALS['TSFE'] = $this->objectManager->get(
+            TypoScriptFrontendController::class,
+            $GLOBALS['TYPO3_CONF_VARS'],
+            1,
+            ''
+        );
 
-        $GLOBALS['TSFE']->defaultCharSet = 'utf8';
+        $GLOBALS['TSFE']->sys_page = $this->objectManager->get(PageRepository::class);
+        $GLOBALS['TSFE']->sys_page->init(false);
+        $GLOBALS['TSFE']->tmpl = $this->objectManager->get(TemplateService::class);
+        $GLOBALS['TSFE']->tmpl->init();
+        $GLOBALS['TSFE']->connectToDB();
+        $GLOBALS['TSFE']->initFEuser();
+        $GLOBALS['TSFE']->determineId();
+        $GLOBALS['TSFE']->initTemplate();
     }
 }
