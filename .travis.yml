@@ -21,6 +21,7 @@ branches:
   only:
     - /^AOE_.*$/
     - /^issue\/.*$/
+    - /^TYPO3.*$/
 
 sudo: false
 
