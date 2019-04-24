@@ -125,11 +125,23 @@ class PathgeneratorTest extends FunctionalTestCase
         $this->assertEquals('override/path/item', $result['path'], 'should be override/path/item');
 
         $result = $this->pathgenerator->build(81, 0, 0);
-        $this->assertEquals('specialpath/withspecial/chars', $result['path'], 'should be specialpath/withspecial/chars');
+        $this->assertEquals('specialpath/withspecial/aaeaaae/chars', $result['path'], 'should be specialpath/withspecial/aaeaaae/chars');
 
         // instead of shortcut page the shortcut target should be used within path
         $result = $this->pathgenerator->build(92, 0, 0);
         $this->assertEquals('normal-3rd-level/subsection', $result['path'], 'shortcut from uid92 to uid91 should be resolved');
+
+        $result = $this->pathgenerator->build(82, 0, 0);
+        $this->assertEquals('aaeaaae', $result['path'], 'should be aaeaaae');
+
+        $result = $this->pathgenerator->build(83, 4, 0);
+        $this->assertEquals('pageaaeaaae-exclude', $result['path'], 'should be pageaaeaaae-exclude');
+
+        $result = $this->pathgenerator->build(84, 4, 0);
+        $this->assertEquals('aaeaaae', $result['path'], 'should be aaeaaae');
+
+        $result = $this->pathgenerator->build(94, 4, 0);
+        $this->assertEquals('aaeaaae/aaeaaae', $result['path'], 'should be aaeaaae/aaeaaae');
     }
 
     /**
@@ -140,15 +152,6 @@ class PathgeneratorTest extends FunctionalTestCase
         // shortcuts with a reference to themselfs might be a problem
         $result = $this->pathgenerator->build(95, 0, 0);
         $this->assertEquals('shortcut-page', $result['path'], 'shortcut should not be resolved');
-    }
-
-    /**
-     * @test
-     */
-    public function invalidOverridePathWillFallBackToDefaultGeneration()
-    {
-        $result = $this->pathgenerator->build(82, 0, 0);
-        $this->assertEquals('invalid-overridepath', $result['path'], 'should be invalid-overridepath');
     }
 
     /**
@@ -202,25 +205,6 @@ class PathgeneratorTest extends FunctionalTestCase
     /**
      * @test
      */
-    public function canBuildPathIfOverlayUsesNonLatinChars()
-    {
-        // some non latin characters are replaced
-        $result = $this->pathgenerator->build(83, 4, 0);
-        $this->assertEquals('page-exclude', $result['path'], 'should be pages-exclude');
-
-        // overlay has no latin characters therefore the default record is used
-        $result = $this->pathgenerator->build(84, 4, 0);
-        $this->assertEquals('normal-3rd-level', $result['path'], 'should be normal-3rd-level');
-
-        // overlay has no latin characters therefore the default record is used
-//        $this->markTestIncomplete('Test fails for unknown reason');
-        $result = $this->pathgenerator->build(94, 4, 0);
-        $this->assertEquals('normal-3rd-level/page_94', $result['path'], 'should be normal-3rd-level/page_94');
-    }
-
-    /**
-     * @test
-     */
     public function canResolvePathFromDelegatedFlexibleURLField()
     {
         $this->pathgenerator->init($this->fixture_delegationconfig());
@@ -260,6 +244,36 @@ class PathgeneratorTest extends FunctionalTestCase
 
         $result = $this->pathgenerator->build(99, 0, 0);
         $this->assertEquals('http://www.aoe.com', $result['path'], 'delegation should be executed');
+    }
+
+    /**
+     * @test
+     */
+    public function canResolveWithForeignEncoding()
+    {
+        $GLOBALS['TSFE']->defaultCharSet = 'dummy'; // Foreign Encoding
+
+        $result = $this->pathgenerator->build(81, 0, 0);
+        $this->assertEquals('specialpath/withspecial/chars', $result['path'], 'should be specialpath/withspecial/chars');
+
+        // invalidOverridePathWillFallBackToDefaultGeneration
+        $result = $this->pathgenerator->build(82, 0, 0);
+        $this->assertEquals('invalid-overridepath', $result['path'], 'should be invalid-overridepath');
+
+        // canBuildPathIfOverlayUsesNonLatinChars
+        // some non latin characters are replaced
+        $result = $this->pathgenerator->build(83, 4, 0);
+        $this->assertEquals('page-exclude', $result['path'], 'should be pages-exclude');
+
+        // canBuildPathIfOverlayUsesNonLatinChars
+        // overlay has no latin characters therefore the default record is used
+        $result = $this->pathgenerator->build(84, 4, 0);
+        $this->assertEquals('normal-3rd-level', $result['path'], 'should be normal-3rd-level');
+
+        // canBuildPathIfOverlayUsesNonLatinChars
+        // overlay has no latin characters therefore the default record is used
+        $result = $this->pathgenerator->build(94, 4, 0);
+        $this->assertEquals('normal-3rd-level/page_94', $result['path'], 'should be normal-3rd-level/page_94');
     }
 
     /**
