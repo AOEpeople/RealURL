@@ -1,6 +1,12 @@
 <?php
 defined('TYPO3_MODE') or die();
 
+/** @see \AOE\Realurl\Realurl::CACHE_DECODE */
+const REAL_URL_CACHE_DECODE = 'realurl_decode';
+/** @see \AOE\Realurl\Realurl::CACHE_ENCODE */
+const REAL_URL_CACHE_ENCODE = 'realurl_encode';
+
+
 if (TYPO3_MODE === 'FE') {
     //hook to force regeneration if crawler is active:
     $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['insertPageIncache']['tx_realurl'] =
@@ -30,14 +36,14 @@ $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['checkAlte
 $GLOBALS['TYPO3_CONF_VARS']['FE']['addRootLineFields'] .= ',tx_realurl_pathsegment,tx_realurl_exclude,tx_realurl_pathoverride';
 $GLOBALS['TYPO3_CONF_VARS']['FE']['pageOverlayFields'] .= ',tx_realurl_pathsegment,tx_realurl_exclude,tx_realurl_pathoverride';
 
-if (!is_array($GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations'][tx_realurl::CACHE_DECODE])) {
-    $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations'][tx_realurl::CACHE_DECODE] = [
+if (!is_array($GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations'][REAL_URL_CACHE_DECODE])) {
+    $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations'][REAL_URL_CACHE_DECODE] = [
         'backend' => \TYPO3\CMS\Core\Cache\Backend\Typo3DatabaseBackend::class,
         'groups' => ['pages']
     ];
 }
-if (!is_array($GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations'][tx_realurl::CACHE_ENCODE])) {
-    $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations'][tx_realurl::CACHE_ENCODE] = [
+if (!is_array($GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations'][REAL_URL_CACHE_ENCODE])) {
+    $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations'][REAL_URL_CACHE_ENCODE] = [
         'backend' => \TYPO3\CMS\Core\Cache\Backend\Typo3DatabaseBackend::class,
         'groups' => ['pages']
     ];

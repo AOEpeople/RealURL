@@ -1,4 +1,8 @@
 <?php
+namespace AOE\Realurl;
+
+use AOE\Realurl\Exception\RootlineException;
+
 /***************************************************************
  * Copyright notice
  *
@@ -26,6 +30,7 @@
  ***************************************************************/
 
 /**
+ * Class Pathgenerator
  *
  * @author  Daniel Pötzinger
  * @author  Tolleiv Nietsch
@@ -34,7 +39,7 @@
  *
  * @todo check if internal cache array makes sense
  */
-class tx_realurl_pathgenerator
+class Pathgenerator
 {
     public $pidForCache;
     public $extconfArr; //ext_conf_template vars
@@ -46,7 +51,7 @@ class tx_realurl_pathgenerator
     protected $conf;
 
     /**
-     * @var tx_realurl
+     * @var Realurl
      */
     protected $pObj;
 
@@ -259,11 +264,11 @@ class tx_realurl_pathgenerator
         $this->rootPid = $id;
     }
 
-        /**
-         * @param tx_realurl $pObj
-         * @return void
-         */
-    public function setParentObject(tx_realurl $pObj)
+    /**
+     * @param Realurl $pObj
+     * @return void
+     */
+    public function setParentObject(Realurl $pObj)
     {
         $this->pObj = $pObj;
     }
@@ -275,7 +280,7 @@ class tx_realurl_pathgenerator
      * @param integer $wsId
      * @param string $mpvar Comma separated list of mount point parameters
      * @return array array with rootline for pid
-     * @throws tx_realurl_rootlineException
+     * @throws RootlineException
      */
     public function getRootLine($pid, $langID, $wsId, $mpvar = '')
     {
@@ -294,7 +299,7 @@ class tx_realurl_pathgenerator
             }
         }
         if (!$rootPidFound) {
-            throw new tx_realurl_rootlineException(
+            throw new RootlineException(
                 'The configured root pid ' . $this->rootPid . ' could not be found in the rootline of page ' . $pid,
                 1481273270
             );

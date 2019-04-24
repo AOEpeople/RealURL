@@ -1,4 +1,6 @@
 <?php
+namespace AOE\Realurl\Service;
+
 /***************************************************************
  *  Copyright notice
  *
@@ -25,7 +27,12 @@
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-class tx_realurl_configurationService
+use AOE\Realurl\Exception\ConfigurationServiceException;
+
+/**
+ * Class ConfigurationService
+ */
+class ConfigurationService
 {
     private $confArray = [];
     private $useAutoAdjustRootPid = false;
@@ -66,11 +73,11 @@ class tx_realurl_configurationService
             }
         } else {
             if ($this->enableStrictMode && $this->multidomain) {
-                throw new tx_realurl_configurationService_exception('RealURL strict mode error: ' . 'multidomain configuration detected and domain \'' . $this->host . '\' is not configured for RealURL. Please, fix your RealURL configuration!');
+                throw new ConfigurationServiceException('RealURL strict mode error: ' . 'multidomain configuration detected and domain \'' . $this->host . '\' is not configured for RealURL. Please, fix your RealURL configuration!');
             }
             $extConf = (array) $this->confArray['_DEFAULT'];
             if ($this->multidomain && isset($extConf['pagePath']['rootpage_id']) && $this->enableStrictMode) {
-                throw new tx_realurl_configurationService_exception('Rootpid configured for _DEFAULT namespace, tis can cause wron cache entries and should be avoided');
+                throw new ConfigurationServiceException('Rootpid configured for _DEFAULT namespace, tis can cause wron cache entries and should be avoided');
             }
         }
 

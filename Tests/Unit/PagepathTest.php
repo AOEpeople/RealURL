@@ -1,4 +1,6 @@
 <?php
+namespace AOE\Realurl\Tests\Unit;
+
 /***************************************************************
  *  Copyright notice
  *
@@ -22,10 +24,14 @@
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use AOE\Realurl\Pagepath;
+use AOE\Realurl\Realurl;
+use Nimut\TestingFramework\TestCase\UnitTestCase;
+
 /**
- * Class tx_realurl_pagepath_testcase
+ * Class PagepathTest
  */
-class tx_realurl_pagepath_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCase
+class PagepathTest extends UnitTestCase
 {
 
     /**
@@ -36,14 +42,14 @@ class tx_realurl_pagepath_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCase
      */
     public function defaultLanguageIs0()
     {
-        $mock = $this->getMockBuilder(tx_realurl::class)
+        $mock = $this->getMockBuilder(Realurl::class)
             ->setMethods(['getRetrievedPreGetVar'])
             ->getMock();
         $mock->expects($this->any())
             ->method('getRetrievedPreGetVar')
-            ->will($this->returnValue(false));
+            ->willReturn(false);
 
-        $pp = new tx_realurl_pagepath();
+        $pp = new Pagepath();
         $pp->_setConf([]);
         $pp->_setParent($mock);
 
@@ -57,11 +63,11 @@ class tx_realurl_pagepath_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCase
      */
     public function basicLanguageDetectionWorks()
     {
-        $mock = $this->getMockBuilder(tx_realurl::class)
+        $mock = $this->getMockBuilder(Realurl::class)
             ->getMock();
         $mock->orig_paramKeyValues['L'] = 3;
 
-        $pp = new tx_realurl_pagepath();
+        $pp = new Pagepath();
         $pp->_setConf(['languageGetVar' => 'L']);
         $pp->_setParent($mock);
 
@@ -75,11 +81,11 @@ class tx_realurl_pagepath_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCase
      */
     public function abbrevLisTheDefaultAbbreviation()
     {
-        $mock = $this->getMockBuilder(tx_realurl::class)
+        $mock = $this->getMockBuilder(Realurl::class)
             ->getMock();
         $mock->orig_paramKeyValues['L'] = 3;
 
-        $pp = new tx_realurl_pagepath();
+        $pp = new Pagepath();
         $pp->_setConf([]);
         $pp->_setParent($mock);
 
@@ -94,12 +100,12 @@ class tx_realurl_pagepath_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCase
      */
     public function languageAbbrevCanBeChanged()
     {
-        $mock = $this->getMockBuilder(tx_realurl::class)
+        $mock = $this->getMockBuilder(Realurl::class)
             ->getMock();
         $mock->orig_paramKeyValues['L'] = 3;
         $mock->orig_paramKeyValues['newL'] = 10;
 
-        $pp = new tx_realurl_pagepath();
+        $pp = new Pagepath();
         $pp->_setConf(['languageGetVar' => 'newL']);
         $pp->_setParent($mock);
 
@@ -114,11 +120,11 @@ class tx_realurl_pagepath_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCase
      */
     public function languageExceptionsWork()
     {
-        $mock = $this->getMockBuilder(tx_realurl::class)
+        $mock = $this->getMockBuilder(Realurl::class)
             ->getMock();
         $mock->orig_paramKeyValues['L'] = 3;
 
-        $pp = new tx_realurl_pagepath();
+        $pp = new Pagepath();
         $pp->_setConf(['languageExceptionUids' => '2']);
         $pp->_setParent($mock);
 
@@ -136,14 +142,14 @@ class tx_realurl_pagepath_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCase
      */
     public function languageIsDetectedFromPreVar()
     {
-        $mock = $this->getMockBuilder(tx_realurl::class)
+        $mock = $this->getMockBuilder(Realurl::class)
             ->setMethods(['getRetrievedPreGetVar'])
             ->getMock();
         $mock->expects($this->any())
             ->method('getRetrievedPreGetVar')
-            ->will($this->returnValue(7));
+            ->willReturn(7);
 
-        $pp = new tx_realurl_pagepath();
+        $pp = new Pagepath();
         $pp->_setConf([]);
         $pp->_setParent($mock);
 

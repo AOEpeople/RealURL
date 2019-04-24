@@ -1,4 +1,6 @@
 <?php
+namespace AOE\Realurl;
+
 /***************************************************************
  * Copyright notice
  *
@@ -31,12 +33,13 @@
  **/
 
 /**
+ * Class Cachemgmt
  *
  * @author Daniel Poetzinger
  * @package realurl
  * @subpackage realurl
  */
-class tx_realurl_cachemgmt
+class Cachemgmt
 {
 
     //cache key values
@@ -444,8 +447,8 @@ class tx_realurl_cachemgmt
      */
     public function flushCachingFrameworkCacheByPageId($pageId)
     {
-        $this->getCacheManager()->getCache(tx_realurl::CACHE_DECODE)->flushByTag('pageId_' . intval($pageId));
-        $this->getCacheManager()->getCache(tx_realurl::CACHE_ENCODE)->flushByTag('pageId_' . intval($pageId));
+        $this->getCacheManager()->getCache(Realurl::CACHE_DECODE)->flushByTag('pageId_' . intval($pageId));
+        $this->getCacheManager()->getCache(Realurl::CACHE_ENCODE)->flushByTag('pageId_' . intval($pageId));
     }
 
     /**

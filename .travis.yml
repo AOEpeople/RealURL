@@ -4,25 +4,11 @@
 language: php
 
 php:
-  - 5.5
-  - 5.6
   - 7.0
 
 env:
-  - TYPO3_BRANCH=TYPO3_6-2
-  - TYPO3_BRANCH=TYPO3_7-6
-  - TYPO3_BRANCH=TYPO3_8-4
-
-matrix:
-  exclude:
-    - env: TYPO3_BRANCH=TYPO3_6-2
-      php: 7.0
-    - env: TYPO3_BRANCH=TYPO3_8-4
-      php: 5.5
-    - env: TYPO3_BRANCH=TYPO3_8-4
-      php: 5.6
-  allow_failures:
-    - env: TYPO3_BRANCH=TYPO3_8-4
+  - TYPO3_VERSION=^7.6
+  - TYPO3_VERSION=^8.7
 
 notifications:
   email:
@@ -42,22 +28,24 @@ before_install:
   - composer self-update
 
 before_script:
- - phpenv config-rm xdebug.ini
- - cd ..
- - git clone --single-branch --branch ${TYPO3_BRANCH} --depth 1 https://github.com/TYPO3/TYPO3.CMS.git typo3_core
- - mv typo3_core/* .
- - composer install
- - mkdir -p uploads typo3temp typo3conf/ext
- - mv realurl typo3conf/ext/
+  # Enables us to test dev-master
+  - composer config minimum-stability dev
+  - composer config prefer-stable true
+  # Installs nimut/typo3-complete
+  - travis_wait 30 composer require --dev nimut/typo3-complete=$TYPO3_VERSION
+  - export "TYPO3_PATH_WEB"=$PWD/.Build/Web;
+  # Locating UnitTests.xml
+  - export "UNIT_XML"='.Build/vendor/nimut/testing-framework/res/Configuration/UnitTests.xml'
+  # Locating FunctionalTests.xml
+  - export "FUNCTIONAL_XML"='.Build/vendor/nimut/testing-framework/res/Configuration/FunctionalTests.xml'
+  # Symlink TYPO3-Core
+  - ln -nfs .Build/vendor/typo3/cms/typo3 typo3
 
 script:
   - >
     echo;
     echo "Running unit tests";
-    ./bin/phpunit \
-      --colors \
-      --bootstrap typo3/sysext/core/Build/UnitTestsBootstrap.php \
-      --configuration typo3conf/ext/realurl/Tests/Build/UnitTests.xml
+    .Build/bin/phpunit --colors -c $UNIT_XML Tests/Unit/
   - >
     echo;
     echo "Running functional tests";
@@ -65,8 +53,4 @@ script:
     export typo3DatabaseHost="localhost";
     export typo3DatabaseUsername="root";
     export typo3DatabasePassword="";
-    ./bin/phpunit \
-      --colors \
-      --process-isolation \
-      --bootstrap typo3/sysext/core/Build/FunctionalTestsBootstrap.php \
-      --configuration typo3conf/ext/realurl/Tests/Build/FunctionalTests.xml
+    .Build/bin/phpunit --colors --process-isolation -c $FUNCTIONAL_XML Tests/Functional/
