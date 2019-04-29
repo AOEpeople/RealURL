@@ -309,8 +309,8 @@ class Pagepath
     protected function _checkAndDoRedirect($path)
     {
         $_params = [];
-        if (is_array($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['EXT:realurl/class.tx_realurl_pagepath.php']['checkAndDoRedirect'])) {
-            foreach ($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['EXT:realurl/class.tx_realurl_pagepath.php']['checkAndDoRedirect'] as $_funcRef) {
+        if (is_array($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS'][__CLASS__]['checkAndDoRedirect'])) {
+            foreach ($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS'][__CLASS__]['checkAndDoRedirect'] as $_funcRef) {
                 \TYPO3\CMS\Core\Utility\GeneralUtility::callUserFunction($_funcRef, $_params, $this);
             }
         }
