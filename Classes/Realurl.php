@@ -1432,9 +1432,32 @@ class Realurl
      */
     protected function decodeSpURL_fixMagicQuotes(&$array)
     {
-        if (get_magic_quotes_gpc() && is_array($array)) {
-            \TYPO3\CMS\Core\Utility\GeneralUtility::stripSlashesOnArray($array);
+        if (is_array($array) && get_magic_quotes_gpc()) {
+            self::stripSlashesOnArray($array);
         }
+    }
+
+    /**
+     * COPIED from TYPO3 V7 Core, removed in TYPO3 V8 - no replacement available
+     *
+     * StripSlash array
+     * This function traverses a multidimensional array and strips slashes to the values.
+     * NOTE that the input array is and argument by reference.!!
+     * Twin-function to addSlashesOnArray
+     *
+     * @param array $theArray Multidimensional input array, (REFERENCE!)
+     */
+    public static function stripSlashesOnArray(array &$theArray)
+    {
+        foreach ($theArray as &$value) {
+            if (is_array($value)) {
+                self::stripSlashesOnArray($value);
+            } else {
+                $value = stripslashes($value);
+            }
+        }
+        unset($value);
+        reset($theArray);
     }
 
     /**
