@@ -1,6 +1,8 @@
 <?php
 namespace AOE\Realurl;
 
+use AOE\Realurl\Exception\RootlineException;
+
 /***************************************************************
  * Copyright notice
  *
@@ -45,7 +47,7 @@ class Pagepath
     protected $conf;
 
     /**
-     * @var tx_realurl_pathgenerator $generator
+     * @var Pathgenerator $generator
      */
     protected $generator;
 
@@ -287,7 +289,7 @@ class Pagepath
         foreach ($possiblePageIds as $possiblePageId) {
             try {
                 $possiblePagePath = $this->_id2alias(['id' => $possiblePageId]);
-            } catch (tx_realurl_rootlineException $e) {
+            } catch (RootlineException $e) {
                 continue;
             }
 
