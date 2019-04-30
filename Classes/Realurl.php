@@ -30,6 +30,8 @@ namespace AOE\Realurl;
 
 use AOE\Realurl\Exception\RootlineException;
 use AOE\Realurl\Service\ConfigurationService;
+use TYPO3\CMS\Core\TimeTracker\TimeTracker;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Class Realurl
@@ -237,15 +239,17 @@ class Realurl
         if (!$params['TCEmainHook']) {
             // Return directly, if simulateStaticDocuments is set
             if ($GLOBALS['TSFE']->config['config']['simulateStaticDocuments']) {
+                $timeTracker = GeneralUtility::makeInstance(TimeTracker::class);
                 /** @noinspection PhpUndefinedMethodInspection */
-                $GLOBALS['TT']->setTSlogMessage('SimulateStaticDocuments is enabled. RealURL disables itself.', 2);
+                $timeTracker->setTSlogMessage('SimulateStaticDocuments is enabled. RealURL disables itself.', 2);
                 return;
             }
 
             // Return directly, if realurl is not enabled
             if (!$GLOBALS['TSFE']->config['config']['tx_realurl_enable']) {
+                $timeTracker = GeneralUtility::makeInstance(TimeTracker::class);
                 /** @noinspection PhpUndefinedMethodInspection */
-                $GLOBALS['TT']->setTSlogMessage('RealURL is not enabled in TS setup. Finished.');
+                $timeTracker->setTSlogMessage('RealURL is not enabled in TS setup. Finished.');
                 return;
             }
         }
@@ -1019,8 +1023,9 @@ class Realurl
                 // respectSimulateStaticURLs and defaultToHTMLsuffixOnPrev are set, than
                 // ignore respectSimulateStaticURLs and attempt to resolve page id.
                 // See http://bugs.typo3.org/view.php?id=1530
+                $timeTracker = GeneralUtility::makeInstance(TimeTracker::class);
                 /** @noinspection PhpUndefinedMethodInspection */
-                $GLOBALS['TT']->setTSlogMessage('decodeSpURL: ignoring respectSimulateStaticURLs due defaultToHTMLsuffixOnPrev for the root level page!)', 2);
+                $timeTracker->setTSlogMessage('decodeSpURL: ignoring respectSimulateStaticURLs due defaultToHTMLsuffixOnPrev for the root level page!)', 2);
                 $this->extConf['init']['respectSimulateStaticURLs'] = false;
             }
             if (!$this->extConf['init']['respectSimulateStaticURLs'] || $fI['path']) {
@@ -2555,8 +2560,9 @@ class Realurl
         if (preg_match('/^(1|0|true|false)$/i', $str)) {
             $logMessage = sprintf('Wrong boolean value for parameter "%s": "%s". It is a string, not a boolean!', $paramName, $str);
             $this->devLog($logMessage);
+            $timeTracker = GeneralUtility::makeInstance(TimeTracker::class);
             /** @noinspection PhpUndefinedMethodInspection */
-            $GLOBALS['TT']->setTSlogMessage($logMessage, 2);
+            $timeTracker->setTSlogMessage($logMessage, 2);
             if ($str == intval($str)) {
                 $str = intval($str);
             } else {
@@ -2657,8 +2663,9 @@ class Realurl
                     'Please, fix your RealURL configuration!');
             }
 
+            $timeTracker = GeneralUtility::makeInstance(TimeTracker::class);
             /** @noinspection PhpUndefinedMethodInspection */
-            $GLOBALS['TT']->setTSlogMessage('RealURL warning: rootpage_id was not configured!');
+            $timeTracker->setTSlogMessage('RealURL warning: rootpage_id was not configured!');
 
             $this->extConf['pagePath']['rootpage_id'] = $this->findRootPageId();
 

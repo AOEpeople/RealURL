@@ -27,7 +27,9 @@ namespace AOE\Realurl\Tests\Functional;
 use AOE\Realurl\Pathgenerator;
 use Nimut\TestingFramework\TestCase\FunctionalTestCase;
 use TYPO3\CMS\Core\TimeTracker\NullTimeTracker;
+use TYPO3\CMS\Core\TimeTracker\TimeTracker;
 use TYPO3\CMS\Core\TypoScript\TemplateService;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
@@ -340,10 +342,8 @@ class PathgeneratorTest extends FunctionalTestCase
             ''
         );
 
-        if (!is_object($GLOBALS['TT'])) {
-            $GLOBALS['TT'] = new NullTimeTracker();
-            $GLOBALS['TT']->start();
-        }
+        $timeTracker = GeneralUtility::makeInstance(TimeTracker::class);
+        $timeTracker->start();
 
         $GLOBALS['TSFE']->sys_page = $this->objectManager->get(PageRepository::class);
         $GLOBALS['TSFE']->sys_page->init(false);
