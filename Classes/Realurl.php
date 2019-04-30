@@ -838,7 +838,7 @@ class Realurl
                 $cHashParameters = array_merge($this->cHashParameters, $paramKeyValues);
                 unset($cHashParameters['cHash']);
 
-                if ($GLOBALS['TYPO3_CONF_VARS']['FE']['cHashIncludePageId'] == true && !isset($cHashParameters['id'])) {
+                if (!isset($cHashParameters['id'])) {
                     // See https://typo3.org/teams/security/security-bulletins/typo3-core/typo3-core-sa-2016-022/
                     $cHashParameters['id'] = $this->encodePageId;
                 }
@@ -1044,7 +1044,7 @@ class Realurl
                     // Decode URL
                     $cachedInfo = $this->decodeSpURL_doDecode($speakingURIpath, $this->extConf['init']['enableCHashCache']);
 
-                    if ($GLOBALS['TYPO3_CONF_VARS']['FE']['cHashIncludePageId'] == true && !isset($cachedInfo['GET_VARS']['id'])) {
+                    if (!isset($cachedInfo['GET_VARS']['id'])) {
                         // See https://typo3.org/teams/security/security-bulletins/typo3-core/typo3-core-sa-2016-022/
                         $cachedInfo['GET_VARS']['id'] = $cachedInfo['id'];
                     }
@@ -1219,7 +1219,7 @@ class Realurl
             \TYPO3\CMS\Core\Utility\ArrayUtility::mergeRecursiveWithOverrule($cachedInfo['GET_VARS'], $file_GET_VARS);
         }
 
-        if ($GLOBALS['TYPO3_CONF_VARS']['FE']['cHashIncludePageId'] == true && !isset($cachedInfo['GET_VARS']['id'])) {
+        if (!isset($cachedInfo['GET_VARS']['id'])) {
             // See https://typo3.org/teams/security/security-bulletins/typo3-core/typo3-core-sa-2016-022/
             $cachedInfo['GET_VARS']['id'] = $cachedInfo['id'];
         }
