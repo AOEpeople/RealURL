@@ -27,6 +27,7 @@ namespace AOE\Realurl\Tests\Unit;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use AOE\Realurl\Pagepath;
 use AOE\Realurl\Service\ConfigurationService;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
 
@@ -76,7 +77,7 @@ class ConfigurationServiceTest extends UnitTestCase
                 'preVars' => [],
                 'pagePath' => [
                     'type' => 'user',
-                    'userFunc' => 'EXT:realurl/class.tx_realurl_pagepath.php:&tx_realurl_pagepath->main',
+                    'userFunc' => Pagepath::class . '->main',
                     'spaceCharacter' => '-',
                     'cacheTimeOut' => '100',
                     'languageGetVar' => 'L',

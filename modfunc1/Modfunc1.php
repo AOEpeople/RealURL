@@ -28,7 +28,9 @@ namespace AOE\Realurl\modfunc1;
 use AOE\Realurl\Cachemgmt;
 use AOE\Realurl\Pathgenerator;
 use AOE\Realurl\Realurl;
+use AOE\RealUrl\Utility\IconUtility;
 use TYPO3\CMS\Backend\Module\AbstractFunctionModule;
+use TYPO3\CMS\Core\Imaging\Icon;
 
 /**
  * Class Modfunc1
@@ -207,7 +209,7 @@ class Modfunc1 extends AbstractFunctionModule
         // Creating top icon; the current page
         $tree->tree[] = [
             'row' => $treeStartingRecord,
-            'HTML' => \TYPO3\CMS\Backend\Utility\IconUtility::getSpriteIconForRecord('pages', $treeStartingRecord, [])
+            'HTML' => IconUtility::getIconForRecord('pages', $treeStartingRecord)
         ];
 
         // Create the tree from starting point:
@@ -649,11 +651,11 @@ class Modfunc1 extends AbstractFunctionModule
                 $tCells[] = '<td>'
                     // Edit link:
                     . '<a href="' . $this->linkSelf('&table=' . rawurlencode($tableName) . '&cmd=edit&entry=' . $aliasRecord['uid']) . '">'
-                    . \TYPO3\CMS\Backend\Utility\IconUtility::getSpriteIcon('actions-edit-rename', ['title' => 'Rename'])
+                    . IconUtility::getIcon('actions-edit-rename', Icon::SIZE_SMALL)
                     . '</a>'
                     // Delete link:
                     . '<a href="' . $this->linkSelf('&table=' . rawurlencode($tableName) . '&cmd=delete&entry=' . $aliasRecord['uid']) . '">'
-                    . \TYPO3\CMS\Backend\Utility\IconUtility::getSpriteIcon('actions-edit-delete', ['title' => 'Delete'])
+                    . IconUtility::getIcon('actions-edit-delete', Icon::SIZE_SMALL)
                     . '</a>'
                     . '</td>';
 
@@ -683,15 +685,15 @@ class Modfunc1 extends AbstractFunctionModule
             $tCells[] = '<td>Lang:</td>';
             $tCells[] = '<td>Expire:'
                 . (!$search ? '<a href="' . $this->linkSelf('&table=' . rawurlencode($tableName) . '&cmd=flushExpired') . '">'
-                    . \TYPO3\CMS\Backend\Utility\IconUtility::getSpriteIcon('actions-edit-delete', ['title' => 'Flush expired'])
+                    . IconUtility::getIcon('actions-edit-delete', Icon::SIZE_SMALL)
                     . '</a>' : '')
                 . '</td>';
             $tCells[] = '<td>'
                 . (!$search ? '<a href="' . $this->linkSelf('&table=' . rawurlencode($tableName) . '&cmd=edit&entry=ALL') . '">'
-                    . \TYPO3\CMS\Backend\Utility\IconUtility::getSpriteIcon('actions-edit-rename', ['title' => 'Rename all'])
+                    . IconUtility::getIcon('actions-edit-rename', Icon::SIZE_SMALL)
                     . '</a>'
                     . '<a href="' . $this->linkSelf('&table=' . rawurlencode($tableName) . '&cmd=delete&entry=ALL') . '" onclick="return confirm(\'Delete all?\');">'
-                    . \TYPO3\CMS\Backend\Utility\IconUtility::getSpriteIcon('actions-edit-delete', ['title' => 'Delete all'])
+                    . IconUtility::getIcon('actions-edit-delete', Icon::SIZE_SMALL)
                     . '</a>' : '')
                 . '</td>';
             $tCells[] = '<td>Error:</td>';
@@ -904,7 +906,7 @@ class Modfunc1 extends AbstractFunctionModule
             $output = '
             <br/>
                 <a href="' . $this->linkSelf('&cmd=deleteAll') . '">'
-                . \TYPO3\CMS\Backend\Utility\IconUtility::getSpriteIcon('actions-edit-delete')
+                . IconUtility::getIcon('actions-edit-delete', Icon::SIZE_SMALL)
                 . 'Flush log</a>
                 <br/>
             <table border="0" cellspacing="1" cellpadding="0" id="tx-realurl-pathcacheTable" class="lrPadding c-list">' . $output . '

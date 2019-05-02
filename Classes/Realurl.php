@@ -30,6 +30,8 @@ namespace AOE\Realurl;
 
 use AOE\Realurl\Exception\RootlineException;
 use AOE\Realurl\Service\ConfigurationService;
+use TYPO3\CMS\Core\TimeTracker\TimeTracker;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Class Realurl
@@ -237,15 +239,17 @@ class Realurl
         if (!$params['TCEmainHook']) {
             // Return directly, if simulateStaticDocuments is set
             if ($GLOBALS['TSFE']->config['config']['simulateStaticDocuments']) {
+                $timeTracker = GeneralUtility::makeInstance(TimeTracker::class);
                 /** @noinspection PhpUndefinedMethodInspection */
-                $GLOBALS['TT']->setTSlogMessage('SimulateStaticDocuments is enabled. RealURL disables itself.', 2);
+                $timeTracker->setTSlogMessage('SimulateStaticDocuments is enabled. RealURL disables itself.', 2);
                 return;
             }
 
             // Return directly, if realurl is not enabled
             if (!$GLOBALS['TSFE']->config['config']['tx_realurl_enable']) {
+                $timeTracker = GeneralUtility::makeInstance(TimeTracker::class);
                 /** @noinspection PhpUndefinedMethodInspection */
-                $GLOBALS['TT']->setTSlogMessage('RealURL is not enabled in TS setup. Finished.');
+                $timeTracker->setTSlogMessage('RealURL is not enabled in TS setup. Finished.');
                 return;
             }
         }
@@ -838,7 +842,7 @@ class Realurl
                 $cHashParameters = array_merge($this->cHashParameters, $paramKeyValues);
                 unset($cHashParameters['cHash']);
 
-                if ($GLOBALS['TYPO3_CONF_VARS']['FE']['cHashIncludePageId'] == true && !isset($cHashParameters['id'])) {
+                if (!isset($cHashParameters['id'])) {
                     // See https://typo3.org/teams/security/security-bulletins/typo3-core/typo3-core-sa-2016-022/
                     $cHashParameters['id'] = $this->encodePageId;
                 }
@@ -1019,8 +1023,9 @@ class Realurl
                 // respectSimulateStaticURLs and defaultToHTMLsuffixOnPrev are set, than
                 // ignore respectSimulateStaticURLs and attempt to resolve page id.
                 // See http://bugs.typo3.org/view.php?id=1530
+                $timeTracker = GeneralUtility::makeInstance(TimeTracker::class);
                 /** @noinspection PhpUndefinedMethodInspection */
-                $GLOBALS['TT']->setTSlogMessage('decodeSpURL: ignoring respectSimulateStaticURLs due defaultToHTMLsuffixOnPrev for the root level page!)', 2);
+                $timeTracker->setTSlogMessage('decodeSpURL: ignoring respectSimulateStaticURLs due defaultToHTMLsuffixOnPrev for the root level page!)', 2);
                 $this->extConf['init']['respectSimulateStaticURLs'] = false;
             }
             if (!$this->extConf['init']['respectSimulateStaticURLs'] || $fI['path']) {
@@ -1044,7 +1049,7 @@ class Realurl
                     // Decode URL
                     $cachedInfo = $this->decodeSpURL_doDecode($speakingURIpath, $this->extConf['init']['enableCHashCache']);
 
-                    if ($GLOBALS['TYPO3_CONF_VARS']['FE']['cHashIncludePageId'] == true && !isset($cachedInfo['GET_VARS']['id'])) {
+                    if (!isset($cachedInfo['GET_VARS']['id'])) {
                         // See https://typo3.org/teams/security/security-bulletins/typo3-core/typo3-core-sa-2016-022/
                         $cachedInfo['GET_VARS']['id'] = $cachedInfo['id'];
                     }
@@ -1219,7 +1224,7 @@ class Realurl
             \TYPO3\CMS\Core\Utility\ArrayUtility::mergeRecursiveWithOverrule($cachedInfo['GET_VARS'], $file_GET_VARS);
         }
 
-        if ($GLOBALS['TYPO3_CONF_VARS']['FE']['cHashIncludePageId'] == true && !isset($cachedInfo['GET_VARS']['id'])) {
+        if (!isset($cachedInfo['GET_VARS']['id'])) {
             // See https://typo3.org/teams/security/security-bulletins/typo3-core/typo3-core-sa-2016-022/
             $cachedInfo['GET_VARS']['id'] = $cachedInfo['id'];
         }
@@ -1432,9 +1437,32 @@ class Realurl
      */
     protected function decodeSpURL_fixMagicQuotes(&$array)
     {
-        if (get_magic_quotes_gpc() && is_array($array)) {
-            \TYPO3\CMS\Core\Utility\GeneralUtility::stripSlashesOnArray($array);
+        if (is_array($array) && get_magic_quotes_gpc()) {
+            self::stripSlashesOnArray($array);
         }
+    }
+
+    /**
+     * COPIED from TYPO3 V7 Core, removed in TYPO3 V8 - no replacement available
+     *
+     * StripSlash array
+     * This function traverses a multidimensional array and strips slashes to the values.
+     * NOTE that the input array is and argument by reference.!!
+     * Twin-function to addSlashesOnArray
+     *
+     * @param array $theArray Multidimensional input array, (REFERENCE!)
+     */
+    public static function stripSlashesOnArray(array &$theArray)
+    {
+        foreach ($theArray as &$value) {
+            if (is_array($value)) {
+                self::stripSlashesOnArray($value);
+            } else {
+                $value = stripslashes($value);
+            }
+        }
+        unset($value);
+        reset($theArray);
     }
 
     /**
@@ -2532,8 +2560,9 @@ class Realurl
         if (preg_match('/^(1|0|true|false)$/i', $str)) {
             $logMessage = sprintf('Wrong boolean value for parameter "%s": "%s". It is a string, not a boolean!', $paramName, $str);
             $this->devLog($logMessage);
+            $timeTracker = GeneralUtility::makeInstance(TimeTracker::class);
             /** @noinspection PhpUndefinedMethodInspection */
-            $GLOBALS['TT']->setTSlogMessage($logMessage, 2);
+            $timeTracker->setTSlogMessage($logMessage, 2);
             if ($str == intval($str)) {
                 $str = intval($str);
             } else {
@@ -2634,8 +2663,9 @@ class Realurl
                     'Please, fix your RealURL configuration!');
             }
 
+            $timeTracker = GeneralUtility::makeInstance(TimeTracker::class);
             /** @noinspection PhpUndefinedMethodInspection */
-            $GLOBALS['TT']->setTSlogMessage('RealURL warning: rootpage_id was not configured!');
+            $timeTracker->setTSlogMessage('RealURL warning: rootpage_id was not configured!');
 
             $this->extConf['pagePath']['rootpage_id'] = $this->findRootPageId();
 
