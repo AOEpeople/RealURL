@@ -1,4 +1,6 @@
 <?php
+namespace AOE\Realurl;
+
 /***************************************************************
 *  Copyright notice
 *
@@ -26,11 +28,13 @@
 ***************************************************************/
 
 /**
+ * Class Tcemain
+ *
  * TCEmain hook to update various caches when data is modified in TYPO3 Backend
  *
  * @author Dmitry Dulepov <dmitry@typo3.org>
  */
-class tx_realurl_tcemain
+class Tcemain
 {
     const SEGTITLEFIELDLIST_DEFAULT = 'tx_realurl_pathsegment,alias,nav_title,title,uid';
     const SEGTITLEFIELDLIST_PLO = 'tx_realurl_pathsegment,nav_title,title,uid';
@@ -379,13 +383,13 @@ class tx_realurl_tcemain
     protected function markCachesDirty($tableName, $recordId, &$reference)
     {
         if ($tableName == 'pages') {
-            $cache = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('tx_realurl_cachemgmt', $GLOBALS ['BE_USER']->workspace, 0);
+            $cache = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(Cachemgmt::class, $GLOBALS ['BE_USER']->workspace, 0);
             $cache->markAsDirtyCompletePid($recordId);
         }
         if ($tableName == 'pages_language_overlay') {
             $pid = $reference->checkValue_currentRecord ['pid'];
             if ($pid) {
-                $cache = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('tx_realurl_cachemgmt', $GLOBALS ['BE_USER']->workspace, 0);
+                $cache = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(Cachemgmt::class, $GLOBALS ['BE_USER']->workspace, 0);
                 $cache->markAsDirtyCompletePid($pid);
             }
         }

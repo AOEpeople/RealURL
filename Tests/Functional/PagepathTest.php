@@ -1,4 +1,5 @@
 <?php
+namespace AOE\Realurl\Tests\Functional;
 
 /***************************************************************
  *  Copyright notice
@@ -24,10 +25,13 @@
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use AOE\Realurl\Pagepath;
+use Nimut\TestingFramework\TestCase\FunctionalTestCase;
+
 /**
- * Class tx_realurl_pagepath_testcase
+ * Class PagepathTest
  */
-class tx_realurl_pagepath_testcase extends \TYPO3\CMS\Core\Tests\FunctionalTestCase
+class PagepathTest extends FunctionalTestCase
 {
     /**
      * @var array
@@ -40,7 +44,7 @@ class tx_realurl_pagepath_testcase extends \TYPO3\CMS\Core\Tests\FunctionalTestC
     protected $testExtensionsToLoad = ['typo3conf/ext/realurl'];
 
     /**
-     * @var tx_realurl_pagepath
+     * @var Pagepath
      */
     private $pagepath;
 
@@ -53,7 +57,7 @@ class tx_realurl_pagepath_testcase extends \TYPO3\CMS\Core\Tests\FunctionalTestC
 
         $this->importDataSet(dirname(__FILE__) . '/fixtures/pages.xml');
 
-        $this->pagepath = new tx_realurl_pagepath();
+        $this->pagepath = new Pagepath();
         $this->pagepath->_setConf(['segTitleFieldList' => 'title', 'rootpage_id' => 123]);
     }
 

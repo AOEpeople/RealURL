@@ -1,4 +1,8 @@
 <?php
+namespace AOE\Realurl;
+
+use AOE\Realurl\Exception\RootlineException;
+
 /***************************************************************
  * Copyright notice
  *
@@ -26,6 +30,7 @@
  ***************************************************************/
 
 /**
+ * Class Pagepath
  *
  * @author    Daniel Pötzinger
  * @package realurl
@@ -34,7 +39,7 @@
  * @todo    check if internal cache array can improve speed
  * @todo    check last updatetime of pages
  */
-class tx_realurl_pagepath
+class Pagepath
 {
     /**
      * @var array $conf
@@ -42,17 +47,17 @@ class tx_realurl_pagepath
     protected $conf;
 
     /**
-     * @var tx_realurl_pathgenerator $generator
+     * @var Pathgenerator $generator
      */
     protected $generator;
 
     /**
-     * @var tx_realurl $pObj
+     * @var Realurl $pObj
      */
     protected $pObj;
 
     /**
-     * @var tx_realurl_cachemgmt $cachemgmt
+     * @var Cachemgmt $cachemgmt
      */
     protected $cachemgmt;
 
@@ -60,7 +65,7 @@ class tx_realurl_pagepath
      * parameters and results are in $params (some by reference)
      *
      * @param    array        Parameters passed from parent object, "tx_realurl". Some values are passed by reference! (paramKeyValues, pathParts and pObj)
-     * @param    tx_realurl        Copy of parent object.
+     * @param    Realurl        Copy of parent object.
      * @return    mixed        Depends on branching.
      */
     public function main($params, $ref)
@@ -284,7 +289,7 @@ class tx_realurl_pagepath
         foreach ($possiblePageIds as $possiblePageId) {
             try {
                 $possiblePagePath = $this->_id2alias(['id' => $possiblePageId]);
-            } catch (tx_realurl_rootlineException $e) {
+            } catch (RootlineException $e) {
                 continue;
             }
 
@@ -304,8 +309,8 @@ class tx_realurl_pagepath
     protected function _checkAndDoRedirect($path)
     {
         $_params = [];
-        if (is_array($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['EXT:realurl/class.tx_realurl_pagepath.php']['checkAndDoRedirect'])) {
-            foreach ($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['EXT:realurl/class.tx_realurl_pagepath.php']['checkAndDoRedirect'] as $_funcRef) {
+        if (is_array($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS'][__CLASS__]['checkAndDoRedirect'])) {
+            foreach ($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS'][__CLASS__]['checkAndDoRedirect'] as $_funcRef) {
                 \TYPO3\CMS\Core\Utility\GeneralUtility::callUserFunction($_funcRef, $_params, $this);
             }
         }
@@ -454,7 +459,7 @@ class tx_realurl_pagepath
      */
     public function initGenerator()
     {
-        $this->generator = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('tx_realurl_pathgenerator');
+        $this->generator = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(Pathgenerator::class);
         $this->generator->init($this->conf);
         $this->generator->setRootPid($this->_getRootPid());
         $this->generator->setParentObject($this->pObj);
@@ -468,7 +473,7 @@ class tx_realurl_pagepath
      */
     public function initCacheMgm($lang)
     {
-        $this->cachemgmt = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('tx_realurl_cachemgmt', $this->_getWorkspaceId(), $lang);
+        $this->cachemgmt = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(Cachemgmt::class, $this->_getWorkspaceId(), $lang);
         $this->cachemgmt->setCacheTimeOut($this->conf['cacheTimeOut']);
         $this->cachemgmt->setRootPid($this->_getRootPid());
     }

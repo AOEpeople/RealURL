@@ -1,4 +1,6 @@
 <?php
+namespace AOE\Realurl\Tests\Unit;
+
 /***************************************************************
  *  Copyright notice
  *
@@ -25,21 +27,23 @@
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-/**
- * Class tx_realurl_configurationService_testcase
- */
-class tx_realurl_configurationService_testcase extends \TYPO3\CMS\Core\Tests\UnitTestCase
-{
+use AOE\Realurl\Pagepath;
+use AOE\Realurl\Service\ConfigurationService;
+use Nimut\TestingFramework\TestCase\UnitTestCase;
 
+/**
+ * Class ConfigurationServiceTest
+ */
+class ConfigurationServiceTest extends UnitTestCase
+{
     /**
-     *
-     * @var tx_realurl_configurationService
+     * @var ConfigurationService
      */
     public $configurationService;
 
     public function setUp()
     {
-        $this->configurationService = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('tx_realurl_configurationService');
+        $this->configurationService = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(ConfigurationService::class);
     }
 
     public function test_canGetDefaultConfiguration()
@@ -73,7 +77,7 @@ class tx_realurl_configurationService_testcase extends \TYPO3\CMS\Core\Tests\Uni
                 'preVars' => [],
                 'pagePath' => [
                     'type' => 'user',
-                    'userFunc' => 'EXT:realurl/class.tx_realurl_pagepath.php:&tx_realurl_pagepath->main',
+                    'userFunc' => Pagepath::class . '->main',
                     'spaceCharacter' => '-',
                     'cacheTimeOut' => '100',
                     'languageGetVar' => 'L',

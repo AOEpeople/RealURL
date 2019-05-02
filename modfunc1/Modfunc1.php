@@ -1,4 +1,6 @@
 <?php
+namespace AOE\Realurl\modfunc1;
+
 /***************************************************************
  *  Copyright notice
  *
@@ -23,14 +25,20 @@
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use AOE\Realurl\Cachemgmt;
+use AOE\Realurl\Pathgenerator;
+use AOE\Realurl\Realurl;
+use TYPO3\CMS\Backend\Module\AbstractFunctionModule;
+
 /**
+ * Class Modfunc1
+ *
  * Speaking Url management extension
  *
  * @author    Kasper Skaarhoj <kasperYYYY@typo3.com>
  * @package TYPO3
- * @subpackage tx_realurl
  */
-class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModule
+class Modfunc1 extends AbstractFunctionModule
 {
     /**
      * @var integer
@@ -227,8 +235,8 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
         $theOutput = '';
 
         if ($this->pObj->id) {
-            $this->cachemgmt = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(tx_realurl_cachemgmt::class, $GLOBALS['BE_USER']->workspace, 0, 1);
-            $this->pathgen = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(tx_realurl_pathgenerator::class);
+            $this->cachemgmt = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(Cachemgmt::class, $GLOBALS['BE_USER']->workspace, 0, 1);
+            $this->pathgen = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(Pathgenerator::class);
             $this->pathgen->init([]);
 
             //Add action buttons:
@@ -379,7 +387,7 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
         foreach ($tree->tree as $row) {
             /** @var \TYPO3\CMS\Core\Cache\CacheManager $cacheManager */
             $cacheManager = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Cache\CacheManager::class);
-            $displayRows = $cacheManager->getCache(tx_realurl::CACHE_DECODE)->getByTag('pageId_' . intval($row['row']['uid']));
+            $displayRows = $cacheManager->getCache(Realurl::CACHE_DECODE)->getByTag('pageId_' . intval($row['row']['uid']));
 
             // Row title:
             $rowTitle = $row['depthData'] . $row['HTML'] . \TYPO3\CMS\Backend\Utility\BackendUtility::getRecordTitle('pages', $row['row'], true);
@@ -473,7 +481,7 @@ class tx_realurl_modfunc1 extends \TYPO3\CMS\Backend\Module\AbstractFunctionModu
         foreach ($tree->tree as $row) {
             /** @var \TYPO3\CMS\Core\Cache\CacheManager $cacheManager */
             $cacheManager = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Cache\CacheManager::class);
-            $displayRows = $cacheManager->getCache(tx_realurl::CACHE_ENCODE)->getByTag('pageId_' . intval($row['row']['uid']));
+            $displayRows = $cacheManager->getCache(Realurl::CACHE_ENCODE)->getByTag('pageId_' . intval($row['row']['uid']));
 
             // Row title:
             $rowTitle = $row['depthData'] . $row['HTML'] . \TYPO3\CMS\Backend\Utility\BackendUtility::getRecordTitle('pages', $row['row'], true);
