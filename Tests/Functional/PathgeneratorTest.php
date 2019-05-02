@@ -1,4 +1,5 @@
 <?php
+namespace AOE\Realurl\Tests\Functional;
 
 /***************************************************************
  *  Copyright notice
@@ -23,10 +24,19 @@
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use AOE\Realurl\Pathgenerator;
+use Nimut\TestingFramework\TestCase\FunctionalTestCase;
+use TYPO3\CMS\Core\TimeTracker\NullTimeTracker;
+use TYPO3\CMS\Core\TypoScript\TemplateService;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
+use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
+use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
+use TYPO3\CMS\Frontend\Page\PageRepository;
+
 /**
- * Class tx_realurl_pathgenerator_testcase
+ * Class PathgeneratorTest
  */
-class tx_realurl_pathgenerator_testcase extends \TYPO3\CMS\Core\Tests\FunctionalTestCase
+class PathgeneratorTest extends FunctionalTestCase
 {
     /**
      * @var array
@@ -39,9 +49,14 @@ class tx_realurl_pathgenerator_testcase extends \TYPO3\CMS\Core\Tests\Functional
     protected $testExtensionsToLoad = ['typo3conf/ext/realurl'];
 
     /**
-     * @var tx_realurl_pathgenerator
+     * @var Pathgenerator
      */
     private $pathgenerator;
+
+    /**
+     * @var ObjectManagerInterface
+     */
+    private $objectManager;
 
     /**
      * Creates a test instance and sets up the test database
@@ -49,15 +64,16 @@ class tx_realurl_pathgenerator_testcase extends \TYPO3\CMS\Core\Tests\Functional
     public function setUp()
     {
         parent::setUp();
+        $this->objectManager = new ObjectManager();
 
-        $this->importDataSet(dirname(__FILE__) . '/fixtures/page-livews.xml');
-        $this->importDataSet(dirname(__FILE__) . '/fixtures/overlay-livews.xml');
-        $this->importDataSet(dirname(__FILE__) . '/fixtures/page-ws.xml');
-        $this->importDataSet(dirname(__FILE__) . '/fixtures/overlay-ws.xml');
+        $this->importDataSet(__DIR__ . '/fixtures/page-livews.xml');
+        $this->importDataSet(__DIR__ . '/fixtures/overlay-livews.xml');
+        $this->importDataSet(__DIR__ . '/fixtures/page-ws.xml');
+        $this->importDataSet(__DIR__ . '/fixtures/overlay-ws.xml');
 
         $this->initializeTsfeCharsetConverter();
 
-        $this->pathgenerator = new tx_realurl_pathgenerator();
+        $this->pathgenerator = new Pathgenerator();
         $this->pathgenerator->init($this->fixture_defaultconfig());
         $this->pathgenerator->setRootPid(1);
     }
@@ -235,7 +251,7 @@ class tx_realurl_pathgenerator_testcase extends \TYPO3\CMS\Core\Tests\Functional
      */
     public function canResolveWithForeignEncoding()
     {
-        $GLOBALS['TSFE']->defaultCharSet = 'dummy'; // Foreign Encoding
+        $GLOBALS['TSFE']->defaultCharSet = 'latin1'; // Foreign Encoding
 
         $result = $this->pathgenerator->build(81, 0, 0);
         $this->assertEquals('specialpath/withspecial/chars', $result['path'], 'should be specialpath/withspecial/chars');
@@ -313,16 +329,29 @@ class tx_realurl_pathgenerator_testcase extends \TYPO3\CMS\Core\Tests\Functional
      */
     private function initializeTsfeCharsetConverter()
     {
-        if (!$GLOBALS['TSFE']) {
-            $GLOBALS['TSFE'] = new stdClass();
+        if (isset($GLOBALS['TSFE']) && is_object($GLOBALS['TFSE'])) {
+            return;
         }
 
-        if (!$GLOBALS['TSFE']->csConvObj) {
-            $GLOBALS['TSFE']->csConvObj = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(
-                \TYPO3\CMS\Core\Charset\CharsetConverter::class
-            );
+        $GLOBALS['TSFE'] = $this->objectManager->get(
+            TypoScriptFrontendController::class,
+            $GLOBALS['TYPO3_CONF_VARS'],
+            1,
+            ''
+        );
+
+        if (!is_object($GLOBALS['TT'])) {
+            $GLOBALS['TT'] = new NullTimeTracker();
+            $GLOBALS['TT']->start();
         }
 
-        $GLOBALS['TSFE']->defaultCharSet = 'utf-8';
+        $GLOBALS['TSFE']->sys_page = $this->objectManager->get(PageRepository::class);
+        $GLOBALS['TSFE']->sys_page->init(false);
+        $GLOBALS['TSFE']->tmpl = $this->objectManager->get(TemplateService::class);
+        $GLOBALS['TSFE']->tmpl->init();
+        $GLOBALS['TSFE']->connectToDB();
+        $GLOBALS['TSFE']->initFEuser();
+        $GLOBALS['TSFE']->determineId();
+        $GLOBALS['TSFE']->initTemplate();
     }
 }
