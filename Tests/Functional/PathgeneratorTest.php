@@ -251,7 +251,7 @@ class PathgeneratorTest extends FunctionalTestCase
      */
     public function canResolveWithForeignEncoding()
     {
-        $GLOBALS['TSFE']->defaultCharSet = 'dummy'; // Foreign Encoding
+        $GLOBALS['TSFE']->defaultCharSet = 'latin1'; // Foreign Encoding
 
         $result = $this->pathgenerator->build(81, 0, 0);
         $this->assertEquals('specialpath/withspecial/chars', $result['path'], 'should be specialpath/withspecial/chars');
