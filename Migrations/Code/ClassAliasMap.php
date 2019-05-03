@@ -9,6 +9,6 @@ return [
     'tx_realurl_pathgenerator' => \AOE\Realurl\Pathgenerator::class,
     'tx_realurl_rootlineException' => \AOE\Realurl\Exception\RootlineException::class,
     'tx_realurl_tcemain' => \AOE\Realurl\Tcemain::class,
-    'tx_realurl_modfunc1'=> \AOE\Realurl\modfunc1\Modfunc1::class
+    'tx_realurl_modfunc1'=> \AOE\Realurl\Modfunc1\Modfunc1::class
 
 ];
