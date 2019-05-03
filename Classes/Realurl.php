@@ -202,7 +202,7 @@ class Realurl
         $this->enableStrictMode = (bool) $sysconf['enableStrictMode'];
         $this->enableChashUrlDebug = (bool) $sysconf['enableChashUrlDebug'];
         $this->enableRootlineExceptionLog = (bool) $sysconf['enableRootlineExceptionLog'];
-        $this->configurationService = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(ConfigurationService::class);
+        $this->configurationService = GeneralUtility::makeInstance(ConfigurationService::class);
 
         $this->initDevLog($sysconf);
     }

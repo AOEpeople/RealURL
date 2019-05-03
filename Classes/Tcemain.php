@@ -1,6 +1,8 @@
 <?php
 namespace AOE\Realurl;
 
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+
 /***************************************************************
 *  Copyright notice
 *
@@ -383,13 +385,13 @@ class Tcemain
     protected function markCachesDirty($tableName, $recordId, &$reference)
     {
         if ($tableName == 'pages') {
-            $cache = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(Cachemgmt::class, $GLOBALS ['BE_USER']->workspace, 0);
+            $cache = GeneralUtility::makeInstance(Cachemgmt::class, $GLOBALS ['BE_USER']->workspace, 0);
             $cache->markAsDirtyCompletePid($recordId);
         }
         if ($tableName == 'pages_language_overlay') {
             $pid = $reference->checkValue_currentRecord ['pid'];
             if ($pid) {
-                $cache = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(Cachemgmt::class, $GLOBALS ['BE_USER']->workspace, 0);
+                $cache = GeneralUtility::makeInstance(Cachemgmt::class, $GLOBALS ['BE_USER']->workspace, 0);
                 $cache->markAsDirtyCompletePid($pid);
             }
         }
