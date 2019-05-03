@@ -159,7 +159,7 @@ class Pagepath
         if ($this->pObj->extConf['init']['enableAllUnicodeLetters']) {
             array_walk(
                 $pagePathOrigin,
-                create_function('&$pathSegment', '$pathSegment = mb_detect_encoding($pathSegment, "ASCII", TRUE) ? $pathSegment : rawurlencode($pathSegment);')
+                function (&$pathSegment) { $pathSegment = mb_detect_encoding($pathSegment, "ASCII", TRUE) ? $pathSegment : rawurlencode($pathSegment); }
             );
         }
 
