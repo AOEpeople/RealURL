@@ -30,6 +30,7 @@ namespace AOE\Realurl;
 
 use AOE\Realurl\Exception\RootlineException;
 use AOE\Realurl\Service\ConfigurationService;
+use TYPO3\CMS\Core\Charset\CharsetConverter;
 use TYPO3\CMS\Core\TimeTracker\TimeTracker;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -2233,7 +2234,8 @@ class Realurl
         $processedTitle = strtr($processedTitle, ' -+_', $space . $space . $space . $space); // convert spaces
 
         // Convert extended letters to ascii equivalents
-        $processedTitle = $GLOBALS['TSFE']->csConvObj->specCharsToASCII($charset, $processedTitle);
+        $charsetConverter = GeneralUtility::makeInstance(CharsetConverter::class);
+        $processedTitle = $charsetConverter->specCharsToASCII($charset, $processedTitle);
 
         // Strip the rest
         if ($this->extConf['init']['enableAllUnicodeLetters']) {

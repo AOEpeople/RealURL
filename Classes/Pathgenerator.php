@@ -2,6 +2,8 @@
 namespace AOE\Realurl;
 
 use AOE\Realurl\Exception\RootlineException;
+use TYPO3\CMS\Core\Charset\CharsetConverter;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /***************************************************************
  * Copyright notice
@@ -469,7 +471,8 @@ class Pathgenerator
         $space = isset($this->conf ['spaceCharacter']) ? $this->conf ['spaceCharacter'] : '-';
         $processedTitle = preg_replace('/[\s+]+/', $space, $processedTitle); // convert spaces
             // Convert extended letters to ascii equivalents:
-        $processedTitle = $GLOBALS ['TSFE']->csConvObj->specCharsToASCII($charset, $processedTitle);
+        $charsetConverter = GeneralUtility::makeInstance(CharsetConverter::class);
+        $processedTitle = $charsetConverter->specCharsToASCII($charset, $processedTitle);
             // Strip the rest
         if ($this->pObj->extConf['init']['enableAllUnicodeLetters']) {
             // Warning: slow!!!
