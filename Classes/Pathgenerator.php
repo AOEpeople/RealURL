@@ -466,7 +466,7 @@ class Pathgenerator
         // Fetch character set:
         $charset = $GLOBALS ['TYPO3_CONF_VARS'] ['BE'] ['forceCharset'] ? $GLOBALS ['TYPO3_CONF_VARS'] ['BE'] ['forceCharset'] : $GLOBALS ['TSFE']->defaultCharSet;
             // Convert to lowercase:
-        $processedTitle = $GLOBALS ['TSFE']->csConvObj->conv_case($charset, $title, 'toLower');
+        $processedTitle = mb_strtolower($title, $charset);
             // Convert some special tokens to the space character:
         $space = isset($this->conf ['spaceCharacter']) ? $this->conf ['spaceCharacter'] : '-';
         $processedTitle = preg_replace('/[\s+]+/', $space, $processedTitle); // convert spaces
