@@ -190,7 +190,7 @@ class Pathgenerator
             $result = $this->sys_page->getPage($id);
 
                 // if overlay for the of shortcuts is requested
-            if ($this->extconfArr ['localizeShortcuts'] && \TYPO3\CMS\Core\Utility\GeneralUtility::inList($GLOBALS ['TYPO3_CONF_VARS'] ['FE'] ['pageOverlayFields'], 'shortcut') && $langid) {
+            if ($this->extconfArr ['localizeShortcuts'] && $langid) {
                 $resultOverlay = $this->_getPageOverlay($id, $langid);
                 if ($resultOverlay ['shortcut']) {
                     $result ['shortcut'] = $resultOverlay ['shortcut'];

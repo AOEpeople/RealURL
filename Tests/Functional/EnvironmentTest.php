@@ -43,29 +43,6 @@ class EnvironmentTest extends FunctionalTestCase
      * @test
      * @return void
      */
-    public function pageOverlayFieldExists()
-    {
-        $list = \TYPO3\CMS\Core\Utility\GeneralUtility::trimExplode(',', $GLOBALS['TYPO3_CONF_VARS']['FE']['pageOverlayFields']);
-        $this->assertTrue(
-            in_array('tx_realurl_pathsegment', $list),
-            'tx_realurl_pathsegment missing in $GLOBALS[\'TYPO3_CONF_VARS\'][\'FE\'][\'pageOverlayFields\']'
-        );
-        $this->assertTrue(
-            in_array('tx_realurl_pathoverride', $list),
-            'tx_realurl_pathoverride missing in $GLOBALS[\'TYPO3_CONF_VARS\'][\'FE\'][\'pageOverlayFields\']'
-        );
-        $this->assertTrue(
-            in_array('tx_realurl_exclude', $list),
-            'tx_realurl_exclude missing in $GLOBALS[\'TYPO3_CONF_VARS\'][\'FE\'][\'pageOverlayFields\']'
-        );
-    }
-
-    /**
-     * Just to have some confidence about the system settings ;)
-     *
-     * @test
-     * @return void
-     */
     public function rootlineFieldExists()
     {
         $list = \TYPO3\CMS\Core\Utility\GeneralUtility::trimExplode(',', $GLOBALS['TYPO3_CONF_VARS']['FE']['addRootLineFields']);

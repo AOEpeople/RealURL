@@ -2225,7 +2225,7 @@ class Realurl
 
         // Convert to lowercase
         if ($cfg['useUniqueCache_conf']['strtolower']) {
-            $processedTitle = $GLOBALS['TSFE']->csConvObj->conv_case($charset, $processedTitle, 'toLower');
+            $processedTitle = mb_strtolower($processedTitle, $charset);
         }
 
         // Convert some special tokens to the space character
