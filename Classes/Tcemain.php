@@ -2,6 +2,7 @@
 namespace AOE\Realurl;
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\DataHandling\DataHandler;
 
 /***************************************************************
 *  Copyright notice
@@ -124,7 +125,8 @@ class Tcemain
             'pageid IN (' . implode(',', $pageIds) . ') AND languageid=' . intval($languageId),
             [
                 'dirty' => '1'
-            ]);
+            ]
+        );
     }
 
     /**
@@ -144,7 +146,8 @@ class Tcemain
             'pageid IN (' . implode(',', $pageIds) . ')',
             [
                 'dirty' => '1'
-            ]);
+            ]
+        );
     }
 
     /**
@@ -299,7 +302,7 @@ class Tcemain
      * @return void
      * @todo Expire unique alias cache: how to get the proper timeout value easily here?
      */
-    public function processDatamap_afterDatabaseOperations($status, $tableName, $recordId, array $databaseData, \TYPO3\CMS\Core\DataHandling\DataHandler &$reference)
+    public function processDatamap_afterDatabaseOperations($status, $tableName, $recordId, array $databaseData, DataHandler &$reference)
     {
         $this->processContentUpdates($status, $tableName, $recordId, $databaseData);
         $this->markCachesDirty($tableName, $recordId, $reference);
@@ -315,7 +318,7 @@ class Tcemain
      * @param \TYPO3\CMS\Core\DataHandling\DataHandler $reference
      * @return void
      */
-    public function processDatamap_preProcessFieldArray(&$incomingFieldArray, $table, $id, \TYPO3\CMS\Core\DataHandling\DataHandler &$reference)
+    public function processDatamap_preProcessFieldArray(&$incomingFieldArray, $table, $id, DataHandler &$reference)
     {
         if ($table != 'pages_language_overlay' || $id != 'NEW') {
             return;

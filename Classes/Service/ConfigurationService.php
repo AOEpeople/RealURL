@@ -28,6 +28,7 @@ namespace AOE\Realurl\Service;
  ***************************************************************/
 
 use AOE\Realurl\Exception\ConfigurationServiceException;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Class ConfigurationService
@@ -73,11 +74,16 @@ class ConfigurationService
             }
         } else {
             if ($this->enableStrictMode && $this->multidomain) {
-                throw new ConfigurationServiceException('RealURL strict mode error: ' . 'multidomain configuration detected and domain \'' . $this->host . '\' is not configured for RealURL. Please, fix your RealURL configuration!');
+                throw new ConfigurationServiceException(
+                    'RealURL strict mode error: ' . 'multidomain configuration detected and domain \'' . $this->host .
+                    '\' is not configured for RealURL. Please, fix your RealURL configuration!'
+                );
             }
             $extConf = (array) $this->confArray['_DEFAULT'];
             if ($this->multidomain && isset($extConf['pagePath']['rootpage_id']) && $this->enableStrictMode) {
-                throw new ConfigurationServiceException('Rootpid configured for _DEFAULT namespace, tis can cause wron cache entries and should be avoided');
+                throw new ConfigurationServiceException(
+                    'Rootpid configured for _DEFAULT namespace, tis can cause wron cache entries and should be avoided'
+                );
             }
         }
 
@@ -116,12 +122,21 @@ class ConfigurationService
         $rootpage_id = false;
         // Search by host
         do {
-            $domain = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('pid,redirectTo,domainName', 'sys_domain', 'domainName=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($host, 'sys_domain') . ' AND hidden=0');
+            $domain = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
+                'pid,redirectTo,domainName',
+                'sys_domain',
+                'domainName=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($host, 'sys_domain') . ' AND hidden=0'
+            );
             if (count($domain) > 0) {
                 if (!$domain[0]['redirectTo']) {
                     $rootpage_id = intval($domain[0]['pid']);
                     if ($this->enableDevLog) {
-                        \TYPO3\CMS\Core\Utility\GeneralUtility::devLog('Found rootpage_id by domain lookup', 'realurl', 0, ['domain' => $domain[0]['domainName'], 'rootpage_id' => $rootpage_id]);
+                        GeneralUtility::devLog(
+                            'Found rootpage_id by domain lookup',
+                            'realurl',
+                            0,
+                            ['domain' => $domain[0]['domainName'], 'rootpage_id' => $rootpage_id]
+                        );
                     }
                     break;
                 } else {
@@ -140,7 +155,7 @@ class ConfigurationService
             if (count($rows) == 1) {
                 $rootpage_id = $rows[0]['pid'];
                 if ($this->enableDevLog) {
-                    \TYPO3\CMS\Core\Utility\GeneralUtility::devLog('Found rootpage_id by searching sys_template', 'realurl', 0, ['rootpage_id' => $rootpage_id]);
+                    GeneralUtility::devLog('Found rootpage_id by searching sys_template', 'realurl', 0, ['rootpage_id' => $rootpage_id]);
                 }
             }
         }

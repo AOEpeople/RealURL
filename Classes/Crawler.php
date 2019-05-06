@@ -63,7 +63,8 @@ class Crawler
         $loginfos = '(lang: ' . $GLOBALS['TSFE']->sys_language_uid . ' langc:' . $GLOBALS['TSFE']->sys_language_content . ')';
 
         $pObj->applicationData['realurl']['crawlermode'] = true;
-        $pObj->applicationData['tx_crawler']['log'][] = 'Force link generation: ' . $GLOBALS['TSFE']->cObj->typolink('test', $lconf) . $loginfos;
+        $pObj->applicationData['tx_crawler']['log'][] = 'Force link generation: ' .
+            $GLOBALS['TSFE']->cObj->typolink('test', $lconf) . $loginfos;
         $pObj->applicationData['realurl']['crawlermode'] = false;
     }
 

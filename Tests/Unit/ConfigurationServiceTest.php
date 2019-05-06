@@ -46,19 +46,33 @@ class ConfigurationServiceTest extends UnitTestCase
         $this->configurationService = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(ConfigurationService::class);
     }
 
-    public function test_canGetDefaultConfiguration()
+    /**
+     * @test
+     */
+    public function canGetDefaultConfiguration()
     {
         $conf = $this->getMultiDomainConfigurationFixture();
         $this->configurationService->setRealUrlConfiguration($conf);
         $this->assertEquals($this->configurationService->getConfigurationForDomain(), $conf['_DEFAULT'], ' wrong configuration returned');
-        $this->assertEquals($this->configurationService->getConfigurationForDomain('notconfigured.com'), $conf['_DEFAULT'], ' wrong configuration returned');
+        $this->assertEquals(
+            $this->configurationService->getConfigurationForDomain('notconfigured.com'),
+            $conf['_DEFAULT'],
+            ' wrong configuration returned'
+        );
     }
 
-    public function test_canGetHostConfigurationForAConfiguredHost()
+    /**
+     * @test
+     */
+    public function canGetHostConfigurationForAConfiguredHost()
     {
         $conf = $this->getMultiDomainConfigurationFixture();
         $this->configurationService->setRealUrlConfiguration($conf);
-        $this->assertEquals($this->configurationService->getConfigurationForDomain('www.domain1.com'), $conf['www.domain1.com'], ' wrong configuration returned');
+        $this->assertEquals(
+            $this->configurationService->getConfigurationForDomain('www.domain1.com'),
+            $conf['www.domain1.com'],
+            ' wrong configuration returned'
+        );
     }
 
     private function getMultiDomainConfigurationFixture()

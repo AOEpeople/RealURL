@@ -4,6 +4,7 @@ namespace AOE\Realurl;
 use AOE\Realurl\Exception\RootlineException;
 use TYPO3\CMS\Core\Charset\CharsetConverter;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 
 /***************************************************************
  * Copyright notice
@@ -210,7 +211,12 @@ class Pathgenerator
                         if ($query) {
                             $resultfirstpage = $GLOBALS ['TYPO3_DB']->sql_fetch_assoc($query);
                         }
-                        $subpageShortCut = $this->_checkForShortCutPageAndGetTarget($resultfirstpage ['uid'], $langid, $workspace, $reclevel+1);
+                        $subpageShortCut = $this->_checkForShortCutPageAndGetTarget(
+                            $resultfirstpage['uid'],
+                            $langid,
+                            $workspace,
+                            $reclevel + 1
+                        );
                         if ($subpageShortCut !== false) {
                             $returnValue = $subpageShortCut;
                         } else {
@@ -225,7 +231,12 @@ class Pathgenerator
                             $returnValue = false;
                         } else {
                             //look recursive:
-                            $subpageShortCut = $this->_checkForShortCutPageAndGetTarget($result ['shortcut'], $langid, $workspace, $reclevel+1);
+                            $subpageShortCut = $this->_checkForShortCutPageAndGetTarget(
+                                $result['shortcut'],
+                                $langid,
+                                $workspace,
+                                $reclevel + 1
+                            );
                             if ($subpageShortCut !== false) {
                                 $returnValue = $subpageShortCut;
                             } else {
@@ -237,7 +248,7 @@ class Pathgenerator
             } elseif ($this->_getDelegationFieldname($result ['doktype'])) {
                 $target = $this->_getDelegationTarget($result, $langid, $workspace);
                 if (is_numeric($target)) {
-                    $res = $this->_checkForShortCutPageAndGetTarget($target, $langid, $workspace, $reclevel-1);
+                    $res = $this->_checkForShortCutPageAndGetTarget($target, $langid, $workspace, $reclevel - 1);
                     //if the recursion fails we keep the original target
                     if ($res === false) {
                         $res = $target;
@@ -328,7 +339,7 @@ class Pathgenerator
     {
         $path = [];
         $rootline = array_reverse($rootline);
-        $segment = \TYPO3\CMS\Core\Utility\GeneralUtility::trimExplode(',', $segment);
+        $segment = GeneralUtility::trimExplode(',', $segment);
 
         // Do not include rootpage itself, except it is only the root and filename is set
         if (count($rootline) > 1 || $rootline[0]['tx_realurl_pathsegment'] === '') {
@@ -416,7 +427,8 @@ class Pathgenerator
     {
         if (is_array($this->conf ['delegation']) && array_key_exists($doktype, $this->conf ['delegation'])) {
             return $this->conf ['delegation'] [$doktype];
-        } elseif (is_array($GLOBALS ['TYPO3_CONF_VARS'] ['EXTCONF'] ['realurl'] ['delegate']) && array_key_exists($doktype, $GLOBALS ['TYPO3_CONF_VARS'] ['EXTCONF'] ['realurl'] ['delegate'])) {
+        } elseif (is_array($GLOBALS ['TYPO3_CONF_VARS'] ['EXTCONF'] ['realurl'] ['delegate']) &&
+            array_key_exists($doktype, $GLOBALS ['TYPO3_CONF_VARS'] ['EXTCONF'] ['realurl'] ['delegate'])) {
             return $GLOBALS ['TYPO3_CONF_VARS'] ['EXTCONF'] ['realurl'] ['delegate'] [$doktype];
         } else {
             return false;
@@ -464,7 +476,7 @@ class Pathgenerator
     public function encodeTitle($title)
     {
         // Fetch character set:
-        $charset = $GLOBALS ['TYPO3_CONF_VARS'] ['BE'] ['forceCharset'] ? $GLOBALS ['TYPO3_CONF_VARS'] ['BE'] ['forceCharset'] : $GLOBALS ['TSFE']->defaultCharSet;
+        $charset = $GLOBALS ['TYPO3_CONF_VARS'] ['BE'] ['forceCharset'] ?: $GLOBALS ['TSFE']->defaultCharSet;
             // Convert to lowercase:
         $processedTitle = mb_strtolower($title, $charset);
             // Convert some special tokens to the space character:
@@ -488,7 +500,7 @@ class Pathgenerator
                 'title' => $title,
                 'processedTitle' => $processedTitle
             ];
-            $processedTitle = \TYPO3\CMS\Core\Utility\GeneralUtility::callUserFunction($this->conf ['encodeTitle_userProc'], $params, $this);
+            $processedTitle = GeneralUtility::callUserFunction($this->conf ['encodeTitle_userProc'], $params, $this);
         }
             // Return encoded URL:
         return rawurlencode($processedTitle);
@@ -513,7 +525,7 @@ class Pathgenerator
              * I also opted against "clone $GLOBALS['TSFE']->sys_page"
              * since this might still cause race conditions on the object
              **/
-            $this->sys_page = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\Page\PageRepository::class);
+            $this->sys_page = GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\Page\PageRepository::class);
         }
         $this->sys_page->sys_language_uid = $langID;
         if ($workspace != 0 && is_numeric($workspace)) {
@@ -567,9 +579,9 @@ class Pathgenerator
     {
         $relevantLangId = $langid;
         if ($this->extconfArr['useLanguagevisibility']
-            && \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::isLoaded('languagevisibility')
+            && ExtensionManagementUtility::isLoaded('languagevisibility')
         ) {
-            require_once(\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath('languagevisibility') . 'class.tx_languagevisibility_feservices.php');
+            require_once(ExtensionManagementUtility::extPath('languagevisibility') . 'class.tx_languagevisibility_feservices.php');
             $relevantLangId = tx_languagevisibility_feservices::getOverlayLanguageIdForElementRecord($id, 'pages', $langid);
         }
         return $this->sys_page->getPageOverlay($id, $relevantLangId);

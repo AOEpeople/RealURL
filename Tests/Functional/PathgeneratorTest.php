@@ -26,7 +26,6 @@ namespace AOE\Realurl\Tests\Functional;
 
 use AOE\Realurl\Pathgenerator;
 use Nimut\TestingFramework\TestCase\FunctionalTestCase;
-use TYPO3\CMS\Core\TimeTracker\NullTimeTracker;
 use TYPO3\CMS\Core\TimeTracker\TimeTracker;
 use TYPO3\CMS\Core\TypoScript\TemplateService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -179,7 +178,11 @@ class PathgeneratorTest extends FunctionalTestCase
 
         // page root->excludefrommiddle->languagemix (French)
         $result = $this->pathgenerator->build(101, 5, 0);
-        $this->assertEquals('languagemix-segment/another/vivelafrance', $result['path'], 'should be languagemix-segment/another/vivelafrance');
+        $this->assertEquals(
+            'languagemix-segment/another/vivelafrance',
+            $result['path'],
+            'should be languagemix-segment/another/vivelafrance'
+        );
     }
 
     /**
@@ -231,7 +234,11 @@ class PathgeneratorTest extends FunctionalTestCase
         $this->assertEquals('https://www.aoe.com', $result['path'], 'external URL is expected');
 
         $result = $this->pathgenerator->build(199, 4, 0);
-        $this->assertEquals('https://www.aoe.com', $result['path'], 'Chinese record does not provide own value therefore default-value is used');
+        $this->assertEquals(
+            'https://www.aoe.com',
+            $result['path'],
+            'Chinese record does not provide own value therefore default-value is used'
+        );
 
         $result = $this->pathgenerator->build(199, 5, 0);
         $this->assertEquals('https://www.aoe.com/fr', $result['path'], 'French record is supposed to overlay the URL');

@@ -71,5 +71,4 @@ class IconUtility
 
         return $iconFactory->getIcon($identifier, $size, $overlayIdentifier, $state)->render();
     }
-
 }

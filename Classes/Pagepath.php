@@ -64,9 +64,11 @@ class Pagepath
     /** Main function -> is called from real_url
      * parameters and results are in $params (some by reference)
      *
-     * @param    array        Parameters passed from parent object, "tx_realurl". Some values are passed by reference! (paramKeyValues, pathParts and pObj)
-     * @param    Realurl        Copy of parent object.
-     * @return    mixed        Depends on branching.
+     * @param array   Parameters passed from parent object "Realurl".
+     *                Some values are passed by reference! (paramKeyValues, pathParts and pObj)
+     * @param  Realurl Copy of parent object.
+     *
+     * @return mixed   Depends on branching.
      */
     public function main($params, $ref)
     {
@@ -113,7 +115,8 @@ class Pagepath
             $pageId = $GLOBALS['TSFE']->sys_page->getPageIdFromAlias($pageId);
         }
         if ($this->_isCrawlerRun() && $GLOBALS['TSFE']->id == $pageId) {
-            $GLOBALS['TSFE']->applicationData['tx_crawler']['log'][] = 'realurl: _id2alias ' . $pageId . '/' . $this->_getLanguageVarEncode() . '/' . $this->_getWorkspaceId();
+            $GLOBALS['TSFE']->applicationData['tx_crawler']['log'][] = 'realurl: _id2alias ' . $pageId . '/' .
+                $this->_getLanguageVarEncode() . '/' . $this->_getWorkspaceId();
             //clear this page cache:
             $this->cachemgmt->markAsDirtyCompletePid($pageId);
         }
@@ -129,7 +132,8 @@ class Pagepath
                 $buildPageArray['external']
             );
             if ($this->_isCrawlerRun() && $GLOBALS['TSFE']->id == $pageId) {
-                $GLOBALS['TSFE']->applicationData['tx_crawler']['log'][] = 'created: ' . $buildedPath . ' pid:' . $pageId . '/' . $this->generator->getPidForCache();
+                $GLOBALS['TSFE']->applicationData['tx_crawler']['log'][] = 'created: ' . $buildedPath . ' pid:' . $pageId . '/' .
+                    $this->generator->getPidForCache();
             }
         }
         if ($buildedPath) {
@@ -159,7 +163,9 @@ class Pagepath
         if ($this->pObj->extConf['init']['enableAllUnicodeLetters']) {
             array_walk(
                 $pagePathOrigin,
-                function (&$pathSegment) { $pathSegment = mb_detect_encoding($pathSegment, "ASCII", TRUE) ? $pathSegment : rawurlencode($pathSegment); }
+                function (&$pathSegment) {
+                    $pathSegment = mb_detect_encoding($pathSegment, "ASCII", true) ? $pathSegment : rawurlencode($pathSegment);
+                }
             );
         }
 
@@ -218,12 +224,12 @@ class Pagepath
         foreach ($possiblePageRecords as $possiblePageRecord) {
             // Prevent assigning a path segment to a shortcut, which would cause a redirect loop
             // if the shortcut has a lower page id and the target's page path is not available
-            if (\TYPO3\CMS\Frontend\Page\PageRepository::DOKTYPE_SHORTCUT === (integer) $possiblePageRecord['doktype']) {
+            if (\TYPO3\CMS\Frontend\Page\PageRepository::DOKTYPE_SHORTCUT === (int) $possiblePageRecord['doktype']) {
                 continue;
             }
 
             // Exclude workspace records as these are neither accessible nor connected to any root line
-            if (0 > (integer) $possiblePageRecord['pid']) {
+            if (0 > (int) $possiblePageRecord['pid']) {
                 continue;
             }
 
@@ -247,8 +253,10 @@ class Pagepath
 
         $whereClause = [];
         foreach ($titleFieldList as $titleField) {
-            $whereClause[] = $titleField . ' LIKE ' . $GLOBALS['TYPO3_DB']->fullQuotestr('%' . str_replace($spaceCharacter,
-                        '%', $pathSegment) . '%', 'pages)');
+            $whereClause[] = $titleField . ' LIKE ' . $GLOBALS['TYPO3_DB']->fullQuotestr(
+                '%' . str_replace($spaceCharacter, '%', $pathSegment) . '%',
+                'pages)'
+            );
         }
 
         return implode('OR ', $whereClause);
@@ -362,7 +370,7 @@ class Pagepath
      * Find the current language id.
      *
      * The langugeid is used to build the path + to cache the path
-     * - if in the url parameters it is forced to generate the url in a specific language it needs to use this (L parameter defined in typolink)
+     * - if in url parameters it is forced to generate the url in a specific language it needs to use this (L parameter defined in typolink)
      *
      * - orig_paramKeyValues is set by realurl during encoding, and it has the L paremeter value that is passed to typolink
      *
@@ -445,7 +453,7 @@ class Pagepath
     /**
      * assigns the parent object
      *
-     * @param tx_realurl $ref : the parent object
+     * @param Realurl $ref : the parent object
      * @return void
      */
     public function _setParent($ref)
