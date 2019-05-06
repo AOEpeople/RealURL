@@ -1,5 +1,5 @@
 <?php
-namespace AOE\Realurl\Modfunc1;
+namespace AOE\Realurl\modfunc1;
 
 /***************************************************************
  *  Copyright notice
@@ -91,7 +91,7 @@ class Modfunc1 extends AbstractFunctionModule
         if ($this->pObj->id) {
             $result = $this->createModuleContentForPage();
         } else {
-            $result = '<p>' . $GLOBALS['LANG']->sL('LLL:EXT:realurl/Modfunc1/locallang.xml:no_page_id') . '</p>';
+            $result = '<p>' . $GLOBALS['LANG']->sL('LLL:EXT:realurl/modfunc1/locallang.xml:no_page_id') . '</p>';
         }
 
         return $result;
@@ -143,7 +143,7 @@ class Modfunc1 extends AbstractFunctionModule
      */
     protected function getFunctionMenu()
     {
-        return $GLOBALS['LANG']->sL('LLL:EXT:realurl/Modfunc1/locallang.xml:function')
+        return $GLOBALS['LANG']->sL('LLL:EXT:realurl/modfunc1/locallang.xml:function')
             . ' '
             . \TYPO3\CMS\Backend\Utility\BackendUtility::getFuncMenu(
                 $this->pObj->id,
@@ -177,7 +177,7 @@ class Modfunc1 extends AbstractFunctionModule
      */
     protected function getDepthSelector()
     {
-        return $GLOBALS['LANG']->sL('LLL:EXT:realurl/Modfunc1/locallang.xml:depth')
+        return $GLOBALS['LANG']->sL('LLL:EXT:realurl/modfunc1/locallang.xml:depth')
             . \TYPO3\CMS\Backend\Utility\BackendUtility::getFuncMenu(
                 $this->pObj->id,
                 'SET[depth]',
@@ -332,7 +332,7 @@ class Modfunc1 extends AbstractFunctionModule
         $defaultLanguageLabel = $this->getDefaultLanguageName();
 
         array_unshift($languages, ['uid' => 0, 'title' => $defaultLanguageLabel]);
-        array_unshift($languages, ['uid' => '', 'title' => $GLOBALS['LANG']->sL('LLL:EXT:realurl/Modfunc1/locallang.xml:all_languages')]);
+        array_unshift($languages, ['uid' => '', 'title' => $GLOBALS['LANG']->sL('LLL:EXT:realurl/modfunc1/locallang.xml:all_languages')]);
 
         return $languages;
     }
@@ -348,7 +348,7 @@ class Modfunc1 extends AbstractFunctionModule
         if (isset($tsConfig['mod.']['SHARED.']['defaultLanguageLabel'])) {
             $label = $tsConfig['mod.']['SHARED.']['defaultLanguageLabel'];
         } else {
-            $label = $GLOBALS['LANG']->sL('LLL:EXT:realurl/Modfunc1/locallang.xml:default_language');
+            $label = $GLOBALS['LANG']->sL('LLL:EXT:realurl/modfunc1/locallang.xml:default_language');
         }
 
         return $label;
@@ -1019,7 +1019,7 @@ class Modfunc1 extends AbstractFunctionModule
         }
         //first ROW:
         //****************
-        $firstRowCells[] = '<td style="min-width:300px">' . $GLOBALS['LANG']->sL('LLL:EXT:realurl/Modfunc1/locallang.xml:page_title') . ':</td>';
+        $firstRowCells[] = '<td style="min-width:300px">' . $GLOBALS['LANG']->sL('LLL:EXT:realurl/modfunc1/locallang.xml:page_title') . ':</td>';
         foreach ($languageList as $language) {
             if ($language['uid'] !== '') {
                 $firstRowCells[] = '<td class="c-leftLine">' . $language['title'] . ' [' . $language['uid'] . ']</td>';
