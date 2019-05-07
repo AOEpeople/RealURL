@@ -224,7 +224,7 @@ class Realurl
      */
     protected function initDevLog(array $sysconf)
     {
-        $this->enableDevLog = (boolean)$sysconf['enableDevLog'];
+        $this->enableDevLog = (bool)$sysconf['enableDevLog'];
         if ($this->enableDevLog) {
             $this->devLogId = (isset($_SERVER['UNIQUE_ID']) ? $_SERVER['UNIQUE_ID'] : uniqid(''));
         }
@@ -1030,7 +1030,6 @@ class Realurl
         if ($this->typoScriptFrontendController->siteScript &&
             substr($this->typoScriptFrontendController->siteScript, 0, 9) != 'index.php' &&
             substr($this->typoScriptFrontendController->siteScript, 0, 1) != '?') {
-
             // Getting the path which is above the current site url
             // For instance "first/second/third/index.html?&param1=value1&param2=value2"
             // should be the result of the URL
@@ -1112,7 +1111,8 @@ class Realurl
                 /** @noinspection PhpUndefinedMethodInspection */
                 $timeTracker->setTSlogMessage(
                     'decodeSpURL: 
-                    ignoring respectSimulateStaticURLs due defaultToHTMLsuffixOnPrev for the root level page!)', 2
+                    ignoring respectSimulateStaticURLs due defaultToHTMLsuffixOnPrev for the root level page!)',
+                    2
                 );
                 $this->extConf['init']['respectSimulateStaticURLs'] = false;
             }
@@ -1218,7 +1218,8 @@ class Realurl
     protected function getCurrentDomainId()
     {
         /** @noinspection PhpUndefinedMethodInspection */
-        list($row) = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('uid',
+        list($row) = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
+            'uid',
             'sys_domain',
             'domainName=' . $GLOBALS['TYPO3_DB']->fullQuoteStr(GeneralUtility::getIndpEnv('HTTP_HOST'), 'sys_domain') .
             ' AND redirectTo=\'\''
@@ -1293,7 +1294,8 @@ class Realurl
         // Fixed Post-vars
         $fixedPostVarSetCfg = $this->getPostVarSetConfig(
             $cachedInfo['id'] ?: $cachedInfo['rootpage_id'],
-            'fixedPostVars');
+            'fixedPostVars'
+        );
         $fixedPost_GET_VARS = $this->decodeSpURL_settingPreVars($pathParts, $fixedPostVarSetCfg);
 
         // Setting "postVarSets"
@@ -1306,8 +1308,7 @@ class Realurl
                 '"' .
                 $speakingURIpath .
                 '" could not be found, closest page matching is ' .
-                substr(
-                    implode('/', $this->dirParts), 0, -strlen(implode('/', $pathParts))) . ''
+                substr(implode('/', $this->dirParts), 0, -strlen(implode('/', $pathParts))) . ''
             );
         }
 
@@ -2319,7 +2320,10 @@ class Realurl
             ' AND lang=' . (int)$lang .
             ' AND expire=0' .
             ($aliasValue ? ' AND value_alias=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($aliasValue, 'tx_realurl_uniqalias') : ''),
-            '', '', '1');
+            '',
+            '',
+            '1'
+        );
         if (is_array($row)) {
             $returnValue = $row['value_alias'];
         } else {
@@ -2676,7 +2680,8 @@ class Realurl
                                 $this->setConfigurationByReference($disposal['useConfiguration']);
                             }
                             $this->additionalParametersForChash[$GETvar] =
-                                MathUtility::canBeInterpretedAsInteger($urlParams[$GETvar]) ? (int)$urlParams[$GETvar] : $urlParams[$GETvar];
+                                MathUtility::canBeInterpretedAsInteger($urlParams[$GETvar]) ?
+                                    (int)$urlParams[$GETvar] : $urlParams[$GETvar];
 
                             return $disposal;
                         } else {
