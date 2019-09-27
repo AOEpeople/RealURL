@@ -26,6 +26,9 @@ branches:
 
 sudo: false
 
+services:
+  - mysql
+
 before_install:
   - composer self-update
 
