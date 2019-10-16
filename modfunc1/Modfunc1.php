@@ -278,15 +278,12 @@ class Modfunc1 extends AbstractFunctionModule
                     white-space: nowrap;
                 }
 
-                TR.odd { background-color:#ddd; }
-
                 TD.c-ok { background-color: #A8E95C; }
                 TD.c-ok-expired { background-color: #B8C95C; }
                 TD.c-shortcut { background-color: #B8E95C; font-weight: 200}
                 TD.c-delegation { background-color: #EE0; }
                 /*TD.c-nok { background-color: #E9CD5C; }*/
                 TD.c-leftLine {border-left: 2px solid black; }
-                TD.bgColor5 { font-weight: bold; }
             ';
             $marker = '/*###POSTCSSMARKER###*/';
             if (!stristr($this->pObj->content, $marker)) {
@@ -398,14 +395,14 @@ class Modfunc1 extends AbstractFunctionModule
             if (!count($displayRows)) {
                 // Add title:
                 $tCells = [];
-                $tCells[] = '<td nowrap="nowrap">' . $rowTitle . '</td>';
+                $tCells[] = '<td>' . $rowTitle . '</td>';
 
                 // Empty row:
-                $tCells[] = '<td colspan="4" align="center">&nbsp;</td>';
+                $tCells[] = '<td colspan="3" align="center">&nbsp;</td>';
 
                 // Compile Row:
                 $output .= '
-                    <tr class="bgColor' . ($cc % 2 ? '-20' : '-10') . '">
+                    <tr>
                         ' . implode('
                         ', $tCells) . '
                     </tr>';
@@ -416,8 +413,8 @@ class Modfunc1 extends AbstractFunctionModule
                     $tCells = [];
 
                     if (!$c) {
-                        $tCells[] = '<td nowrap="nowrap" rowspan="' . count($displayRows) . '">' . $rowTitle . '</td>';
-                        $tCells[] = '<td nowrap="nowrap" rowspan="' . count($displayRows) . '">' . $row['row']['uid'] . '</td>';
+                        $tCells[] = '<td rowspan="' . count($displayRows) . '">' . $rowTitle . '</td>';
+                        $tCells[] = '<td rowspan="' . count($displayRows) . '">' . $row['row']['uid'] . '</td>';
                     }
 
                     // Path:
@@ -429,7 +426,7 @@ class Modfunc1 extends AbstractFunctionModule
 
                     // Compile Row:
                     $output .= '
-                        <tr class="bgColor' . ($cc % 2 ? '-20' : '-10') . '">
+                        <tr>
                             ' . implode('
                             ', $tCells) . '
                         </tr>';
@@ -447,15 +444,17 @@ class Modfunc1 extends AbstractFunctionModule
         $tCells[] = '<td>GET variables:</td>';
 
         $output = '
-            <tr class="bgColor5 tableheader">
-                ' . implode('
-                ', $tCells) . '
-            </tr>' . $output;
+            <thead>
+                <tr>
+                    ' . implode('
+                    ', $tCells) . '
+                </tr>
+            </thead>' . $output;
 
         // Compile final table and return:
         $output = '<br/><br/>
         Displayed entries: <b>' . $countDisplayed . '</b> ' . '<br/>
-        <table border="0" cellspacing="1" cellpadding="0" id="tx-realurl-pathcacheTable" class="lrPadding c-list">' . $output . '
+        <table border="0" cellspacing="0" cellpadding="0" id="tx-realurl-pathcacheTable" class="table table-striped table-hover typo3-page-pages">' . $output . '
         </table>';
 
         return $output;
@@ -492,15 +491,15 @@ class Modfunc1 extends AbstractFunctionModule
             if (!count($displayRows)) {
                 // Add title:
                 $tCells = [];
-                $tCells[] = '<td nowrap="nowrap">' . $rowTitle . '</td>';
-                $tCells[] = '<td nowrap="nowrap">&nbsp;</td>';
+                $tCells[] = '<td>' . $rowTitle . '</td>';
+                $tCells[] = '<td>&nbsp;</td>';
 
                 // Empty row:
-                $tCells[] = '<td colspan="4" align="center">&nbsp;</td>';
+                $tCells[] = '<td colspan="2" align="center">&nbsp;</td>';
 
                 // Compile Row:
                 $output .= '
-                    <tr class="bgColor' . ($cc % 2 ? '-20' : '-10') . '">
+                    <tr>
                         ' . implode('
                         ', $tCells) . '
                     </tr>';
@@ -510,8 +509,8 @@ class Modfunc1 extends AbstractFunctionModule
                     // Add icon/title and ID:
                     $tCells = [];
                     if (!$c) {
-                        $tCells[] = '<td nowrap="nowrap" rowspan="' . count($displayRows) . '">' . $rowTitle . '</td>';
-                        $tCells[] = '<td nowrap="nowrap" rowspan="' . count($displayRows) . '">' . $row['row']['uid'] . '</td>';
+                        $tCells[] = '<td rowspan="' . count($displayRows) . '">' . $rowTitle . '</td>';
+                        $tCells[] = '<td rowspan="' . count($displayRows) . '">' . $row['row']['uid'] . '</td>';
                     }
 
                     // Path:
@@ -523,7 +522,7 @@ class Modfunc1 extends AbstractFunctionModule
 
                     // Compile Row:
                     $output .= '
-                        <tr class="bgColor' . ($cc % 2 ? '-20' : '-10') . '">
+                        <tr>
                             ' . implode('
                             ', $tCells) . '
                         </tr>';
@@ -546,15 +545,17 @@ class Modfunc1 extends AbstractFunctionModule
         $tCells[] = '<td>Errors:</td>';
 
         $output = '
-            <tr class="bgColor5 tableheader">
-                ' . implode('
-                ', $tCells) . '
-            </tr>' . $output;
+            <thead>
+                <tr>
+                    ' . implode('
+                    ', $tCells) . '
+                </tr>
+            </thead>' . $output;
 
         // Compile final table and return:
         $output = '<br/><br/>
         Displayed entries: <b>' . $countDisplayed . '</b> ' . '<br/>
-        <table border="0" cellspacing="1" cellpadding="0" id="tx-realurl-pathcacheTable" class="lrPadding c-list">' . $output . '
+        <table border="0" cellspacing="0" cellpadding="0" id="tx-realurl-pathcacheTable" class="table table-striped table-hover typo3-page-pages">' . $output . '
         </table>';
 
         return $output;
@@ -669,7 +670,7 @@ class Modfunc1 extends AbstractFunctionModule
 
                 // Compile Row:
                 $output .= '
-                    <tr class="bgColor' . ($cc % 2 ? '-20' : '-10') . '">
+                    <tr>
                         ' . implode('
                         ', $tCells) . '
                     </tr>';
@@ -699,10 +700,12 @@ class Modfunc1 extends AbstractFunctionModule
             $tCells[] = '<td>Error:</td>';
 
             $output = '
-                <tr class="bgColor5 tableheader">
-                    ' . implode('
-                    ', $tCells) . '
-                </tr>' . $output;
+                <thead>
+                    <tr>
+                        ' . implode('
+                        ', $tCells) . '
+                    </tr>
+                </thead>' . $output;
             // Compile final table and return:
             $output = '
 
@@ -713,7 +716,7 @@ class Modfunc1 extends AbstractFunctionModule
             <input type="hidden" name="table" value="' . htmlspecialchars($tableName) . '" />
             <input type="hidden" name="id" value="' . htmlspecialchars($this->pObj->id) . '" />
             <br/><br/>
-            <table border="0" cellspacing="1" cellpadding="0" id="tx-realurl-pathcacheTable" class="lrPadding c-list">' . $output . '
+            <table border="0" cellspacing="0" cellpadding="0" id="tx-realurl-pathcacheTable" class="table table-striped table-hover typo3-page-pages">' . $output . '
             </table>';
 
             if ($entry === 'ALL') {
@@ -732,7 +735,7 @@ class Modfunc1 extends AbstractFunctionModule
 
                     // Compile Row:
                     $output .= '
-                        <tr class="bgColor' . ($cc % 2 ? '-20' : '-10') . '">
+                        <tr>
                             ' . implode('
                             ', $tCells) . '
                         </tr>';
@@ -745,14 +748,16 @@ class Modfunc1 extends AbstractFunctionModule
                 $tCells[] = '<td>Aliases:</td>';
 
                 $output = '
-                    <tr class="bgColor5 tableheader">
-                        ' . implode('
-                        ', $tCells) . '
-                    </tr>' . $output;
+                    <thead>
+                        <tr>
+                            ' . implode('
+                            ', $tCells) . '
+                        </tr>
+                    </thead>' . $output;
 
                 // Compile final table and return:
                 $output = '
-                <table border="0" cellspacing="1" cellpadding="0" id="tx-realurl-pathcacheTable" class="lrPadding c-list">' . $output . '
+                <table border="0" cellspacing="0" cellpadding="0" id="tx-realurl-pathcacheTable" class="table table-striped table-hover typo3-page-pages">' . $output . '
                 </table>';
             }
         }
@@ -881,7 +886,7 @@ class Modfunc1 extends AbstractFunctionModule
 
                 // Compile Row:
                 $output .= '
-                    <tr class="bgColor' . ($cc % 2 ? '-20' : '-10') . '">
+                    <tr>
                         ' . implode('
                         ', $tCells) . '
                     </tr>';
@@ -897,10 +902,12 @@ class Modfunc1 extends AbstractFunctionModule
             $tCells[] = '<td>First time:</td>';
 
             $output = '
-                <tr class="bgColor5 tableheader">
-                    ' . implode('
-                    ', $tCells) . '
-                </tr>' . $output;
+                <thead>
+                    <tr>
+                        ' . implode('
+                        ', $tCells) . '
+                    </tr>
+                </thead>' . $output;
 
             // Compile final table and return:
             $output = '
@@ -909,7 +916,7 @@ class Modfunc1 extends AbstractFunctionModule
                 . IconUtility::getIcon('actions-edit-delete', Icon::SIZE_SMALL)
                 . 'Flush log</a>
                 <br/>
-            <table border="0" cellspacing="1" cellpadding="0" id="tx-realurl-pathcacheTable" class="lrPadding c-list">' . $output . '
+            <table border="0" cellspacing="0" cellpadding="0" id="tx-realurl-pathcacheTable" class="table table-striped table-hover typo3-page-pages">' . $output . '
             </table>';
 
             return $output;
@@ -1012,7 +1019,7 @@ class Modfunc1 extends AbstractFunctionModule
             }
             $rows++;
             $output .= '
-            <tr' . (($rows % 2) ? ' class="odd"' : '') . '>
+            <tr>
                 ' . implode('
                 ', $tCells) . '
             </tr>';
@@ -1026,13 +1033,15 @@ class Modfunc1 extends AbstractFunctionModule
             }
         }
         $output = '
-            <tr class="bgColor2">
-                ' . implode('
-                ', $firstRowCells) . '
-            </tr>' . $output;
+            <thead>
+                <tr>
+                    ' . implode('
+                    ', $firstRowCells) . '
+                </tr>
+            </thead>' . $output;
         $output = '
 
-        <table border="0" cellspacing="0" cellpadding="0" id="langTable">' . $output . '
+        <table border="0" cellspacing="0" cellpadding="0" id="langTable" class="table table-striped table-hover typo3-page-pages">' . $output . '
         </table>';
 
         return $output;
