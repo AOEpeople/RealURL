@@ -1931,7 +1931,7 @@ class Realurl
             $GLOBALS['TYPO3_DB']->sql_query('START TRANSACTION');
             /** @noinspection PhpUndefinedMethodInspection */
             list($error_row) = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('counter', 'tx_realurl_errorlog', $cond);
-            if (count($error_row)) {
+            if (null !== $error_row && count($error_row)) {
                 /** @noinspection PhpUndefinedMethodInspection */
                 $fields_values = [
                     'error' => $msg,
