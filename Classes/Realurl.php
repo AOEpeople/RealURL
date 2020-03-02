@@ -718,62 +718,60 @@ class Realurl
                         if (!is_array($setup['cond']) || $this->checkCondition($setup['cond'], $prevVal)) {
                             // Looking if the GET var is found in parameter index
                             $GETvar = $setup['GETvar'];
-                            if ($GETvar == $this->ignoreGETvar) {
-                                // Do not do anything with this var!
-                                continue;
+                            if ($GETvar != $this->ignoreGETvar) {
+                                $parameterSet = isset($paramKeyValues[$GETvar]);
+                                $GETvarVal = $parameterSet ? $paramKeyValues[$GETvar] : '';
+
+                                // Set reverse map
+                                $revMap = is_array($setup['valueMap']) ? array_flip($setup['valueMap']) : [];
+
+                                if (isset($revMap[$GETvarVal])) {
+                                    $prevVal = $GETvarVal;
+                                    $pathParts[] = rawurlencode($revMap[$GETvarVal]);
+                                    $this->cHashParameters[$GETvar] = $GETvarVal;
+                                } elseif ($setup['noMatch'] == 'bypass') {
+                                    // If no match in reverse value map and "bypass" is set,
+                                    // remove the parameter from the URL
+                                    // Must rebuild cHash because we remove a parameter!
+                                    $this->rebuildCHash |= $parameterSet;
+                                } elseif ($setup['noMatch'] == 'null') {
+                                    // If no match and "null" is set, then set "dummy" value
+                                    // Set "dummy" value (?)
+                                    $prevVal = '';
+                                    $pathParts[] = '';
+                                    $this->rebuildCHash |= $parameterSet;
+                                } elseif ($setup['userFunc']) {
+                                    $params = [
+                                        'pObj' => &$this,
+                                        'value' => $GETvarVal,
+                                        'decodeAlias' => false,
+                                        'pathParts' => &$pathParts,
+                                        'setup' => $setup,
+                                    ];
+                                    $prevVal = $GETvarVal;
+                                    $GETvarVal = GeneralUtility::callUserFunction($setup['userFunc'], $params, $this);
+                                    $pathParts[] = rawurlencode($GETvarVal);
+                                    $this->cHashParameters[$GETvar] = $prevVal;
+                                } elseif (is_array($setup['lookUpTable'])) {
+                                    $prevVal = $GETvarVal;
+                                    $GETvarVal = $this->lookUpTranslation($setup['lookUpTable'], $GETvarVal);
+                                    $pathParts[] = rawurlencode($GETvarVal);
+                                    $this->cHashParameters[$GETvar] = $prevVal;
+                                } elseif (isset($setup['valueDefault'])) {
+                                    $prevVal = $setup['valueDefault'];
+                                    $pathParts[] = rawurlencode($setup['valueDefault']);
+                                    $this->cHashParameters[$GETvar] = $setup['valueMap'][$setup['valueDefault']];
+                                    $this->rebuildCHash |= !$parameterSet;
+                                } else {
+                                    $prevVal = $GETvarVal;
+                                    $pathParts[] = rawurlencode($GETvarVal);
+                                    $this->cHashParameters[$GETvar] = $prevVal;
+                                    $this->rebuildCHash |= !$parameterSet;
+                                }
+
+                                // Finally, unset GET var so it doesn't get processed once more
+                                unset($paramKeyValues[$setup['GETvar']]);
                             }
-                            $parameterSet = isset($paramKeyValues[$GETvar]);
-                            $GETvarVal = $parameterSet ? $paramKeyValues[$GETvar] : '';
-
-                            // Set reverse map
-                            $revMap = is_array($setup['valueMap']) ? array_flip($setup['valueMap']) : [];
-
-                            if (isset($revMap[$GETvarVal])) {
-                                $prevVal = $GETvarVal;
-                                $pathParts[] = rawurlencode($revMap[$GETvarVal]);
-                                $this->cHashParameters[$GETvar] = $GETvarVal;
-                            } elseif ($setup['noMatch'] == 'bypass') {
-                                // If no match in reverse value map and "bypass" is set,
-                                // remove the parameter from the URL
-                                // Must rebuild cHash because we remove a parameter!
-                                $this->rebuildCHash |= $parameterSet;
-                            } elseif ($setup['noMatch'] == 'null') {
-                                // If no match and "null" is set, then set "dummy" value
-                                // Set "dummy" value (?)
-                                $prevVal = '';
-                                $pathParts[] = '';
-                                $this->rebuildCHash |= $parameterSet;
-                            } elseif ($setup['userFunc']) {
-                                $params = [
-                                    'pObj' => &$this,
-                                    'value' => $GETvarVal,
-                                    'decodeAlias' => false,
-                                    'pathParts' => &$pathParts,
-                                    'setup' => $setup,
-                                ];
-                                $prevVal = $GETvarVal;
-                                $GETvarVal = GeneralUtility::callUserFunction($setup['userFunc'], $params, $this);
-                                $pathParts[] = rawurlencode($GETvarVal);
-                                $this->cHashParameters[$GETvar] = $prevVal;
-                            } elseif (is_array($setup['lookUpTable'])) {
-                                $prevVal = $GETvarVal;
-                                $GETvarVal = $this->lookUpTranslation($setup['lookUpTable'], $GETvarVal);
-                                $pathParts[] = rawurlencode($GETvarVal);
-                                $this->cHashParameters[$GETvar] = $prevVal;
-                            } elseif (isset($setup['valueDefault'])) {
-                                $prevVal = $setup['valueDefault'];
-                                $pathParts[] = rawurlencode($setup['valueDefault']);
-                                $this->cHashParameters[$GETvar] = $setup['valueMap'][$setup['valueDefault']];
-                                $this->rebuildCHash |= !$parameterSet;
-                            } else {
-                                $prevVal = $GETvarVal;
-                                $pathParts[] = rawurlencode($GETvarVal);
-                                $this->cHashParameters[$GETvar] = $prevVal;
-                                $this->rebuildCHash |= !$parameterSet;
-                            }
-
-                            // Finally, unset GET var so it doesn't get processed once more
-                            unset($paramKeyValues[$setup['GETvar']]);
                         }
                         break;
                 }
