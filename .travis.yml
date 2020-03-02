@@ -26,10 +26,11 @@ branches:
     - /^issue\/.*$/
     - /^TYPO3.*$/
 
-sudo: false
-
 services:
   - mysql
+
+os:
+  - linux
 
 before_install:
   - composer self-update
