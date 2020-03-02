@@ -1421,25 +1421,11 @@ class Realurl
             if ($GET_string) {
                 $GET_VARS = false;
                 parse_str($GET_string, $GET_VARS);
-                $this->decodeSpURL_fixMagicQuotes($GET_VARS);
                 $this->decodeSpURL_fixBrackets($GET_VARS);
                 return $GET_VARS;
             }
         }
         return null;
-    }
-
-    /**
-     * Fix for the magic_quotes_gpc. See http://bugs.typo3.org/view.php?id=18133
-     *
-     * @param mixed $array
-     * @return void
-     */
-    protected function decodeSpURL_fixMagicQuotes(&$array)
-    {
-        if (is_array($array)) {
-            self::stripSlashesOnArray($array);
-        }
     }
 
     /**
