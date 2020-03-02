@@ -16,7 +16,7 @@ Benefits of the AOE Fork
 Compatibility
 -------------
 
-- PHP 7.0.x – 7.2.x
+- PHP 7.0.x – 7.4.x
 - TYPO3 8.7.x
 
 Build Status
