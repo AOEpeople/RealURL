@@ -17,7 +17,7 @@
         }
     ],
     "require": {
-        "php": ">=7.0.0 <=7.2.99",
+        "php": "^7.0",
         "typo3/cms": "^7.6 || ^8.7"
     },
     "require-dev": {
@@ -25,7 +25,6 @@
         "nimut/testing-framework": "*"
     },
     "replace": {
-        "realurl":  "self.version",
         "typo3-ter/realurl":  "self.version"
     },
     "autoload": {
@@ -36,7 +35,6 @@
         "psr-4": {
             "AOE\\RealUrl\\": "Classes/"
         }
-
     },
     "autoload-dev": {
         "classmap": [
