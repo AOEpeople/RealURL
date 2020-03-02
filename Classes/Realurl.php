@@ -31,10 +31,16 @@ namespace AOE\Realurl;
 
 use AOE\Realurl\Exception\RootlineException;
 use AOE\Realurl\Service\ConfigurationService;
+use TYPO3\CMS\Core\Cache\CacheManager;
+use TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException;
 use TYPO3\CMS\Core\Charset\CharsetConverter;
+use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\TimeTracker\TimeTracker;
+use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
+use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
+use TYPO3\CMS\Frontend\Page\CacheHashCalculator;
 
 /**
  * Class Realurl
@@ -159,7 +165,7 @@ class Realurl
     protected $emptyReplacerDefaultValue = '-';
 
     /**
-     * @var \TYPO3\CMS\Core\Cache\CacheManager
+     * @var CacheManager
      */
     private $cacheManager;
 
@@ -191,7 +197,7 @@ class Realurl
     protected $rebuildCHash;
 
     /**
-     * @var \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController
+     * @var TypoScriptFrontendController
      */
     protected $typoScriptFrontendController;
 
@@ -337,7 +343,7 @@ class Realurl
         // Reapply config.absRefPrefix if necessary
         if ((!isset($this->extConf['init']['reapplyAbsRefPrefix']) ||
                 $this->extConf['init']['reapplyAbsRefPrefix']) && $GLOBALS['TSFE']->absRefPrefix) {
-            if (filter_var($newUrl, FILTER_VALIDATE_URL, FILTER_FLAG_SCHEME_REQUIRED) === false) {
+            if (filter_var($newUrl, FILTER_VALIDATE_URL) === false) {
                 // only if no absolute url is linked
                 // Prevent // in case of absRefPrefix ending with / and emptyUrlReturnValue=/
                 if (substr($GLOBALS['TSFE']->absRefPrefix, -1, 1) == '/' &&
@@ -403,7 +409,7 @@ class Realurl
                     $url = substr($url, $absRefPrefixLength);
                 }
 
-                $url = $this->urlPrepend[$urlKey] . ($url{0} != '/' ? '/' : '') . $url;
+                $url = $this->urlPrepend[$urlKey] . ($url[0] != '/' ? '/' : '') . $url;
 
                 unset($this->urlPrepend[$testUrl]);
 
@@ -833,7 +839,7 @@ class Realurl
      *
      * @return mixed If $setEncodedURL is true, this will be STORED as the cached version and
      *               the function returns false, otherwise the cached version is returned (string).
-     * @throws \TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException
+     * @throws NoSuchCacheException
      * @see encodeSpURL()
      */
     protected function encodeSpURL_encodeCache($urlData, $internalExtras, $setEncodedURL = '')
@@ -912,7 +918,7 @@ class Realurl
         // the same speaking URL in the cache table!)
         if (isset($paramKeyValues['cHash'])) {
             if ($this->rebuildCHash) {
-                $cacheHashCalculator = GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\Page\CacheHashCalculator::class);
+                $cacheHashCalculator = GeneralUtility::makeInstance(CacheHashCalculator::class);
 
                 $cHashParameters = array_merge($this->cHashParameters, $paramKeyValues);
                 unset($cHashParameters['cHash']);
@@ -1036,7 +1042,7 @@ class Realurl
             // "http://localhost/typo3/dev/dummy_1/first/second/third/index.html?&param1=value1&param2=value2"
             // Note: sometimes in fcgi installations it is absolute, so we have to make it
             // relative to work properly.
-            $speakingURIpath = $this->typoScriptFrontendController->siteScript{0} == '/' ?
+            $speakingURIpath = $this->typoScriptFrontendController->siteScript[0] == '/' ?
                 substr($this->typoScriptFrontendController->siteScript, 1) :
                 $this->typoScriptFrontendController->siteScript;
 
@@ -1315,19 +1321,19 @@ class Realurl
         // Merge Get vars together
         $cachedInfo['GET_VARS'] = [];
         if (is_array($pre_GET_VARS)) {
-            \TYPO3\CMS\Core\Utility\ArrayUtility::mergeRecursiveWithOverrule($cachedInfo['GET_VARS'], $pre_GET_VARS);
+            ArrayUtility::mergeRecursiveWithOverrule($cachedInfo['GET_VARS'], $pre_GET_VARS);
         }
         if (is_array($id_GET_VARS)) {
-            \TYPO3\CMS\Core\Utility\ArrayUtility::mergeRecursiveWithOverrule($cachedInfo['GET_VARS'], $id_GET_VARS);
+            ArrayUtility::mergeRecursiveWithOverrule($cachedInfo['GET_VARS'], $id_GET_VARS);
         }
         if (is_array($fixedPost_GET_VARS)) {
-            \TYPO3\CMS\Core\Utility\ArrayUtility::mergeRecursiveWithOverrule($cachedInfo['GET_VARS'], $fixedPost_GET_VARS);
+            ArrayUtility::mergeRecursiveWithOverrule($cachedInfo['GET_VARS'], $fixedPost_GET_VARS);
         }
         if (is_array($post_GET_VARS)) {
-            \TYPO3\CMS\Core\Utility\ArrayUtility::mergeRecursiveWithOverrule($cachedInfo['GET_VARS'], $post_GET_VARS);
+            ArrayUtility::mergeRecursiveWithOverrule($cachedInfo['GET_VARS'], $post_GET_VARS);
         }
         if (is_array($file_GET_VARS)) {
-            \TYPO3\CMS\Core\Utility\ArrayUtility::mergeRecursiveWithOverrule($cachedInfo['GET_VARS'], $file_GET_VARS);
+            ArrayUtility::mergeRecursiveWithOverrule($cachedInfo['GET_VARS'], $file_GET_VARS);
         }
 
         if (!isset($cachedInfo['GET_VARS']['id'])) {
@@ -1338,7 +1344,7 @@ class Realurl
         // cHash handling
         if ($cHashCache) {
             $queryString = GeneralUtility::implodeArrayForUrl('', $cachedInfo['GET_VARS']);
-            $cacheHashCalculator = GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\Page\CacheHashCalculator::class);
+            $cacheHashCalculator = GeneralUtility::makeInstance(CacheHashCalculator::class);
 
             $containsRelevantParametersForCHashCreation = count($cacheHashCalculator->getRelevantParameters(ltrim($queryString, '&'))) > 0;
 
@@ -1561,7 +1567,7 @@ class Realurl
      */
     protected function decodeSpURL_fixMagicQuotes(&$array)
     {
-        if (is_array($array) && get_magic_quotes_gpc()) {
+        if (is_array($array)) {
             self::stripSlashesOnArray($array);
         }
     }
@@ -2976,7 +2982,7 @@ class Realurl
         $paramKeyValuesCopy = $paramKeyValues;
         $fileName = rawurlencode($this->encodeSpURL_fileName($paramKeyValues));
 
-        if ($fileName{0} == '.') {
+        if ($fileName[0] == '.') {
             // Only extension
             if ($url == '') {
                 // Home page. We can't append just extension here. So we pass
@@ -3069,7 +3075,7 @@ class Realurl
     protected function errorLog($message)
     {
         if ($this->enableRootlineExceptionLog) {
-            $logger = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Log\LogManager::class)->getLogger(__CLASS__);
+            $logger = GeneralUtility::makeInstance(LogManager::class)->getLogger(__CLASS__);
             $logger->error($message, ['TYPO3_REQUEST_URL' => GeneralUtility::getIndpEnv('TYPO3_REQUEST_URL')]);
         }
     }
@@ -3106,7 +3112,7 @@ class Realurl
     public function appendFilePart(array &$segments)
     {
         if ($this->filePart) {
-            if ($this->filePart{0} == '.') {
+            if ($this->filePart[0] == '.') {
                 $segmentCount = count($segments);
                 if ($segmentCount > 0) {
                     $segments[$segmentCount - 1] .= urlencode($this->filePart);
@@ -3249,12 +3255,12 @@ class Realurl
     /**
      * Gets the TYPO3 Cache Manager
      *
-     * @return \TYPO3\CMS\Core\Cache\CacheManager
+     * @return CacheManager
      */
     protected function getCacheManager()
     {
         if (null === $this->cacheManager) {
-            $this->cacheManager = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Cache\CacheManager::class);
+            $this->cacheManager = GeneralUtility::makeInstance(CacheManager::class);
         }
 
         return $this->cacheManager;
