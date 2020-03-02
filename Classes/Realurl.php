@@ -256,7 +256,7 @@ class Realurl
 
         if (!$params['TCEmainHook']) {
             // Return directly, if simulateStaticDocuments is set
-            if ($GLOBALS['TSFE']->config['config']['simulateStaticDocuments']) {
+            if ($this->getTypoScriptFrontendController()->config['config']['simulateStaticDocuments']) {
                 $timeTracker = GeneralUtility::makeInstance(TimeTracker::class);
                 /** @noinspection PhpUndefinedMethodInspection */
                 $timeTracker->setTSlogMessage('SimulateStaticDocuments is enabled. RealURL disables itself.', 2);
@@ -265,7 +265,7 @@ class Realurl
             }
 
             // Return directly, if realurl is not enabled
-            if (!$GLOBALS['TSFE']->config['config']['tx_realurl_enable']) {
+            if (!$this->getTypoScriptFrontendController()->config['config']['tx_realurl_enable']) {
                 $timeTracker = GeneralUtility::makeInstance(TimeTracker::class);
                 /** @noinspection PhpUndefinedMethodInspection */
                 $timeTracker->setTSlogMessage('RealURL is not enabled in TS setup. Finished.');
@@ -275,7 +275,7 @@ class Realurl
         }
 
         // Checking prefix
-        $prefix = $GLOBALS['TSFE']->absRefPrefix . $this->prefixEnablingSpURL;
+        $prefix = $this->getTypoScriptFrontendController()->absRefPrefix . $this->prefixEnablingSpURL;
         if (substr($params['LD']['totalURL'], 0, strlen($prefix)) != $prefix) {
             return;
         }
@@ -298,15 +298,15 @@ class Realurl
         // Init "Admin Jump"; If frontend edit was enabled by the current URL of the page,
         // set it again in the generated URL (and disable caching!)
         if (!$params['TCEmainHook']) {
-            if ($GLOBALS['TSFE']->applicationData['tx_realurl']['adminJumpActive']) {
+            if ($this->getTypoScriptFrontendController()->applicationData['tx_realurl']['adminJumpActive']) {
                 /** @noinspection PhpUndefinedMethodInspection */
-                $GLOBALS['TSFE']->set_no_cache();
+                $this->getTypoScriptFrontendController()->set_no_cache();
                 $this->adminJumpSet = true;
                 $internalExtras['adminJump'] = 1;
             }
 
             // If there is a frontend user logged in, set fe_user_prefix
-            if (is_array($GLOBALS['TSFE']->fe_user->user)) {
+            if (is_array($this->getTypoScriptFrontendController()->fe_user->user)) {
                 $this->fe_user_prefix_set = true;
                 $internalExtras['feLogin'] = 1;
             }
@@ -342,15 +342,15 @@ class Realurl
 
         // Reapply config.absRefPrefix if necessary
         if ((!isset($this->extConf['init']['reapplyAbsRefPrefix']) ||
-                $this->extConf['init']['reapplyAbsRefPrefix']) && $GLOBALS['TSFE']->absRefPrefix) {
+                $this->extConf['init']['reapplyAbsRefPrefix']) && $this->getTypoScriptFrontendController()->absRefPrefix) {
             if (filter_var($newUrl, FILTER_VALIDATE_URL) === false) {
                 // only if no absolute url is linked
                 // Prevent // in case of absRefPrefix ending with / and emptyUrlReturnValue=/
-                if (substr($GLOBALS['TSFE']->absRefPrefix, -1, 1) == '/' &&
+                if (substr($this->getTypoScriptFrontendController()->absRefPrefix, -1, 1) == '/' &&
                     substr($newUrl, 0, 1) == '/') {
                     $newUrl = substr($newUrl, 1);
                 }
-                $newUrl = $GLOBALS['TSFE']->absRefPrefix . $newUrl;
+                $newUrl = $this->getTypoScriptFrontendController()->absRefPrefix . $newUrl;
             }
         }
 
@@ -404,8 +404,8 @@ class Realurl
                 $urlKey = $url = $testUrl;
 
                 // Remove absRefPrefix if necessary
-                $absRefPrefixLength = strlen($GLOBALS['TSFE']->absRefPrefix);
-                if ($absRefPrefixLength != 0 && strpos($url, $GLOBALS['TSFE']->absRefPrefix) === 0) {
+                $absRefPrefixLength = strlen($this->getTypoScriptFrontendController()->absRefPrefix);
+                if ($absRefPrefixLength != 0 && strpos($url, $this->getTypoScriptFrontendController()->absRefPrefix) === 0) {
                     $url = substr($url, $absRefPrefixLength);
                 }
 
@@ -851,12 +851,12 @@ class Realurl
 
         if (!$setEncodedURL) {
             // Get encoded URL from cache:
-            if (isset($GLOBALS['TSFE']->applicationData['tx_realurl']['_CACHE'][$hash])) {
-                return $GLOBALS['TSFE']->applicationData['tx_realurl']['_CACHE'][$hash];
+            if (isset($this->getTypoScriptFrontendController()->applicationData['tx_realurl']['_CACHE'][$hash])) {
+                return $this->getTypoScriptFrontendController()->applicationData['tx_realurl']['_CACHE'][$hash];
             }
 
             $content = $this->getCacheManager()->getCache(self::CACHE_ENCODE)->get($hash);
-            $GLOBALS['TSFE']->applicationData['tx_realurl']['_CACHE'][$hash] = $content;
+            $this->getTypoScriptFrontendController()->applicationData['tx_realurl']['_CACHE'][$hash] = $content;
 
             return $content;
         } else {
@@ -866,7 +866,7 @@ class Realurl
             }
 
             // Store encoded URL in cache:
-            $GLOBALS['TSFE']->applicationData['tx_realurl']['_CACHE'][$hash] = $setEncodedURL;
+            $this->getTypoScriptFrontendController()->applicationData['tx_realurl']['_CACHE'][$hash] = $setEncodedURL;
 
             // If the page id is NOT an integer, it's an alias we have to look up
             if (!MathUtility::canBeInterpretedAsInteger($this->encodePageId)) {
@@ -1954,12 +1954,12 @@ class Realurl
             if ($this->extConf['init']['adminJumpToBackend']) {
                 $this->decode_editInBackend = true;
             } elseif ($GLOBALS['BE_USER']->extAdmEnabled) {
-                $GLOBALS['TSFE']->displayFieldEditIcons = 1;
+                $this->getTypoScriptFrontendController()->displayFieldEditIcons = 1;
                 $GLOBALS['BE_USER']->uc['TSFE_adminConfig']['edit_editNoPopup'] = 1;
 
-                $GLOBALS['TSFE']->applicationData['tx_realurl']['adminJumpActive'] = 1;
+                $this->getTypoScriptFrontendController()->applicationData['tx_realurl']['adminJumpActive'] = 1;
                 /** @noinspection PhpUndefinedMethodInspection */
-                $GLOBALS['TSFE']->set_no_cache();
+                $this->getTypoScriptFrontendController()->set_no_cache();
             }
         } else {
             $adminUrl = GeneralUtility::getIndpEnv('TYPO3_SITE_URL') .
@@ -2431,7 +2431,7 @@ class Realurl
     {
 
         // Fetch character set
-        $charset = $GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset'] ?: $GLOBALS['TSFE']->defaultCharSet;
+        $charset = $GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset'] ?: $this->getTypoScriptFrontendController()->defaultCharSet;
         $processedTitle = $newAliasValue;
 
         // Convert to lowercase
@@ -2548,7 +2548,7 @@ class Realurl
     protected function pageAliasToID($alias)
     {
         // Look in memory cache first, and if not there, look it up
-        if (!isset($GLOBALS['TSFE']->applicationData['tx_realurl']['_CACHE_aliases'][$alias])) {
+        if (!isset($this->getTypoScriptFrontendController()->applicationData['tx_realurl']['_CACHE_aliases'][$alias])) {
             /** @noinspection PhpUndefinedMethodInspection */
             $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
                 'uid',
@@ -2559,11 +2559,11 @@ class Realurl
             $pageRec = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
             /** @noinspection PhpUndefinedMethodInspection */
             $GLOBALS['TYPO3_DB']->sql_free_result($res);
-            $GLOBALS['TSFE']->applicationData['tx_realurl']['_CACHE_aliases'][$alias] = intval($pageRec['uid']);
+            $this->getTypoScriptFrontendController()->applicationData['tx_realurl']['_CACHE_aliases'][$alias] = intval($pageRec['uid']);
         }
 
         // Return ID
-        return $GLOBALS['TSFE']->applicationData['tx_realurl']['_CACHE_aliases'][$alias];
+        return $this->getTypoScriptFrontendController()->applicationData['tx_realurl']['_CACHE_aliases'][$alias];
     }
 
     /**
@@ -2850,7 +2850,7 @@ class Realurl
                         if (isset($testedDomains[$host])) {
                             // Redirect loop
                             /** @noinspection PhpUndefinedMethodInspection */
-                            $GLOBALS['TSFE']->pageUnavailableAndExit(
+                            $this->getTypoScriptFrontendController()->pageUnavailableAndExit(
                                 'TYPO3 RealURL has detected a circular redirect in domain records. There was an attempt to redirect to ' .
                                 $host . ' from ' . $domain[0]['domainName'] . ' twice.'
                             );
@@ -3003,10 +3003,10 @@ class Realurl
     {
         if (!strlen($newUrl)) {
             if (is_bool($this->extConf['init']['emptyUrlReturnValue']) && $this->extConf['init']['emptyUrlReturnValue']) {
-                if ($GLOBALS['TSFE']->config['config']['absRefPrefix']) {
-                    $newUrl = $GLOBALS['TSFE']->config['config']['absRefPrefix'];
+                if ($this->getTypoScriptFrontendController()->config['config']['absRefPrefix']) {
+                    $newUrl = $this->getTypoScriptFrontendController()->config['config']['absRefPrefix'];
                 } else {
-                    $newUrl = $GLOBALS['TSFE']->baseUrl;
+                    $newUrl = $this->getTypoScriptFrontendController()->baseUrl;
                 }
             } else {
                 $newUrl = '' . $this->extConf['init']['emptyUrlReturnValue'];
@@ -3024,7 +3024,7 @@ class Realurl
     protected function isInWorkspace()
     {
         $result = false;
-        if ($GLOBALS['TSFE']->beUserLogin) {
+        if ($this->getTypoScriptFrontendController()->beUserLogin) {
             $result = ($GLOBALS['BE_USER']->workspace != 0);
         }
 
@@ -3152,9 +3152,9 @@ class Realurl
         $query = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid,pid,url,doktype,urltype', 'pages', $where);
         if ($query) {
             $result = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($query);
-            $GLOBALS['TSFE']->sys_page->versionOL('pages', $result);
+            $this->getTypoScriptFrontendController()->sys_page->versionOL('pages', $result);
         }
-        $result = $GLOBALS['TSFE']->sys_page->getPageOverlay($result);
+        $result = $this->getTypoScriptFrontendController()->sys_page->getPageOverlay($result);
         if (count($result)) {
             if ($result['doktype'] == 3) {
                 $url = $result['url'];
@@ -3247,5 +3247,13 @@ class Realurl
         }
 
         return $this->cacheManager;
+    }
+
+    /**
+     * @return \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController
+     */
+    protected function getTypoScriptFrontendController()
+    {
+        return $GLOBALS['TSFE'];
     }
 }
