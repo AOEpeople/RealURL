@@ -9,10 +9,10 @@ $EM_CONF[$_EXTKEY] = [
     'clearCacheOnLoad' => 0,
     'author' => 'Dmitry Dulepov',
     'author_email' => 'dmitry.dulepov@gmail.com',
-    'version' => '1.12.8.18.AOE',
+    'version' => '1.12.8.19.AOE',
     'constraints' => [
         'depends' => [
-            'php' => '7.0.0-7.2.99',
+            'php' => '7.0.0-7.4.99',
             'typo3' => '7.6.0-8.7.99',
         ],
         'conflicts' => [
