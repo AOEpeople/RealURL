@@ -29,9 +29,9 @@ use AOE\Realurl\Exception\RootlineException;
 use AOE\Realurl\Realurl;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
-use stdClass;
 use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Cache\Frontend\VariableFrontend;
+use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
 /**
  * Class tx_realurl_testcase
@@ -81,13 +81,18 @@ class RealurlTest extends UnitTestCase
             ->with(Realurl::CACHE_DECODE)
             ->willReturn($cacheFrontendMock);
 
+        $tsfeMock = $this->createMock(TypoScriptFrontendController::class);
+
         /** @var Realurl|MockObject $subject */
         $subject = $this->getMockBuilder(Realurl::class)
-            ->setMethods(['getCacheManager'])
+            ->setMethods(['getCacheManager', 'getTypoScriptFrontendController'])
             ->getMock();
         $subject->expects($this->exactly(2))
             ->method('getCacheManager')
             ->willReturn($cacheManagerMock);
+        $subject->expects(self::any())
+            ->method('getTypoScriptFrontendController')
+            ->willReturn($tsfeMock);
         $subject->extConf = $extConf;
 
         $this->assertSame(
@@ -134,9 +139,11 @@ class RealurlTest extends UnitTestCase
             ->with(Realurl::CACHE_DECODE)
             ->willReturn($cacheFrontendMock);
 
+        $tsfeMock = $this->createMock(TypoScriptFrontendController::class);
+
         /** @var Realurl|MockObject $subject */
         $subject = $this->getMockBuilder(Realurl::class)
-            ->setMethods(['canCachePageURL', 'getCacheManager'])
+            ->setMethods(['canCachePageURL', 'getCacheManager', 'getTypoScriptFrontendController'])
             ->getMock();
         $subject->expects($this->once())
             ->method('canCachePageURL')
@@ -145,6 +152,9 @@ class RealurlTest extends UnitTestCase
         $subject->expects($this->once())
             ->method('getCacheManager')
             ->willReturn($cacheManagerMock);
+        $subject->expects(self::any())
+            ->method('getTypoScriptFrontendController')
+            ->willReturn($tsfeMock);
         $subject->extConf = $extConf;
 
         $this->callInaccessibleMethod($subject, 'decodeSpURL_decodeCache', $speakingUrlPath, $cachedContent);
@@ -165,15 +175,19 @@ class RealurlTest extends UnitTestCase
             ]
         ];
 
-        $GLOBALS['TSFE'] = new stdClass();
-        $GLOBALS['TSFE']->applicationData['tx_realurl']['_CACHE'][$hash] = $encodedUrl;
+        /** @var MockObject|TypoScriptFrontendController $tsfeMock */
+        $tsfeMock = $this->createMock(TypoScriptFrontendController::class);
+        $tsfeMock->applicationData['tx_realurl']['_CACHE'][$hash] = $encodedUrl;
 
         /** @var Realurl|MockObject $subject */
         $subject = $this->getMockBuilder(Realurl::class)
-            ->setMethods(['getCacheManager'])
+            ->setMethods(['getCacheManager', 'getTypoScriptFrontendController'])
             ->getMock();
         $subject->expects($this->never())
             ->method('getCacheManager');
+        $subject->expects(self::any())
+            ->method('getTypoScriptFrontendController')
+            ->willReturn($tsfeMock);
         $subject->extConf = $extConf;
 
         $this->assertSame(
@@ -214,13 +228,24 @@ class RealurlTest extends UnitTestCase
             ->with(Realurl::CACHE_ENCODE)
             ->willReturn($cacheFrontendMock);
 
+        /** @var MockObject|TypoScriptFrontendController $tsfeMock */
+        $tsfeMock = $this->createMock(TypoScriptFrontendController::class);
+        $tsfeMock->applicationData = [
+            'tx_realurl' => [
+                '_CACHE' => []
+            ]
+        ];
+
         /** @var Realurl|MockObject $subject */
         $subject = $this->getMockBuilder(Realurl::class)
-            ->setMethods(['getCacheManager'])
+            ->setMethods(['getCacheManager', 'getTypoScriptFrontendController'])
             ->getMock();
         $subject->expects($this->once())
             ->method('getCacheManager')
             ->willReturn($cacheManagerMock);
+        $subject->expects(self::any())
+            ->method('getTypoScriptFrontendController')
+            ->willReturn($tsfeMock);
         $subject->extConf = $extConf;
 
         $this->assertSame(
@@ -261,9 +286,17 @@ class RealurlTest extends UnitTestCase
             ->with(Realurl::CACHE_ENCODE)
             ->willReturn($cacheFrontendMock);
 
+        /** @var MockObject|TypoScriptFrontendController $tsfeMock */
+        $tsfeMock = $this->createMock(TypoScriptFrontendController::class);
+        $tsfeMock->applicationData = [
+            'tx_realurl' => [
+                '_CACHE' => []
+            ]
+        ];
+
         /** @var Realurl|MockObject $subject */
         $subject = $this->getMockBuilder(Realurl::class)
-            ->setMethods(['canCachePageURL', 'getCacheManager'])
+            ->setMethods(['canCachePageURL', 'getCacheManager', 'getTypoScriptFrontendController'])
             ->getMock();
         $subject->expects($this->once())
             ->method('canCachePageURL')
@@ -272,6 +305,9 @@ class RealurlTest extends UnitTestCase
         $subject->expects($this->once())
             ->method('getCacheManager')
             ->willReturn($cacheManagerMock);
+        $subject->expects(self::any())
+            ->method('getTypoScriptFrontendController')
+            ->willReturn($tsfeMock);
         $subject->encodePageId = $encodePageId;
         $subject->extConf = $extConf;
 
@@ -287,9 +323,10 @@ class RealurlTest extends UnitTestCase
      */
     public function shouldExitOnRootlineException()
     {
-        $GLOBALS['TSFE'] = new stdClass();
-        $GLOBALS['TSFE']->absRefPrefix = '/';
-        $GLOBALS['TSFE']->config = [
+        /** @var MockObject|TypoScriptFrontendController $tsfeMock */
+        $tsfeMock = $this->createMock(TypoScriptFrontendController::class);
+        $tsfeMock->absRefPrefix = '/';
+        $tsfeMock->config = [
             'config' => [
                 'tx_realurl_enable' => true
             ]
@@ -302,7 +339,9 @@ class RealurlTest extends UnitTestCase
         ];
 
         /** @var Realurl|MockObject $subject */
-        $subject = $this->getMockBuilder(Realurl::class)->setMethods(['encodeSpURL_doEncode', 'errorLog'])->getMock();
+        $subject = $this->getMockBuilder(Realurl::class)
+            ->setMethods(['encodeSpURL_doEncode', 'errorLog', 'getTypoScriptFrontendController'])
+            ->getMock();
         $subject
             ->expects(self::once())
             ->method('encodeSpURL_doEncode')
@@ -311,6 +350,9 @@ class RealurlTest extends UnitTestCase
             ->expects(self::once())
             ->method('errorLog')
             ->with('Exception Test');
+        $subject->expects(self::any())
+            ->method('getTypoScriptFrontendController')
+            ->willReturn($tsfeMock);
 
         self::assertEmpty($subject->encodeSpURL($parameters));
     }
