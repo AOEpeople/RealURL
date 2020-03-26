@@ -30,6 +30,13 @@ namespace AOE\Realurl;
 
 use AOE\Realurl\Exception\RootlineException;
 use AOE\Realurl\Service\ConfigurationService;
+use TYPO3\CMS\Core\Cache\CacheManager;
+use TYPO3\CMS\Core\Log\LogManager;
+use TYPO3\CMS\Core\Utility\ArrayUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\MathUtility;
+use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
+use TYPO3\CMS\Frontend\Page\CacheHashCalculator;
 
 /**
  * Class Realurl
@@ -149,7 +156,7 @@ class Realurl
     protected $emptyReplacerDefaultValue = '-';
 
     /**
-     * @var \TYPO3\CMS\Core\Cache\CacheManager
+     * @var CacheManager
      */
     private $cacheManager;
 
@@ -180,7 +187,7 @@ class Realurl
     protected $rebuildCHash;
 
     /**
-     * @var \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController
+     * @var TypoScriptFrontendController
      */
     protected $typoScriptFrontendController;
 
@@ -199,7 +206,7 @@ class Realurl
         $this->enableStrictMode = (bool) $sysconf['enableStrictMode'];
         $this->enableChashUrlDebug = (bool) $sysconf['enableChashUrlDebug'];
         $this->enableRootlineExceptionLog = (bool) $sysconf['enableRootlineExceptionLog'];
-        $this->configurationService = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(ConfigurationService::class);
+        $this->configurationService = GeneralUtility::makeInstance(ConfigurationService::class);
 
         $this->initDevLog($sysconf);
     }
@@ -236,14 +243,14 @@ class Realurl
 
         if (!$params['TCEmainHook']) {
             // Return directly, if simulateStaticDocuments is set
-            if ($GLOBALS['TSFE']->config['config']['simulateStaticDocuments']) {
+            if ($this->getTypoScriptFrontendController()->config['config']['simulateStaticDocuments']) {
                 /** @noinspection PhpUndefinedMethodInspection */
                 $GLOBALS['TT']->setTSlogMessage('SimulateStaticDocuments is enabled. RealURL disables itself.', 2);
                 return;
             }
 
             // Return directly, if realurl is not enabled
-            if (!$GLOBALS['TSFE']->config['config']['tx_realurl_enable']) {
+            if (!$this->getTypoScriptFrontendController()->config['config']['tx_realurl_enable']) {
                 /** @noinspection PhpUndefinedMethodInspection */
                 $GLOBALS['TT']->setTSlogMessage('RealURL is not enabled in TS setup. Finished.');
                 return;
@@ -251,7 +258,7 @@ class Realurl
         }
 
         // Checking prefix
-        $prefix = $GLOBALS['TSFE']->absRefPrefix . $this->prefixEnablingSpURL;
+        $prefix = $this->getTypoScriptFrontendController()->absRefPrefix . $this->prefixEnablingSpURL;
         if (substr($params['LD']['totalURL'], 0, strlen($prefix)) != $prefix) {
             return;
         }
@@ -273,15 +280,15 @@ class Realurl
 
         // Init "Admin Jump"; If frontend edit was enabled by the current URL of the page, set it again in the generated URL (and disable caching!)
         if (!$params['TCEmainHook']) {
-            if ($GLOBALS['TSFE']->applicationData['tx_realurl']['adminJumpActive']) {
+            if ($this->getTypoScriptFrontendController()->applicationData['tx_realurl']['adminJumpActive']) {
                 /** @noinspection PhpUndefinedMethodInspection */
-                $GLOBALS['TSFE']->set_no_cache();
+                $this->getTypoScriptFrontendController()->set_no_cache();
                 $this->adminJumpSet = true;
                 $internalExtras['adminJump'] = 1;
             }
 
             // If there is a frontend user logged in, set fe_user_prefix
-            if (is_array($GLOBALS['TSFE']->fe_user->user)) {
+            if (is_array($this->getTypoScriptFrontendController()->fe_user->user)) {
                 $this->fe_user_prefix_set = true;
                 $internalExtras['feLogin'] = 1;
             }
@@ -315,14 +322,14 @@ class Realurl
         }
 
         // Reapply config.absRefPrefix if necessary
-        if ((!isset($this->extConf['init']['reapplyAbsRefPrefix']) || $this->extConf['init']['reapplyAbsRefPrefix']) && $GLOBALS['TSFE']->absRefPrefix) {
-            if (filter_var($newUrl, FILTER_VALIDATE_URL, FILTER_FLAG_SCHEME_REQUIRED) === false) {
+        if ((!isset($this->extConf['init']['reapplyAbsRefPrefix']) || $this->extConf['init']['reapplyAbsRefPrefix']) && $this->getTypoScriptFrontendController()->absRefPrefix) {
+            if (filter_var($newUrl, FILTER_VALIDATE_URL) === false) {
                 // only if no absolute url is linked
                 // Prevent // in case of absRefPrefix ending with / and emptyUrlReturnValue=/
-                if (substr($GLOBALS['TSFE']->absRefPrefix, -1, 1) == '/' && substr($newUrl, 0, 1) == '/') {
+                if (substr($this->getTypoScriptFrontendController()->absRefPrefix, -1, 1) == '/' && substr($newUrl, 0, 1) == '/') {
                     $newUrl = substr($newUrl, 1);
                 }
-                $newUrl = $GLOBALS['TSFE']->absRefPrefix . $newUrl;
+                $newUrl = $this->getTypoScriptFrontendController()->absRefPrefix . $newUrl;
             }
         }
 
@@ -343,7 +350,7 @@ class Realurl
                     'params' => $params,
                     'URL' => &$newUrl,
                 ];
-                \TYPO3\CMS\Core\Utility\GeneralUtility::callUserFunction($userFunc, $hookParams, $this);
+                GeneralUtility::callUserFunction($userFunc, $hookParams, $this);
             }
         }
 
@@ -374,12 +381,12 @@ class Realurl
                 $urlKey = $url = $testUrl;
 
                 // Remove absRefPrefix if necessary
-                $absRefPrefixLength = strlen($GLOBALS['TSFE']->absRefPrefix);
-                if ($absRefPrefixLength != 0 && substr($url, 0, $absRefPrefixLength) == $GLOBALS['TSFE']->absRefPrefix) {
+                $absRefPrefixLength = strlen($this->getTypoScriptFrontendController()->absRefPrefix);
+                if ($absRefPrefixLength != 0 && substr($url, 0, $absRefPrefixLength) == $this->getTypoScriptFrontendController()->absRefPrefix) {
                     $url = substr($url, $absRefPrefixLength);
                 }
 
-                $url = $this->urlPrepend[$urlKey] . ($url{0} != '/' ? '/' : '') . $url;
+                $url = $this->urlPrepend[$urlKey] . ($url[0] != '/' ? '/' : '') . $url;
 
                 unset($this->urlPrepend[$testUrl]);
 
@@ -510,7 +517,7 @@ class Realurl
         switch ((string) $this->extConf['pagePath']['type']) {
             case 'user':
                 $params = ['paramKeyValues' => &$paramKeyValues, 'pathParts' => &$pathParts, 'pObj' => &$this, 'conf' => $this->extConf['pagePath'], 'mode' => 'encode'];
-                \TYPO3\CMS\Core\Utility\GeneralUtility::callUserFunction($this->extConf['pagePath']['userFunc'], $params, $this);
+                GeneralUtility::callUserFunction($this->extConf['pagePath']['userFunc'], $params, $this);
                 break;
             default: // Default: Just passing through the ID/alias of the page:
                 $pathParts[] = rawurlencode($paramKeyValues['id']);
@@ -662,61 +669,59 @@ class Realurl
                         if (!is_array($setup['cond']) || $this->checkCondition($setup['cond'], $prevVal)) {
                             // Looking if the GET var is found in parameter index
                             $GETvar = $setup['GETvar'];
-                            if ($GETvar == $this->ignoreGETvar) {
-                                // Do not do anything with this var!
-                                continue;
+                            if ($GETvar != $this->ignoreGETvar) {
+                                $parameterSet = isset($paramKeyValues[$GETvar]);
+                                $GETvarVal = $parameterSet ? $paramKeyValues[$GETvar] : '';
+
+                                // Set reverse map
+                                $revMap = is_array($setup['valueMap']) ? array_flip($setup['valueMap']) : [];
+
+                                if (isset($revMap[$GETvarVal])) {
+                                    $prevVal = $GETvarVal;
+                                    $pathParts[] = rawurlencode($revMap[$GETvarVal]);
+                                    $this->cHashParameters[$GETvar] = $GETvarVal;
+                                } elseif ($setup['noMatch'] == 'bypass') {
+                                    // If no match in reverse value map and "bypass" is set, remove the parameter from the URL
+                                    // Must rebuild cHash because we remove a parameter!
+                                    $this->rebuildCHash |= $parameterSet;
+                                } elseif ($setup['noMatch'] == 'null') {
+                                    // If no match and "null" is set, then set "dummy" value
+                                    // Set "dummy" value (?)
+                                    $prevVal = '';
+                                    $pathParts[] = '';
+                                    $this->rebuildCHash |= $parameterSet;
+                                } elseif ($setup['userFunc']) {
+                                    $params = [
+                                        'pObj' => &$this,
+                                        'value' => $GETvarVal,
+                                        'decodeAlias' => false,
+                                        'pathParts' => &$pathParts,
+                                        'setup' => $setup
+                                    ];
+                                    $prevVal = $GETvarVal;
+                                    $GETvarVal = GeneralUtility::callUserFunction($setup['userFunc'], $params, $this);
+                                    $pathParts[] = rawurlencode($GETvarVal);
+                                    $this->cHashParameters[$GETvar] = $prevVal;
+                                } elseif (is_array($setup['lookUpTable'])) {
+                                    $prevVal = $GETvarVal;
+                                    $GETvarVal = $this->lookUpTranslation($setup['lookUpTable'], $GETvarVal);
+                                    $pathParts[] = rawurlencode($GETvarVal);
+                                    $this->cHashParameters[$GETvar] = $prevVal;
+                                } elseif (isset($setup['valueDefault'])) {
+                                    $prevVal = $setup['valueDefault'];
+                                    $pathParts[] = rawurlencode($setup['valueDefault']);
+                                    $this->cHashParameters[$GETvar] = $setup['valueMap'][$setup['valueDefault']];
+                                    $this->rebuildCHash |= !$parameterSet;
+                                } else {
+                                    $prevVal = $GETvarVal;
+                                    $pathParts[] = rawurlencode($GETvarVal);
+                                    $this->cHashParameters[$GETvar] = $prevVal;
+                                    $this->rebuildCHash |= !$parameterSet;
+                                }
+
+                                // Finally, unset GET var so it doesn't get processed once more
+                                unset($paramKeyValues[$setup['GETvar']]);
                             }
-                            $parameterSet = isset($paramKeyValues[$GETvar]);
-                            $GETvarVal = $parameterSet ? $paramKeyValues[$GETvar] : '';
-
-                            // Set reverse map
-                            $revMap = is_array($setup['valueMap']) ? array_flip($setup['valueMap']) : [];
-
-                            if (isset($revMap[$GETvarVal])) {
-                                $prevVal = $GETvarVal;
-                                $pathParts[] = rawurlencode($revMap[$GETvarVal]);
-                                $this->cHashParameters[$GETvar] = $GETvarVal;
-                            } elseif ($setup['noMatch'] == 'bypass') {
-                                // If no match in reverse value map and "bypass" is set, remove the parameter from the URL
-                                // Must rebuild cHash because we remove a parameter!
-                                $this->rebuildCHash |= $parameterSet;
-                            } elseif ($setup['noMatch'] == 'null') {
-                                // If no match and "null" is set, then set "dummy" value
-                                // Set "dummy" value (?)
-                                $prevVal = '';
-                                $pathParts[] = '';
-                                $this->rebuildCHash |= $parameterSet;
-                            } elseif ($setup['userFunc']) {
-                                $params = [
-                                    'pObj' => &$this,
-                                    'value' => $GETvarVal,
-                                    'decodeAlias' => false,
-                                    'pathParts' => &$pathParts,
-                                    'setup' => $setup
-                                ];
-                                $prevVal = $GETvarVal;
-                                $GETvarVal = \TYPO3\CMS\Core\Utility\GeneralUtility::callUserFunction($setup['userFunc'], $params, $this);
-                                $pathParts[] = rawurlencode($GETvarVal);
-                                $this->cHashParameters[$GETvar] = $prevVal;
-                            } elseif (is_array($setup['lookUpTable'])) {
-                                $prevVal = $GETvarVal;
-                                $GETvarVal = $this->lookUpTranslation($setup['lookUpTable'], $GETvarVal);
-                                $pathParts[] = rawurlencode($GETvarVal);
-                                $this->cHashParameters[$GETvar] = $prevVal;
-                            } elseif (isset($setup['valueDefault'])) {
-                                $prevVal = $setup['valueDefault'];
-                                $pathParts[] = rawurlencode($setup['valueDefault']);
-                                $this->cHashParameters[$GETvar] = $setup['valueMap'][$setup['valueDefault']];
-                                $this->rebuildCHash |= !$parameterSet;
-                            } else {
-                                $prevVal = $GETvarVal;
-                                $pathParts[] = rawurlencode($GETvarVal);
-                                $this->cHashParameters[$GETvar] = $prevVal;
-                                $this->rebuildCHash |= !$parameterSet;
-                            }
-
-                            // Finally, unset GET var so it doesn't get processed once more
-                            unset($paramKeyValues[$setup['GETvar']]);
                         }
                         break;
                 }
@@ -781,12 +786,12 @@ class Realurl
 
         if (!$setEncodedURL) {
             // Get encoded URL from cache:
-            if (isset($GLOBALS['TSFE']->applicationData['tx_realurl']['_CACHE'][$hash])) {
-                return $GLOBALS['TSFE']->applicationData['tx_realurl']['_CACHE'][$hash];
+            if (isset($this->getTypoScriptFrontendController()->applicationData['tx_realurl']['_CACHE'][$hash])) {
+                return $this->getTypoScriptFrontendController()->applicationData['tx_realurl']['_CACHE'][$hash];
             }
 
             $content = $this->getCacheManager()->getCache(self::CACHE_ENCODE)->get($hash);
-            $GLOBALS['TSFE']->applicationData['tx_realurl']['_CACHE'][$hash] = $content;
+            $this->getTypoScriptFrontendController()->applicationData['tx_realurl']['_CACHE'][$hash] = $content;
             return $content;
         } else {
             // No caching if FE editing is enabled!
@@ -795,10 +800,10 @@ class Realurl
             }
 
             // Store encoded URL in cache:
-            $GLOBALS['TSFE']->applicationData['tx_realurl']['_CACHE'][$hash] = $setEncodedURL;
+            $this->getTypoScriptFrontendController()->applicationData['tx_realurl']['_CACHE'][$hash] = $setEncodedURL;
 
             // If the page id is NOT an integer, it's an alias we have to look up
-            if (!\TYPO3\CMS\Core\Utility\MathUtility::canBeInterpretedAsInteger($this->encodePageId)) {
+            if (!MathUtility::canBeInterpretedAsInteger($this->encodePageId)) {
                 $this->encodePageId = $this->pageAliasToID($this->encodePageId);
             }
 
@@ -833,7 +838,7 @@ class Realurl
         // the same speaking URL in the cache table!)
         if (isset($paramKeyValues['cHash'])) {
             if ($this->rebuildCHash) {
-                $cacheHashCalculator = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\Page\CacheHashCalculator::class);
+                $cacheHashCalculator = GeneralUtility::makeInstance(CacheHashCalculator::class);
 
                 $cHashParameters = array_merge($this->cHashParameters, $paramKeyValues);
                 unset($cHashParameters['cHash']);
@@ -843,7 +848,7 @@ class Realurl
                     $cHashParameters['id'] = $this->encodePageId;
                 }
 
-                $cHashParameters = \TYPO3\CMS\Core\Utility\GeneralUtility::implodeArrayForUrl('', $cHashParameters);
+                $cHashParameters = GeneralUtility::implodeArrayForUrl('', $cHashParameters);
                 $cHashParameters = $cacheHashCalculator->getRelevantParameters($cHashParameters);
 
                 unset($cHashParameters['']);
@@ -930,7 +935,7 @@ class Realurl
     {
         $this->devLog('Entering decodeSpURL');
 
-        // Setting parent object reference (which is $GLOBALS['TSFE'])
+        // Setting parent object reference (which is $this->getTypoScriptFrontendController())
         $this->typoScriptFrontendController = &$params['pObj'];
 
         // Initializing config / request URL
@@ -950,8 +955,8 @@ class Realurl
             // "http://localhost/typo3/dev/dummy_1/first/second/third/index.html?&param1=value1&param2=value2"
             // Note: sometimes in fcgi installations it is absolute, so we have to make it
             // relative to work properly.
-            $speakingURIpath = $this->typoScriptFrontendController->siteScript{0}
-            == '/' ? substr($this->typoScriptFrontendController->siteScript, 1) : $this->typoScriptFrontendController->siteScript;
+            $speakingURIpath = $this->typoScriptFrontendController->siteScript[0]
+                == '/' ? substr($this->typoScriptFrontendController->siteScript, 1) : $this->typoScriptFrontendController->siteScript;
 
             if ($this->isURIpathContainingAnProtocolWrapper($speakingURIpath)) {
                 header('Location:' . $this->getURIpathWithoutProtocolWrapper($speakingURIpath), true, 301);
@@ -966,7 +971,7 @@ class Realurl
                         'params' => $params,
                         'URL' => &$speakingURIpath,
                     ];
-                    \TYPO3\CMS\Core\Utility\GeneralUtility::callUserFunction($userFunc, $hookParams, $this);
+                    GeneralUtility::callUserFunction($userFunc, $hookParams, $this);
                 }
             }
 
@@ -977,7 +982,7 @@ class Realurl
                     $speakingURIpath = substr($speakingURIpath, 0, -1);
                 }
                 if (preg_match($regexp, $speakingURIpath)) { // Only process if a slash is missing:
-                    $options = \TYPO3\CMS\Core\Utility\GeneralUtility::trimExplode(',', $this->extConf['init']['appendMissingSlash'], true);
+                    $options = GeneralUtility::trimExplode(',', $this->extConf['init']['appendMissingSlash'], true);
                     if (in_array('ifNotFile', $options)) {
                         if (!preg_match('/\/[^\/\?]+\.[^\/]+(\?.*)?$/', '/' . $speakingURIpath)) {
                             $speakingURIpath = preg_replace($regexp, '\1/\2', $speakingURIpath);
@@ -999,7 +1004,7 @@ class Realurl
                                 if (!@parse_url($speakingURIpath, PHP_URL_HOST)) {
                                     @ob_end_clean();
                                     header($status);
-                                    header('Location: ' . \TYPO3\CMS\Core\Utility\GeneralUtility::locationHeaderUrl($speakingURIpath));
+                                    header('Location: ' . GeneralUtility::locationHeaderUrl($speakingURIpath));
                                     exit;
                                 }
                             }
@@ -1009,8 +1014,8 @@ class Realurl
             }
 
             // If the URL is a single script like "123.1.html" it might be an "old" simulateStaticDocument request. If this is the case and support for this is configured, do NOT try and resolve it as a Speaking URL
-            $fI = \TYPO3\CMS\Core\Utility\GeneralUtility::split_fileref($speakingURIpath);
-            if (!\TYPO3\CMS\Core\Utility\MathUtility::canBeInterpretedAsInteger($this->typoScriptFrontendController->id)
+            $fI = GeneralUtility::split_fileref($speakingURIpath);
+            if (!MathUtility::canBeInterpretedAsInteger($this->typoScriptFrontendController->id)
                 && $fI['path'] == ''
                 && $this->extConf['fileName']['defaultToHTMLsuffixOnPrev']
                 && $this->extConf['init']['respectSimulateStaticURLs']
@@ -1090,7 +1095,7 @@ class Realurl
                 $url = substr($url, 4);
                 header('HTTP/1.1 ' . $redirectCode . ' TYPO3 RealURL Redirect M' . __LINE__);
             }
-            header('Location: ' . \TYPO3\CMS\Core\Utility\GeneralUtility::locationHeaderUrl($url));
+            header('Location: ' . GeneralUtility::locationHeaderUrl($url));
             exit();
         }
 
@@ -1105,7 +1110,7 @@ class Realurl
                             header('HTTP/1.1 ' . $redirectCode . ' TYPO3 RealURL Redirect M' . __LINE__);
                             $url = substr($url, 4);
                         }
-                        header('Location: ' . \TYPO3\CMS\Core\Utility\GeneralUtility::locationHeaderUrl($url));
+                        header('Location: ' . GeneralUtility::locationHeaderUrl($url));
                         exit();
                     }
                 }
@@ -1123,7 +1128,7 @@ class Realurl
         /** @noinspection PhpUndefinedMethodInspection */
         list($row) = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('uid',
             'sys_domain',
-            'domainName=' . $GLOBALS['TYPO3_DB']->fullQuoteStr(\TYPO3\CMS\Core\Utility\GeneralUtility::getIndpEnv('HTTP_HOST'), 'sys_domain') .
+            'domainName=' . $GLOBALS['TYPO3_DB']->fullQuoteStr(GeneralUtility::getIndpEnv('HTTP_HOST'), 'sys_domain') .
                 ' AND redirectTo=\'\''
         );
         $result = (is_array($row) ? intval($row['uid']) : 0);
@@ -1170,12 +1175,12 @@ class Realurl
         if (isset($this->extConf['pagePath']['languageGetVar'])) {
             $languageGetVar = $this->extConf['pagePath']['languageGetVar'];
             if (isset($pre_GET_VARS[$languageGetVar])
-                && \TYPO3\CMS\Core\Utility\MathUtility::canBeInterpretedAsInteger($pre_GET_VARS[$languageGetVar])
+                && MathUtility::canBeInterpretedAsInteger($pre_GET_VARS[$languageGetVar])
             ) {
                 // Language from URL
                 $this->detectedLanguage = $pre_GET_VARS[$languageGetVar];
             } elseif (isset($_GET[$languageGetVar])
-                && \TYPO3\CMS\Core\Utility\MathUtility::canBeInterpretedAsInteger($_GET[$languageGetVar])
+                && MathUtility::canBeInterpretedAsInteger($_GET[$languageGetVar])
             ) {
                 // This is for _DOMAINS feature
                 $this->detectedLanguage = $_GET[$languageGetVar];
@@ -1204,19 +1209,19 @@ class Realurl
         // Merge Get vars together
         $cachedInfo['GET_VARS'] = [];
         if (is_array($pre_GET_VARS)) {
-            \TYPO3\CMS\Core\Utility\ArrayUtility::mergeRecursiveWithOverrule($cachedInfo['GET_VARS'], $pre_GET_VARS);
+            ArrayUtility::mergeRecursiveWithOverrule($cachedInfo['GET_VARS'], $pre_GET_VARS);
         }
         if (is_array($id_GET_VARS)) {
-            \TYPO3\CMS\Core\Utility\ArrayUtility::mergeRecursiveWithOverrule($cachedInfo['GET_VARS'], $id_GET_VARS);
+            ArrayUtility::mergeRecursiveWithOverrule($cachedInfo['GET_VARS'], $id_GET_VARS);
         }
         if (is_array($fixedPost_GET_VARS)) {
-            \TYPO3\CMS\Core\Utility\ArrayUtility::mergeRecursiveWithOverrule($cachedInfo['GET_VARS'], $fixedPost_GET_VARS);
+            ArrayUtility::mergeRecursiveWithOverrule($cachedInfo['GET_VARS'], $fixedPost_GET_VARS);
         }
         if (is_array($post_GET_VARS)) {
-            \TYPO3\CMS\Core\Utility\ArrayUtility::mergeRecursiveWithOverrule($cachedInfo['GET_VARS'], $post_GET_VARS);
+            ArrayUtility::mergeRecursiveWithOverrule($cachedInfo['GET_VARS'], $post_GET_VARS);
         }
         if (is_array($file_GET_VARS)) {
-            \TYPO3\CMS\Core\Utility\ArrayUtility::mergeRecursiveWithOverrule($cachedInfo['GET_VARS'], $file_GET_VARS);
+            ArrayUtility::mergeRecursiveWithOverrule($cachedInfo['GET_VARS'], $file_GET_VARS);
         }
 
         if ($GLOBALS['TYPO3_CONF_VARS']['FE']['cHashIncludePageId'] == true && !isset($cachedInfo['GET_VARS']['id'])) {
@@ -1226,8 +1231,8 @@ class Realurl
 
         // cHash handling
         if ($cHashCache) {
-            $queryString = \TYPO3\CMS\Core\Utility\GeneralUtility::implodeArrayForUrl('', $cachedInfo['GET_VARS']);
-            $cacheHashCalculator = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\Page\CacheHashCalculator::class);
+            $queryString = GeneralUtility::implodeArrayForUrl('', $cachedInfo['GET_VARS']);
+            $cacheHashCalculator = GeneralUtility::makeInstance(CacheHashCalculator::class);
 
             $containsRelevantParametersForCHashCreation = count($cacheHashCalculator->getRelevantParameters(ltrim($queryString, '&'))) > 0;
 
@@ -1285,12 +1290,12 @@ class Realurl
         }
 
         // If cHash is provided in the query string, replace it in $getVars
-        $cHash_override = \TYPO3\CMS\Core\Utility\GeneralUtility::_GET('cHash');
+        $cHash_override = GeneralUtility::_GET('cHash');
         if ($cHash_override) {
             $getVars['cHash'] = $cHash_override;
         }
 
-        $queryString = \TYPO3\CMS\Core\Utility\GeneralUtility::getIndpEnv('QUERY_STRING');
+        $queryString = GeneralUtility::getIndpEnv('QUERY_STRING');
         if ($queryString) {
             array_push($parameters, $queryString);
         }
@@ -1312,7 +1317,7 @@ class Realurl
             case 'user':
                 $params = ['pathParts' => &$pathParts, 'pObj' => &$this, 'conf' => $this->extConf['pagePath'], 'mode' => 'decode'];
 
-                $result = \TYPO3\CMS\Core\Utility\GeneralUtility::callUserFunction($this->extConf['pagePath']['userFunc'], $params, $this);
+                $result = GeneralUtility::callUserFunction($this->extConf['pagePath']['userFunc'], $params, $this);
                 break;
             default: // Default: Just passing through the ID/alias of the page:
                 $value = array_shift($pathParts);
@@ -1401,7 +1406,7 @@ class Realurl
                     // Implode URL and redirect
                     $redirectUrl = implode('/', $originalDirs);
                     header('HTTP/1.1 301 TYPO3 RealURL Redirect M' . __LINE__);
-                    header('Location: ' . \TYPO3\CMS\Core\Utility\GeneralUtility::locationHeaderUrl($redirectUrl));
+                    header('Location: ' . GeneralUtility::locationHeaderUrl($redirectUrl));
                     exit();
                 } elseif ($this->extConf['init']['postVarSet_failureMode'] == 'ignore') {
                     // Add the element just taken off. What is left now will be the post-parts that were not mapped to anything.
@@ -1416,25 +1421,11 @@ class Realurl
             if ($GET_string) {
                 $GET_VARS = false;
                 parse_str($GET_string, $GET_VARS);
-                $this->decodeSpURL_fixMagicQuotes($GET_VARS);
                 $this->decodeSpURL_fixBrackets($GET_VARS);
                 return $GET_VARS;
             }
         }
         return null;
-    }
-
-    /**
-     * Fix for the magic_quotes_gpc. See http://bugs.typo3.org/view.php?id=18133
-     *
-     * @param mixed $array
-     * @return void
-     */
-    protected function decodeSpURL_fixMagicQuotes(&$array)
-    {
-        if (is_array($array) && get_magic_quotes_gpc()) {
-            self::stripSlashesOnArray($array);
-        }
     }
 
     /**
@@ -1497,7 +1488,7 @@ class Realurl
     {
         $getVars = [];
         $fileName = array_pop($pathParts);
-        $fileParts = \TYPO3\CMS\Core\Utility\GeneralUtility::revExplode('.', $fileName, 2);
+        $fileParts = GeneralUtility::revExplode('.', $fileName, 2);
         if (count($fileParts) == 2 && !$fileParts[1]) {
             $this->decodeSpURL_throw404('File "' . $fileName . '" was not found (2)!');
         }
@@ -1646,7 +1637,7 @@ class Realurl
                                 $url = str_replace('###REMAIN_PATH###', rawurlencode(urldecode($remainPath)), $url);
 
                                 header('HTTP/1.1 302 TYPO3 RealURL Redirect M' . __LINE__);
-                                header('Location: ' . \TYPO3\CMS\Core\Utility\GeneralUtility::locationHeaderUrl($url));
+                                header('Location: ' . GeneralUtility::locationHeaderUrl($url));
                                 exit();
                                 break;
                             case 'admin':
@@ -1684,11 +1675,11 @@ class Realurl
                                     'value' => $value,
                                     'setup' => $setup
                                 ];
-                                $value = \TYPO3\CMS\Core\Utility\GeneralUtility::callUserFunction($setup['userFunc'], $params, $this);
+                                $value = GeneralUtility::callUserFunction($setup['userFunc'], $params, $this);
                             } elseif (is_array($setup['lookUpTable']) && $value != '') {
                                 $temp = $value;
                                 $value = $this->lookUpTranslation($setup['lookUpTable'], $value, true);
-                                if (!\TYPO3\CMS\Core\Utility\MathUtility::canBeInterpretedAsInteger($value) && !strcmp($value, $temp)) {
+                                if (!MathUtility::canBeInterpretedAsInteger($value) && !strcmp($value, $temp)) {
                                     // no match found
                                     if ($setup['lookUpTable']['enable404forInvalidAlias']) {
                                         $this->decodeSpURL_throw404('Couldn\'t map alias "' . $value . '" to an ID');
@@ -1755,7 +1746,7 @@ class Realurl
 
         // Log error
         if (!$this->extConf['init']['disableErrorLog']) {
-            $hash = \TYPO3\CMS\Core\Utility\GeneralUtility::md5int($this->speakingURIpath_procValue);
+            $hash = GeneralUtility::md5int($this->speakingURIpath_procValue);
             $rootpage_id = intval($this->extConf['pagePath']['rootpage_id']);
             $cond = 'url_hash=' . intval($hash) . ' AND rootpage_id=' . $rootpage_id;
             $fields_values = [
@@ -1766,7 +1757,7 @@ class Realurl
                 'tstamp' => time(),
                 'cr_date' => time(),
                 'rootpage_id' => $rootpage_id,
-                'last_referer' => \TYPO3\CMS\Core\Utility\GeneralUtility::getIndpEnv('HTTP_REFERER')
+                'last_referer' => GeneralUtility::getIndpEnv('HTTP_REFERER')
             ];
 
             /** @noinspection PhpUndefinedMethodInspection */
@@ -1779,7 +1770,7 @@ class Realurl
                     'error' => $msg,
                     'counter' => $error_row['counter'] + 1,
                     'tstamp' => time(),
-                    'last_referer' => \TYPO3\CMS\Core\Utility\GeneralUtility::getIndpEnv('HTTP_REFERER')
+                    'last_referer' => GeneralUtility::getIndpEnv('HTTP_REFERER')
                 ];
                 /** @noinspection PhpUndefinedMethodInspection */
                 $GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_realurl_errorlog', $cond, $fields_values);
@@ -1806,17 +1797,17 @@ class Realurl
             if ($this->extConf['init']['adminJumpToBackend']) {
                 $this->decode_editInBackend = true;
             } elseif ($GLOBALS['BE_USER']->extAdmEnabled) {
-                $GLOBALS['TSFE']->displayFieldEditIcons = 1;
+                $this->getTypoScriptFrontendController()->displayFieldEditIcons = 1;
                 $GLOBALS['BE_USER']->uc['TSFE_adminConfig']['edit_editNoPopup'] = 1;
 
-                $GLOBALS['TSFE']->applicationData['tx_realurl']['adminJumpActive'] = 1;
+                $this->getTypoScriptFrontendController()->applicationData['tx_realurl']['adminJumpActive'] = 1;
                 /** @noinspection PhpUndefinedMethodInspection */
-                $GLOBALS['TSFE']->set_no_cache();
+                $this->getTypoScriptFrontendController()->set_no_cache();
             }
         } else {
-            $adminUrl = \TYPO3\CMS\Core\Utility\GeneralUtility::getIndpEnv('TYPO3_SITE_URL') . TYPO3_mainDir . 'index.php?redirect_url=' . rawurlencode(\TYPO3\CMS\Core\Utility\GeneralUtility::getIndpEnv('REQUEST_URI'));
+            $adminUrl = GeneralUtility::getIndpEnv('TYPO3_SITE_URL') . TYPO3_mainDir . 'index.php?redirect_url=' . rawurlencode(GeneralUtility::getIndpEnv('REQUEST_URI'));
             header('HTTP/1.1 302 TYPO3 RealURL Redirect M' . __LINE__);
-            header('Location: ' . \TYPO3\CMS\Core\Utility\GeneralUtility::locationHeaderUrl($adminUrl));
+            header('Location: ' . GeneralUtility::locationHeaderUrl($adminUrl));
             exit();
         }
     }
@@ -1830,9 +1821,9 @@ class Realurl
     protected function decodeSpURL_jumpAdmin_goBackend($pageId)
     {
         if ($this->decode_editInBackend) {
-            $editUrl = \TYPO3\CMS\Core\Utility\GeneralUtility::getIndpEnv('TYPO3_SITE_URL') . TYPO3_mainDir . 'alt_main.php?edit=' . intval($pageId);
+            $editUrl = GeneralUtility::getIndpEnv('TYPO3_SITE_URL') . TYPO3_mainDir . 'alt_main.php?edit=' . intval($pageId);
             header('HTTP/1.1 302 TYPO3 RealURL Redirect M' . __LINE__);
-            header('Location: ' . \TYPO3\CMS\Core\Utility\GeneralUtility::locationHeaderUrl($editUrl));
+            header('Location: ' . GeneralUtility::locationHeaderUrl($editUrl));
             exit();
         }
     }
@@ -1984,7 +1975,7 @@ class Realurl
 
             // Define the language for the alias
             $lang = intval($this->orig_paramKeyValues[$cfg['languageGetVar']]);
-            if (\TYPO3\CMS\Core\Utility\GeneralUtility::inList($cfg['languageExceptionUids'], $lang)) { // Might be excepted (like you should for CJK cases which does not translate to ASCII equivalents)
+            if (GeneralUtility::inList($cfg['languageExceptionUids'], $lang)) { // Might be excepted (like you should for CJK cases which does not translate to ASCII equivalents)
                 $lang = 0;
             }
 
@@ -2170,7 +2161,7 @@ class Realurl
 
         // if no unique alias was found in the process above, just suffix a hash string and assume that is unique...
         if (!$uniqueAlias) {
-            $newAliasValue .= '-' . \TYPO3\CMS\Core\Utility\GeneralUtility::shortMD5(microtime());
+            $newAliasValue .= '-' . GeneralUtility::shortMD5(microtime());
             $uniqueAlias = $newAliasValue;
         }
         $rootpageId = isset($cfg['useUniqueCache_conf']['rootpage_id']) ? intval($cfg['useUniqueCache_conf']['rootpage_id']) : 0;
@@ -2215,12 +2206,12 @@ class Realurl
     {
 
         // Fetch character set
-        $charset = $GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset'] ? $GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset'] : $GLOBALS['TSFE']->defaultCharSet;
+        $charset = $GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset'] ? $GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset'] : $this->getTypoScriptFrontendController()->defaultCharSet;
         $processedTitle = $newAliasValue;
 
         // Convert to lowercase
         if ($cfg['useUniqueCache_conf']['strtolower']) {
-            $processedTitle = $GLOBALS['TSFE']->csConvObj->conv_case($charset, $processedTitle, 'toLower');
+            $processedTitle = $this->getTypoScriptFrontendController()->csConvObj->conv_case($charset, $processedTitle, 'toLower');
         }
 
         // Convert some special tokens to the space character
@@ -2228,7 +2219,7 @@ class Realurl
         $processedTitle = strtr($processedTitle, ' -+_', $space . $space . $space . $space); // convert spaces
 
         // Convert extended letters to ascii equivalents
-        $processedTitle = $GLOBALS['TSFE']->csConvObj->specCharsToASCII($charset, $processedTitle);
+        $processedTitle = $this->getTypoScriptFrontendController()->csConvObj->specCharsToASCII($charset, $processedTitle);
 
         // Strip the rest
         if ($this->extConf['init']['enableAllUnicodeLetters']) {
@@ -2244,7 +2235,7 @@ class Realurl
         if ($cfg['useUniqueCache_conf']['encodeTitle_userProc']) {
             $encodingConfiguration = ['strtolower' => $cfg['useUniqueCache_conf']['strtolower'], 'spaceCharacter' => $cfg['useUniqueCache_conf']['spaceCharacter']];
             $params = ['pObj' => &$this, 'title' => $newAliasValue, 'processedTitle' => $processedTitle, 'encodingConfiguration' => $encodingConfiguration];
-            $processedTitle = \TYPO3\CMS\Core\Utility\GeneralUtility::callUserFunction($cfg['useUniqueCache_conf']['encodeTitle_userProc'], $params, $this);
+            $processedTitle = GeneralUtility::callUserFunction($cfg['useUniqueCache_conf']['encodeTitle_userProc'], $params, $this);
         }
 
         // Return value
@@ -2266,14 +2257,14 @@ class Realurl
      */
     protected function getHost()
     {
-        $host = strtolower((string) \TYPO3\CMS\Core\Utility\GeneralUtility::getIndpEnv('HTTP_HOST'));
+        $host = strtolower((string) GeneralUtility::getIndpEnv('HTTP_HOST'));
 
         if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['realurl']['getHost'])) {
             foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['realurl']['getHost'] as $userFunc) {
                 $hookParams = [
                     'host' => $host,
                 ];
-                $newHost = \TYPO3\CMS\Core\Utility\GeneralUtility::callUserFunction($userFunc, $hookParams, $this);
+                $newHost = GeneralUtility::callUserFunction($userFunc, $hookParams, $this);
                 if (!empty($newHost) && is_string($newHost)) {
                     $host = $newHost;
                 }
@@ -2296,7 +2287,7 @@ class Realurl
     {
 
         // If the page id is NOT an integer, it's an alias we have to look up
-        if (!\TYPO3\CMS\Core\Utility\MathUtility::canBeInterpretedAsInteger($pageId)) {
+        if (!MathUtility::canBeInterpretedAsInteger($pageId)) {
             $pageId = $this->pageAliasToID($pageId);
         }
 
@@ -2319,7 +2310,7 @@ class Realurl
     protected function pageAliasToID($alias)
     {
         // Look in memory cache first, and if not there, look it up
-        if (!isset($GLOBALS['TSFE']->applicationData['tx_realurl']['_CACHE_aliases'][$alias])) {
+        if (!isset($this->getTypoScriptFrontendController()->applicationData['tx_realurl']['_CACHE_aliases'][$alias])) {
             /** @noinspection PhpUndefinedMethodInspection */
             $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid', 'pages',
                 'alias=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($alias, 'pages') .
@@ -2328,11 +2319,11 @@ class Realurl
             $pageRec = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
             /** @noinspection PhpUndefinedMethodInspection */
             $GLOBALS['TYPO3_DB']->sql_free_result($res);
-            $GLOBALS['TSFE']->applicationData['tx_realurl']['_CACHE_aliases'][$alias] = intval($pageRec['uid']);
+            $this->getTypoScriptFrontendController()->applicationData['tx_realurl']['_CACHE_aliases'][$alias] = intval($pageRec['uid']);
         }
 
         // Return ID
-        return $GLOBALS['TSFE']->applicationData['tx_realurl']['_CACHE_aliases'][$alias];
+        return $this->getTypoScriptFrontendController()->applicationData['tx_realurl']['_CACHE_aliases'][$alias];
     }
 
     /**
@@ -2365,7 +2356,7 @@ class Realurl
 
         // Check previous value
         if (isset($setup['prevValueInList'])) {
-            if (!\TYPO3\CMS\Core\Utility\GeneralUtility::inList($setup['prevValueInList'], $prevVal)) {
+            if (!GeneralUtility::inList($setup['prevValueInList'], $prevVal)) {
                 $return = false;
             }
         }
@@ -2422,7 +2413,7 @@ class Realurl
                 }
                 if (isset($disposal['GETvar']) && isset($disposal['value'])) {
                     $GETvar = $disposal['GETvar'];
-                    $currentValue = \TYPO3\CMS\Core\Utility\GeneralUtility::_GET($GETvar);
+                    $currentValue = GeneralUtility::_GET($GETvar);
                     $expectedValue = (isset($urlParams[$GETvar]) ? $urlParams[$GETvar] : false);
                     if ($expectedValue !== false && $disposal['value'] == $expectedValue) {
                         if (!isset($disposal['ifDifferentToCurrent']) || $disposal['value'] != $currentValue) {
@@ -2431,7 +2422,7 @@ class Realurl
                                 $this->setConfigurationByReference($disposal['useConfiguration']);
                             }
                             $this->additionalParametersForChash[$GETvar] =
-                                \TYPO3\CMS\Core\Utility\MathUtility::canBeInterpretedAsInteger($urlParams[$GETvar]) ? intval($urlParams[$GETvar]) : $urlParams[$GETvar];
+                                MathUtility::canBeInterpretedAsInteger($urlParams[$GETvar]) ? intval($urlParams[$GETvar]) : $urlParams[$GETvar];
                             return $disposal;
                         } else {
                             $this->ignoreGETvar = $GETvar;
@@ -2454,7 +2445,7 @@ class Realurl
     protected function adjustConfigurationByHostDecode($configuration)
     {
         if (is_array($configuration)) {
-            $host = strtolower(\TYPO3\CMS\Core\Utility\GeneralUtility::getIndpEnv('TYPO3_HOST_ONLY'));
+            $host = strtolower(GeneralUtility::getIndpEnv('TYPO3_HOST_ONLY'));
             $hostConfiguration = false;
 
             if (isset($configuration[$host])) {
@@ -2475,7 +2466,7 @@ class Realurl
                         if (empty($_GET[$key])) {
                             $_GET[$key] = $value;
                             $this->additionalParametersForChash[$key] =
-                                \TYPO3\CMS\Core\Utility\MathUtility::canBeInterpretedAsInteger($value) ? intval($value) : $value;
+                                MathUtility::canBeInterpretedAsInteger($value) ? intval($value) : $value;
                         }
                     }
                     if (isset($hostConfiguration['useConfiguration'])) {
@@ -2598,7 +2589,7 @@ class Realurl
                         if (isset($testedDomains[$host])) {
                             // Redirect loop
                             /** @noinspection PhpUndefinedMethodInspection */
-                            $GLOBALS['TSFE']->pageUnavailableAndExit('TYPO3 RealURL has detected a circular redirect in domain records. There was an attempt to redirect to ' . $host . ' from ' . $domain[0]['domainName'] . ' twice.');
+                            $this->getTypoScriptFrontendController()->pageUnavailableAndExit('TYPO3 RealURL has detected a circular redirect in domain records. There was an attempt to redirect to ' . $host . ' from ' . $domain[0]['domainName'] . ' twice.');
                             exit;
                         } else {
                             $testedDomains[$host] = 1;
@@ -2706,7 +2697,7 @@ class Realurl
         $paramKeyValuesCopy = $paramKeyValues;
         $fileName = rawurlencode($this->encodeSpURL_fileName($paramKeyValues));
 
-        if ($fileName{0} == '.') {
+        if ($fileName[0] == '.') {
             // Only extension
             if ($url == '') {
                 // Home page. We can't append just extension here. So we pass
@@ -2743,7 +2734,7 @@ class Realurl
     {
         if (!strlen($newUrl)) {
             if (is_bool($this->extConf['init']['emptyUrlReturnValue']) && $this->extConf['init']['emptyUrlReturnValue']) {
-                $newUrl = ($GLOBALS['TSFE']->config['config']['absRefPrefix'] ? $GLOBALS['TSFE']->config['config']['absRefPrefix'] : $GLOBALS['TSFE']->baseUrl);
+                $newUrl = ($this->getTypoScriptFrontendController()->config['config']['absRefPrefix'] ? $this->getTypoScriptFrontendController()->config['config']['absRefPrefix'] : $this->getTypoScriptFrontendController()->baseUrl);
             } else {
                 $newUrl = '' . $this->extConf['init']['emptyUrlReturnValue'];
             }
@@ -2759,7 +2750,7 @@ class Realurl
     protected function isInWorkspace()
     {
         $result = false;
-        if ($GLOBALS['TSFE']->beUserLogin) {
+        if ($this->getTypoScriptFrontendController()->beUserLogin) {
             $result = ($GLOBALS['BE_USER']->workspace != 0);
         }
         return $result;
@@ -2777,7 +2768,7 @@ class Realurl
     public function devLog($message, $dataVar = false, $severity = 0)
     {
         if ($this->enableDevLog) {
-            \TYPO3\CMS\Core\Utility\GeneralUtility::devLog('[' . $this->devLogId . '] ' . $message, 'realurl', $severity, $dataVar);
+            GeneralUtility::devLog('[' . $this->devLogId . '] ' . $message, 'realurl', $severity, $dataVar);
         }
     }
 
@@ -2790,8 +2781,8 @@ class Realurl
     protected function errorLog($message)
     {
         if ($this->enableRootlineExceptionLog) {
-            $logger = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Log\LogManager::class)->getLogger(__CLASS__);
-            $logger->error($message, ['TYPO3_REQUEST_URL' => \TYPO3\CMS\Core\Utility\GeneralUtility::getIndpEnv('TYPO3_REQUEST_URL')]);
+            $logger = GeneralUtility::makeInstance(LogManager::class)->getLogger(__CLASS__);
+            $logger->error($message, ['TYPO3_REQUEST_URL' => GeneralUtility::getIndpEnv('TYPO3_REQUEST_URL')]);
         }
     }
 
@@ -2826,7 +2817,7 @@ class Realurl
     public function appendFilePart(array &$segments)
     {
         if ($this->filePart) {
-            if ($this->filePart{0} == '.') {
+            if ($this->filePart[0] == '.') {
                 $segmentCount = count($segments);
                 if ($segmentCount > 0) {
                     $segments[$segmentCount - 1] .= urlencode($this->filePart);
@@ -2880,9 +2871,9 @@ class Realurl
         $query = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid,pid,url,doktype,urltype', 'pages', $where);
         if ($query) {
             $result = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($query);
-            $GLOBALS['TSFE']->sys_page->versionOL('pages', $result);
+            $this->getTypoScriptFrontendController()->sys_page->versionOL('pages', $result);
         }
-        $result = $GLOBALS['TSFE']->sys_page->getPageOverlay($result);
+        $result = $this->getTypoScriptFrontendController()->sys_page->getPageOverlay($result);
         if (count($result)) {
             if ($result['doktype'] == 3) {
                 $url = $result['url'];
@@ -2962,13 +2953,21 @@ class Realurl
     /**
      * Gets the TYPO3 Cache Manager
      *
-     * @return \TYPO3\CMS\Core\Cache\CacheManager
+     * @return CacheManager
      */
     protected function getCacheManager()
     {
         if (null === $this->cacheManager) {
-            $this->cacheManager =  \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Cache\CacheManager::class);
+            $this->cacheManager =  GeneralUtility::makeInstance(CacheManager::class);
         }
         return $this->cacheManager;
+    }
+
+    /**
+     * @return TypoScriptFrontendController
+     */
+    protected function getTypoScriptFrontendController()
+    {
+        return $GLOBALS['TSFE'];
     }
 }

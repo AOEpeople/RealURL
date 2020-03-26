@@ -7,9 +7,14 @@ php:
   - 7.0
   - 7.1
   - 7.2
+  - 7.3
+  - 7.4
 
 services:
   - mysql
+
+os:
+  - linux
 
 env:
   - TYPO3_VERSION=^7.6
@@ -27,8 +32,6 @@ branches:
     - /^AOE_.*$/
     - /^issue\/.*$/
     - /^TYPO3.*$/
-
-sudo: false
 
 before_install:
   - composer self-update
